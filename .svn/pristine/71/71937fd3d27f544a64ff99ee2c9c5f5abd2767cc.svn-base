@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        * { box-sizing: border-box; }
+        a { transition: color 200ms ease 0s; cursor: pointer; background: transparent; }
+        a, a:focus, a:hover { color: inherit; text-decoration: none; }
+        .ant-steps { font-size: 0; line-height: 1.5; }
+        .ant-steps .ant-steps-item { position: relative; display: inline-block; vertical-align: top; }
+        .ant-steps .ant-steps-tail { position: absolute; left: 0; width: 100%; top: 13px; padding: 0 20px; }
+        .ant-steps .ant-steps-tail > i { display: inline-block; vertical-align: top; background: #e9e9e9; height: 1px; border-radius: 1px; width: 100%; position: relative; }
+        .ant-steps .ant-steps-head { background: transparent; }
+        .ant-steps .ant-steps-head, .ant-steps .ant-steps-main { position: relative; display: inline-block; vertical-align: top; }
+        .ant-steps .ant-steps-item .ant-steps-head-inner { border-color: #20BC48; background-color: #20BC48; }
+        .ant-steps .ant-steps-head-inner { display: block; border: 1px solid rgba(0,0,0,.25); width: 26px; height: 26px; line-height: 23px; text-align: center; border-radius: 26px; font-size: 14px; margin-right: 8px; -webkit-transition: background-color .3s ease,border-color .3s ease; transition: background-color .3s ease,border-color .3s ease; }
+        .ant-steps .ant-steps-item .ant-steps-head-inner > .ant-steps-icon { color: #fff; }
+        .ant-steps .ant-steps-head-inner > .ant-steps-icon { line-height: 1; color: #20BC48; position: relative; }
+        .ant-steps .ant-steps-item .ant-steps-description, .ant-steps .ant-steps-item .ant-steps-title { color: rgba(0,0,0,.65); }
+        .ant-steps .ant-steps-title { font-size: 14px; line-height: 26px; color: rgba(0,0,0,.65); font-weight: 700; background-color: transparent; display: inline-block; padding-right: 10px; }
+        .ant-steps .ant-steps-title > a { transition: color 200ms ease 0s; color: #20BC48; cursor: pointer; }
+        .ant-steps-description { max-width: 180px; font-size: 13px; color: rgba(0,0,0,.43); margin-top: 5px; }
+        .text-info { color: #20BC48; }
+    </style>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <div style="padding: 20px;">
+            <div class="layui-row ant-steps">
+                <div class="layui-col-xs3 ant-steps-item">
+                    <div class="ant-steps-tail">
+                        <i></i>
+                    </div>
+                    <div class="ant-steps-step">
+                        <div class="ant-steps-head" style="background-color: #f6f8f8;">
+                            <div class="ant-steps-head-inner">
+                                <span class="ant-steps-icon">1</span>
+                            </div>
+                        </div>
+                        <div class="ant-steps-main">
+                            <div class="ant-steps-title" style="background-color: #f6f8f8;">
+                                <a href="javascript:;">系统设置</a>
+                            </div>
+                            <div class="ant-steps-description">
+                                进行<a href="/Html/Finance/Set/Subject/Subject.html" class="text-info"> 【科目管理】 </a>的设置；
+                                进行<a href="/Html/Finance/Set/Project/ProjectManager.html" class="text-info"> 【项目管理】 </a>的设置；
+                                进行<a href="/Html/Finance/Set/Customer/Customer.html" class="text-info"> 【客户管理】 </a>的设置；
+                                进行<a href="/Html/Finance/Set/Amount/FinanceCodeAmountList.html" class="text-info"> 【期初余额】 </a>初始化设置；
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs3 ant-steps-item">
+                    <div class="ant-steps-tail">
+                        <i></i>
+                    </div>
+                    <div class="ant-steps-step">
+                        <div class="ant-steps-head" style="background-color: #f6f8f8;">
+                            <div class="ant-steps-head-inner">
+                                <span class="ant-steps-icon">2</span>
+                            </div>
+                        </div>
+                        <div class="ant-steps-main">
+                            <div class="ant-steps-title" style="background-color: #f6f8f8;">
+                                <a href="javascript:;">极速记账</a>
+                            </div>
+                            <div class="ant-steps-description">
+                                通过 <a href="/Html/Finance/Voucher/Voucher.html" class="text-info"> 【填制凭证】 </a> 功能自动生成 <a href="/Html/Finance/Voucher/VoucherQuery.html" class="text-info"> 【凭证】 </a> ，体验极速记账
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs3 ant-steps-item">
+                    <div class="ant-steps-tail">
+                        <i></i>
+                    </div>
+                    <div class="ant-steps-step">
+                        <div class="ant-steps-head" style="background-color: #f6f8f8;">
+                            <div class="ant-steps-head-inner">
+                                <span class="ant-steps-icon">3</span>
+                            </div>
+                        </div>
+                        <div class="ant-steps-main">
+                            <div class="ant-steps-title" style="background-color: #f6f8f8;">
+                                <a href="javascript:;">报表总账</a>
+                            </div>
+                            <div class="ant-steps-description">
+                                通过 <a href="/Html/Finance/CheckAccount/GeneralLedgerList.html" class="text-info"> 【总账】 </a>、 <a href="/Html/Finance/CheckAccount/DetailedAccount.html" class="text-info"> 【明细账】 </a>、<a href="/Html/Finance/CheckAccount/NodeBalance.html" class="text-info"> 【余额表】 </a> 、<a href="/Html/Finance/CheckAccount/ConditionSubjectDetail.html" class="text-info"> 【辅助科目账】 </a>  快速定位账务明细
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs3 ant-steps-item">
+                    <div class="ant-steps-tail">
+                        <i></i>
+                    </div>
+                    <div class="ant-steps-step">
+                        <div class="ant-steps-head" style="background-color: #f6f8f8;">
+                            <div class="ant-steps-head-inner">
+                                <span class="ant-steps-icon">4</span>
+                            </div>
+                        </div>
+                        <div class="ant-steps-main">
+                            <div class="ant-steps-title" style="background-color: #f6f8f8;">
+                                <a href="javascript:;">在线帮助</a>
+                            </div>
+                            <div class="ant-steps-description">
+                                使用在线帮助，可获得专业协助，让您更好地完成工作！
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+
+                },
+                ready: function () {
+
+                },
+                methods: {
+
+                }
+            });
+        });
+</script>

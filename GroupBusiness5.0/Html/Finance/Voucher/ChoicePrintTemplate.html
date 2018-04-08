@@ -1,0 +1,56 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择模板：</label>
+            <div class="layui-input-inline">
+                <remote-rad name="TemplateType" v-bind:setting="TemplateTypeList" v-bind:value.sync="seleteTemplateType"
+                            initial="off"></remote-rad>
+            </div>
+        </div>        
+        <div class="layui-form-item layui-hide">
+            <div class="layui-input-inline">
+                <button class="layui-btn" lay-submit @click="handleSubmit">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element'],
+        function (fnr) {
+            var form = layui.form;
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    seleteTemplateType: 1,
+                    TemplateTypeList: {
+                        tags: { name: "TemplateType" },
+                        options: [
+                            { key: "1", value: "A5一联模板" },
+                            { key: "2", value: "A4二联模板" },
+                            { key: "3", value: "A4三联模板" },
+                        ],
+                        fields: { key: 'key', value: 'value' }
+                    }
+                },
+                ready: function () {
+                   
+                },
+                methods: {
+                    handleSubmit: function (e) {
+                        var self = this;
+                        fnr.callDialog('refresh', { TemplateType: self.seleteTemplateType }); //回调打开窗口events中的refresh
+                        fnr.closeDialog(); //关闭当前的对话框
+                    }
+                }
+            });
+        });
+</script>

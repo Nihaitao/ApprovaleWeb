@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+            <div class="layui-form-item">
+                <label class="layui-form-label">项目名称：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" v-model="FormData.Name" lay-verify="required" placeholder="请输入项目名称" autofocus="autofocus" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">项目编号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" id="code" v-model="FormData.Code" lay-verify="required" placeholder="请输入项目代码" autofocus="autofocus" autocomplete="off" class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态：</label>
+                <remote-rad v-bind:setting="radioSetting" v-bind:value.sync="FormData.Valid"></remote-rad>
+            </div>
+            <div class="layui-form-item layui-hide">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit @click="formDemo">立即提交</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    radioSetting: {
+                        tags: { name: "radio" },
+                        options: [
+                            { key: "0", value: '禁用' },
+                            { key: "1", value: '启用' },
+                        ],
+                    },
+                    FormData: {
+                        Valid: 1,
+                        Name: '',
+                        CID: '',
+                        ID: 0,
+                        Code: "",
+                        Company_ID:0
+                    },
+                    //_userId: ''
+                },
+                ready: function () {
+                    this.FormData.Valid = fnr.getQueryString("Valid");
+                    this.FormData.CID = fnr.getQueryString("CID");
+                    this.FormData.Name = fnr.getQueryString("Name");
+                    this.FormData.ID = fnr.getQueryString("ID");
+                    this.FormData.Code = fnr.getQueryString("Code");
+                    this.FormData.Company_ID = fnr.getQueryString("Company_ID");
+                    if (this.FormData.ID == 0 || this.FormData.ID == undefined) {
+                        $("#code").removeAttr("disabled");
+                    }
+
+                },
+                methods: {
+                    //保存数据关闭弹窗
+                    //分為根節點添加和子節點添加
+                    //ID=0
+                    formDemo: function (e) {
+                        _this = this;
+                        //if (_this.FormData.ID == 0 || _this.FormData.ID == undefined) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        if (_this.FormData.Compangy_ID == 0) {
+                            return false;
+                        }
+                        if (_this.FormData.ID > 0) {
+                            $.post("/service/finance/Finance/UpdateProject", _this.FormData, function (rsp) {
+                                fnr.callDialog('refresh', { status: rsp.SuccessResponse, msg: rsp.Message }); //回调打开窗口events中的refresh
+                                if (rsp.SuccessResponse) {
+                                    fnr.closeDialog(); //关闭当前的对话框
+                                }
+                            })
+                        }
+                        else {
+                            $.post("/service/finance/Finance/InsertProject", _this.FormData, function (rsp) {
+                                fnr.callDialog('refresh', { status: rsp.SuccessResponse, msg: rsp.Message }); //回调打开窗口events中的refresh
+                                if (rsp.SuccessResponse) {
+                                    fnr.closeDialog(); //关闭当前的对话框
+                                }
+                            })
+                        }
+                        //}
+                    }
+                }
+            });
+        });
+</script>

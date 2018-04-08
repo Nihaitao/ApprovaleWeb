@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="../../Resources/css/app.min.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body id="root" style="background: #ddd;">
+    <div class="OpenContainer">
+        <div class="layui-row" style="height: 80px;">
+            <div class="layui-col-xs12" style="height: 100%; background: #F6F8F8;">
+                <p style="line-height: 80px;text-align: center; font-size: 24px; border-radius: 3px;">总账</p>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12" style="height: 50px; margin-top: 10px;">
+                <div class="layui-form">
+                    <div class="layui-inline">
+                        <lay-date v-bind:value.sync="submitForm.time" type='datetime' initial="off"></lay-date>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs3">
+                <div class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="margin-left: 0;">
+                            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请选择科目或搜索科目编码和名称" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="report-form">
+                    <div class="panel panel-default">
+                        <div class="table-responsive ng-scope block-ui quick-block-ui" block-ui="block-ui" aria-busy="false">
+                            <table class="table table-bordered table-text-center table-hover">
+                                <tbody class="books">
+                                    <tr class="ng-scope" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA"id="style0" style="margin-left:15px;position: relative;">
+                                                <!--<i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>-->
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe61a;</i>
+                                            </a>
+                                            <a class="ng-binding">2221 应交税费</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="ng-scope" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA" id="style1" style="margin-left:30px;position: relative;">
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>
+                                            </a>
+                                            <a class="ng-binding">222117 应交城市维护建设税</a>
+                                        </td>
+                                    </tr>
+                                    <tr  class="ng-scope" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA" id="style2" style="margin-left:30px;position: relative;">
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>
+                                            </a>
+                                            <a class="ng-binding">222122 教育费附加</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="ng-scope" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA" id="style3" style="margin-left:30px;position: relative;">
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>
+                                            </a>
+                                            <a class="ng-binding">222125 应交印花税</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="ng-scope" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA" id="style4" style="margin-left:30px;position: relative;">
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>
+                                            </a>
+                                            <a class="ng-binding">222126 地方教育费附加</a>
+                                        </td>
+                                    </tr>
+                                    <tr  class="ng-scope summary" role="button">
+                                        <td style="min-width:125px;width:16%;text-align: left">
+                                            <a class="styleIconA" id="style5" style="margin-left:15px;position: relative;">
+                                                <i class="styleIcon layui-icon" style="position: absolute;left: -30px;top: -8px;padding: 6px">&#xe602;</i>
+                                            </a>
+                                            <a class="ng-binding">3103 本年利润</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs9" style="padding-left:15px;">
+                <table class="layui-table" style="width: 100%; margin: 0;">
+                    <colgroup>
+                        <col width="100">
+                        <col width="400">
+                        <col width="100">
+                        <col width="100">
+                        <col width="50">
+                        <col width="100">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>期间</th>
+                            <th>摘要</th>
+                            <th>借方</th>
+                            <th>贷方</th>
+                            <th>方向</th>
+                            <th>余额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2016-08</td>
+                            <td>初期余额</td>
+                            <td></td>
+                            <td></td>
+                            <td>平</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>2016-10</td>
+                            <td>本月合计</td>
+                            <td></td>
+                            <td>203.58</td>
+                            <td>贷</td>
+                            <td>203.58</td>
+                        </tr>
+                        <tr>
+                            <td>2016-10</td>
+                            <td>本年累计</td>
+                            <td></td>
+                            <td>203.58</td>
+                            <td>平</td>
+                            <td>203.58</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="../../Resources/js/jquery.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="../../Resources/js/Controls/SortTable.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    submitForm: {
+                        time: fnr.format(Date.now(), 'yyyy-MM-dd HH:mm:ss')
+                    }
+                },
+                ready: function () {
+
+                },
+                methods: {
+
+                }
+            });
+        });
+</script>

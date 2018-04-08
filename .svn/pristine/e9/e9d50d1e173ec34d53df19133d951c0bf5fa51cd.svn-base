@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">标题：</label>
+                </div>
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">{{Filed.Title}}</label>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "jqueryui"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    queryFormData: {
+                        ApprovalListID: "",
+                    },
+                    Filed: '',
+                },
+                watch: {
+                },
+                ready: function () {
+                    var that = this;
+                    this.queryFormData.ApprovalListID = fnr.getQueryString("ID");
+                    $.get("/service/approval/Process/GetSelectApproval", { ApprovalListID: this.queryFormData.ApprovalListID }, function (rsp) {
+                        that.Filed = rsp.Data.ApModel;
+                        console.log(that.Filed)
+                    });
+                },
+                methods: {
+                    //保存数据关闭弹窗
+                    formDemo: function (e) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        this.ConditionTemplete.ConditionType = 0;//默认条件
+                        if (this.Approvers == null || this.Approvers == "") {
+                            layer.msg("请选择审批人");
+                            return false;
+                        }
+                        if (this.queryFormData.Visrange.length == 0) {
+                            layer.msg("请选择可见范围");
+                            return false;
+                        }
+                        //配置条件审批优先级
+                        var self = this;
+                        $('.tree .tree-content .custom-ele').each(function (i) {
+                            var selfData = $(this).data("item");
+                            for (var j in self.queryFormData.Condition) {
+                                if (selfData == self.queryFormData.Condition[j].FieldId) {
+                                    self.queryFormData.Condition[j].Priority = i;
+                                }
+                            }
+                        });
+
+                        this.ConditionTemplete.ApprovalConditionObject = this.Approvers;
+                        this.ConditionTemplete.ApprovalConditionCC = this.ApproverCC;
+                        this.queryFormData.Condition.push(JSON.parse(JSON.stringify(this.ConditionTemplete)));
+                        $.post("/service/approval/Approval/AddApprovalType", this.queryFormData, function (rsp) {
+                            layer.msg(rsp.Message);
+                            fnr.closeDialog();
+                            parent.rootApp.doSearch();
+                        })
+                    },
+                }
+            });
+        });
+</script>

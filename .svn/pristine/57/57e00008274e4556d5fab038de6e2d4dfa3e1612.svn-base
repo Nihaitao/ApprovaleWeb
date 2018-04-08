@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>企业微信支付设置</title>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:100px">配置开关：</label>
+                <div class="layui-input-inline">
+                    <local-switch v-bind:value.sync="submitForm.SetOpen" text="开启|禁用" initial="off"></local-switch>
+                </div>
+            </div>
+            <div v-if="submitForm.SetOpen == 1">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">企业ID：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="required" autocomplete="off" placeholder="请输入CorpID" class="layui-input"
+                               v-model="submitForm.CorpID" style="width:400px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">应用ID：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="required" autocomplete="off" placeholder="请输入SuiteID" class="layui-input"
+                               v-model="submitForm.SuiteID" style="width:400px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">应用名：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="required" autocomplete="off" placeholder="请输入应用名称" class="layui-input"
+                               v-model="submitForm.Name" style="width:400px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">秘钥：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="required" autocomplete="off" placeholder="请输入秘钥" class="layui-input"
+                               v-model="submitForm.Secret" style="width:400px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">应用商户号：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="required" autocomplete="off" placeholder="请输入企业支付应用商户号" class="layui-input"
+                               v-model="submitForm.mch_id" style="width:400px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width:100px">支付codeID：</label>
+                    <div class="layui-input-inline" style="width:400px;">
+                        <remote-sel v-bind:setting="CodeSetting" laytips="请选择支付科目" lay-verify="required" initial="off" v-bind:value.sync="submitForm.Code"></remote-sel>
+                    </div>
+                </div>
+            </div>
+            <div div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" @click="saveAdd" lay-submit>保存</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/Controls/Common.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "laydate"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    submitForm: {
+                        CorpID: '',
+                        SuiteID: '',
+                        Name: '',
+                        Secret: '',
+                        mch_id: '',
+                        Code: '',
+                        SetOpen: 0,
+                    },
+                    CodeSetting: {
+                        search: true,
+                        fields: { key: 'Code', value: 'Name', root: "Data" },
+                        options: [],
+                        remote: {
+                            url: "/service/finance/Finance/GetFinanceCode", data: { Valid: 1, FinanceCodeType: 0, Stationproxy_ID: 0 }, filter: function (resp) {
+                                var Arr = new Array();
+                                fnr.each(resp, function (k, v) {
+                                    if (v.IsEnd == 1) {
+                                        v["Name"] = v["Code"] + " " + v["Name"];
+                                        Arr.push(v)
+                                    }
+                                });
+                                return Arr;
+                            }
+                        }
+                    }
+                },
+                ready: function () {
+                    _this = this;
+                    //添加到缓存
+                    $.get("/service/work/api/GetWxWorkPaySet", function (rsp) {
+                        if (rsp.SuccessResponse) {
+                            if (rsp.Data != null) {
+                                _this.submitForm.CorpID = rsp.Data.CorpID;
+                                _this.submitForm.SuiteID = rsp.Data.SuiteID;
+                                _this.submitForm.Name = rsp.Data.Name;
+                                _this.submitForm.Secret = rsp.Data.Secret;
+                                _this.submitForm.mch_id = rsp.Data.mch_id;
+                                _this.submitForm.Code = rsp.Data.Code;
+                                _this.submitForm.SetOpen = rsp.Data.SetOpen;
+                            }
+                        } else {
+                            layer.msg(rsp.Message)
+                        }
+                    });
+                    /*var data = {
+                        Account_ID: 1066,
+                        amount: 1,
+                        desc: 'hx 测试付款111',
+                        act_name: 'hx 测试付款222',
+                        agentid: '0',
+                        device_info: '',
+                        check_name: "NO_CHECK",
+                        re_user_name: '',
+                        ww_msg_type: "NORMAL_MSG",
+                        approval_number: '',
+                        approval_type: '0',
+                        Approval_ID: 2,
+                        VoucherID: '111111'
+                    };
+                    $.post("/service/work/api/WxWorkPay", data, function (result) {
+                        if (result.SuccessResponse) {
+
+                        }
+                        else {
+                            layer.msg(result.Message, { icon: 2 });
+                        }
+                    })*/
+
+                    //$.get("/service/work/api/WxWorkPayRecord",{trade_no:'148652140220180301172258626'}, function (rsp) {
+                    //    if (rsp.SuccessResponse) {
+                    //        if (rsp.Data != null) {
+                    //        }
+                    //    } else {
+                    //        layer.msg(rsp.Message)
+                    //    }
+                    //});
+                },
+                methods: {
+                    saveAdd: function (e) {
+                        var _this = this;
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        _this.submitForm.SetOpen = Number(_this.submitForm.SetOpen);
+                        $.post("/service/work/api/SetWxWorkPaySet", this.submitForm, function (result) {
+                            if (result.SuccessResponse) {
+                                layer.msg(result.Message, { icon: 1 });
+                            }
+                            else {
+                                layer.msg(result.Message, { icon: 2 });
+                            }
+                        })
+                        return false;
+                    }
+                },
+            });
+        });
+</script>

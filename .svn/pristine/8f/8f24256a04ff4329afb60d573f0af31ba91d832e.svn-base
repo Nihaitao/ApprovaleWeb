@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+
+        .shadowBox {
+            padding: 10px 0 10px 10px;
+            position: relative;
+            vertical-align: middle;
+            -webkit-box-shadow: 0 0 5px #c6d5e2;
+            box-shadow: 0 0 5px #c6d5e2;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false" style="padding-bottom:200px;">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="font-size:18px;color:#000!important;">{{Filed.Title}}</label>
+                <div class="layui-input-inline badge-ver">
+                    <span class="layui-badge layui-bg-gray" v-if="Filed.ApprovalStatus==0">未审核</span>
+                    <span class="layui-badge layui-bg-orange" v-if="Filed.ApprovalStatus==1">审核中</span>
+                    <span class="layui-badge layui-bg-green" v-if="Filed.ApprovalStatus==2">审核通过</span>
+                    <span class="layui-badge layui-bg-red" v-if="Filed.ApprovalStatus==3">审核未通过</span>
+                </div>
+            </div>
+            <div v-for="(index,item) in FieldShow">
+                <div class="layui-form-item">
+                    <div v-if="item.ShowValue!=null &&item.ShowValue!='' && item.ShowValue.indexOf('http://ctfive.oss-cn-hangzhou.aliyuncs.com')>=0">
+                        <label class="layui-form-label">{{item.ShowName}}</label>
+                        <div class="layui-form-mid layui-word-aux">
+                            <span v-for="aItem in item.ShowValue.split('@_@')" style="display:block">
+                                <a style="cursor:pointer;color:#1E9FFF;" @click="Upload(aItem.split('|')[0])">{{aItem.split('|')[1]}}</a>
+                            </span>
+                        </div>
+                    </div>
+                    <div v-if="item.ShowValue.indexOf('http://ctfive.oss-cn-hangzhou.aliyuncs.com')<0">
+                        <label class="layui-form-label">{{item.ShowName}}</label>
+                        <div class="layui-form-mid layui-word-aux">{{item.ShowValue}}</div>
+                    </div>
+                </div>
+                <div class="shadowBox" style="margin-left:4px;margin-right:2px;" v-if="item.Details.length > 0">
+                    <div class="layui-form-item" v-for="(index,Detailsitem) in item.Details">
+                        <div v-if="Detailsitem.ShowValue!=null &&Detailsitem.ShowValue!=''&& Detailsitem.ShowValue.indexOf('http://ctfive.oss-cn-hangzhou.aliyuncs.com')>=0">
+                            <label class="layui-form-label">{{Detailsitem.ShowName}}</label>
+                            <div class="layui-form-mid layui-word-aux">
+                                <span v-for="adItem in Detailsitem.ShowValue.split('@_@')" style="display:block">
+                                    <a style="cursor:pointer;color:#1E9FFF;" @click="Upload(adItem.split('|')[0])">{{adItem.split('|')[1]}}</a>
+                                </span>
+                            </div>
+                        </div>
+                        <div v-if="Detailsitem.ShowValue.indexOf('http://ctfive.oss-cn-hangzhou.aliyuncs.com')<0">
+                            <label class="layui-form-label">{{Detailsitem.ShowName}}</label>
+                            <div class="layui-form-mid layui-word-aux">{{Detailsitem.ShowValue}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+                <legend>审批流程</legend>
+            </fieldset>
+
+            <ul class="layui-timeline" style="margin-left:20px">
+                <li class="layui-timeline-item" v-for="(index,Processitem) in ProcessList" v-bind:class="{toggle:ProcessList.length==1}">
+                    <i class="layui-icon layui-timeline-axis">
+                        <span class="layui-badge-dot layui-bg-green" v-if="Processitem.OperationStatus == 1"></span>
+                        <span class="layui-badge-dot layui-bg-gray" v-if="Processitem.OperationStatus == 0"></span>
+                        <span class="layui-badge-dot layui-bg-red" v-if="Processitem.OperationStatus == 2"></span>
+                        <span class="layui-badge-dot layui-bg-orange" v-if="Processitem.OperationStatus == 3"></span>
+                    </i>
+                    <div class="layui-timeline-content layui-text">
+                        <div class="layui-timeline-title" v-if="Processitem.CounterSign==0">上级会签</div>
+                        <div class="layui-timeline-title" v-if="Processitem.CounterSign==1">上级或签</div>
+                        <div v-for="(index,Accountitem) in Processitem.AccountList">
+                            <div class="layui-timeline-title">{{Accountitem.AccountName}} · <span style="color:#808080">{{Accountitem.Transfer_AccountID > 0 ? "已转审[" +  Accountitem.OperationTime + "]" : (Accountitem.State==0 ? "未审核" : (Accountitem.State==1 ? "已通过[" : "已驳回[") +  Accountitem.OperationTime + "]")}}</span></div>
+                            <div class="layui-timeline-title" v-if="Accountitem.Remark != null && Accountitem.Remark!=''"><span style="color:#7c4646">"{{Accountitem.Remark}}"</span></div>
+                            <div class="layui-timeline-title" style="margin-left:20px" v-if="Accountitem.Transfer_AccountName!=null">{{Accountitem.Transfer_AccountName}} · <span style="color:#808080">{{Accountitem.State==0 ? "未审核" : (Accountitem.State==1 ? "已通过[" : "已驳回[") +  Accountitem.Transfer_OperationTime + "]"}}</span></div>
+                            <div class="layui-timeline-title" style="margin-left:20px" v-if="Accountitem.Transfer_AccountName != null && Accountitem.Transfer_Remark!=null && Accountitem.Transfer_Remark!=''"><span style="color:#7c4646">"{{Accountitem.Transfer_Remark}}"</span></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div v-if="CCPerson!=null&&CCPerson!=''" style="margin-left:34px">
+                <label class="layui-form-label layui-form-label_ex">抄送人：{{CCPerson}}</label>
+            </div>
+        </form>
+        <div v-if="Isshow==1 && IsShowState != 0" style="text-align:right;margin-top:20px;position:fixed; bottom:0px;width:654px;background-color:#fff;padding-bottom:20px;z-index:11;">
+            <hr>
+            <textarea class="layui-textarea" placeholder="请输入审批意见" id="Remark" style="margin-bottom:20px;min-height:85px;border:solid 0px;"></textarea>
+            <button class="layui-btn" lay-filter="btn" @click="AgreeApproval">同意</button>
+            <button class="layui-btn layui-btn-danger" lay-filter="btn" @click="RejectApproval">驳回</button>
+            <button class="layui-btn layui-btn-primary" lay-filter="btn" @click="TurnApproval" v-if="IsShowState != 2">转审</button>
+        </div>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .toggle:before {
+        display: none !important;
+    }
+
+    .layui-form-label {
+        width: auto;
+        color: #999 !important;
+    }
+
+    .layui-form-mid {
+        color: #000 !important;
+    }
+
+    .badge-ver {
+        float: left;
+        display: block;
+        padding: 9px 0 !important;
+        margin-right: 10px;
+        line-height: 20px;
+        position: relative;
+    }
+</style>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "jqueryui"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+
+
+            window.rootApp = new Vue({
+                el: "#root", 
+                data: {
+                    queryFormData: {
+                        ApprovalListID: "",
+                    },
+                    Filed: '',
+                    FieldShow: [],
+                    ProcessList: [],
+                    Isshow: "",
+                    IsShowState: '',
+                    CCPerson: ''
+                },
+                watch: {
+                },
+                ready: function () {
+                    var that = this;
+                    this.queryFormData.ApprovalListID = fnr.getQueryString("ID");
+                    that.Isshow = fnr.getQueryString("Isshow");
+                    $.get("/service/approval/Process/GetSelectApproval", { ApprovalListID: this.queryFormData.ApprovalListID }, function (rsp) {
+                        that.Filed = rsp.Data.ApModel;
+                        that.FieldShow = rsp.Data.FieldShow;
+                        that.ProcessList = rsp.Data.ProcessList;
+                        that.CCPerson = rsp.Data.CCPerson;
+                    });
+                    if (that.Isshow == 1) {
+                        $.get("/service/approval/Process/GetIsShow", { ApprovalListID: this.queryFormData.ApprovalListID }, function (rsp) {
+                            that.IsShowState = rsp.Data;
+                        })
+                    }
+                },
+                methods: {
+                    AgreeApproval: function (e) {
+                        $.post("/service/approval/Process/UpdateApprovalList", { operationStatus: 1, ApprovalList_ID: fnr.getQueryString("ID"), Remark: $("#Remark").val() }, function (rsp) {
+                            layer.msg(rsp.Message);
+                            if (rsp.SuccessResponse) {
+                                fnr.callDialog('refresh', rsp.SuccessResponse); //回调打开窗口events中的refresh
+                                fnr.closeDialog();
+                            }
+                        })
+                    },
+                    Upload: function (e) {
+                        window.open(e);
+                    },
+                    RejectApproval: function (e) {
+                        $.post("/service/approval/Process/UpdateApprovalList", { operationStatus: 2, ApprovalList_ID: fnr.getQueryString("ID"), Remark: $("#Remark").val() }, function (rsp) {
+                            layer.msg(rsp.Message);
+                            if (rsp.SuccessResponse) {
+                                fnr.callDialog('refresh', rsp.SuccessResponse); //回调打开窗口events中的refresh
+                                fnr.closeDialog();
+                            }
+                        })
+                    },
+                    TurnApproval: function (e) {
+                        fnr.openDialog({
+                            title: '选择审批人',
+                            area: ['500px', '450px'],
+                            content: ['/Html/Auditing/ChooseApproval.html?OnlyPerson=true'],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    $.post("/service/approval/Process/Turnthetrial", { ApprovalList_ID: fnr.getQueryString("ID"), transferID: data.AccId, Remark: $("#Remark").val() }, function (rsp) {
+                                        layer.msg(rsp.Message);
+                                        if (rsp.SuccessResponse) {
+                                            fnr.callDialog('refresh', rsp.SuccessResponse); //回调打开窗口events中的refresh
+                                            fnr.closeDialog();
+                                        }
+                                    })
+                                }
+                            }
+                        });
+                    },
+                }
+            });
+        });
+</script>

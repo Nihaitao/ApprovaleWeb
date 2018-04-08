@@ -1,0 +1,995 @@
+﻿.layui-input, .layui-textarea, .layui-select {
+    height: 30px;
+    line-height: 1.3;
+    line-height: 38px\9;
+    border: 1px solid #e6e6e6;
+    background-color: #fff;
+    border-radius: 2px;
+}
+*, :after, :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.wrapper-md {
+    padding: 20px;
+}
+.w1020 {
+    width: 1020px;
+    margin: 0 auto;
+}
+.container {
+    height: 70px;
+    width: 1000px;
+    line-height: 70px;
+    background: #ffffff;
+    margin-top: 10px;
+}
+.datepicker { 
+    display:inline-block;
+}
+[role=button] {
+    cursor: pointer;
+}
+.w1020 {
+    width: 1020px;
+    margin: 0 auto;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/*附单据*//*记字号*/
+.voucherNoContainer input, .voucherAccessoryNumContainer input {
+    height: 30px;
+    width: 60px;
+    text-indent: 14px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+
+}
+.form-control { 
+    height: 30px;
+    width: 100px;
+    text-indent: 10px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0;
+}
+
+.viewHeader {
+    position: relative;
+    height: 30px;
+    margin-bottom: 14px;
+}
+
+.viewHeader .viewTitle {
+    font-size: 20px;
+    line-height: 30px;
+    text-align: center;
+    color: #3b3c3c;
+    margin-top: 0;
+}
+
+.viewHeader .leftContent {
+    position: absolute;
+    left: 0;
+    top: 6px;
+    font-size: 14px;
+    color: #464646;
+}
+
+.viewHeader .leftContent ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.viewHeader .rightContent {
+    font-size: 14px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 30px;
+    line-height: 30px;
+}
+
+.viewHeader .rightContent span {
+    float: right;
+}
+
+.greenWhiteBtn {
+    font-size: 14px;
+    float: left;
+    color: #93d200;
+    width: 78px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 16px;
+    display: block;
+    text-align: center;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #86bf02;
+}
+
+.voucherContainer {
+    height: 70px;
+    width: 1000px;
+    line-height: 70px;
+    background: #ffffff;
+    margin-top: 10px;
+}
+
+.voucherDetailInfo {
+    margin-left: 30px;
+    height: 70px;
+    line-height: 70px;
+}
+
+.voucherNoContainer {
+    margin-left: 35px;
+}
+
+.voucherDateContaier {
+    width: 100px;
+    float: left;
+    margin-left: 90px;
+}
+
+.voucherAccessoryNumContainer {
+    float: right;
+    margin-right: 24px;
+}
+
+.voucherMaking {
+    background-color: #fff;
+}
+
+.voucherMaking thead tr th {
+    height: 52px;
+    text-align: center;
+    padding: 0;
+    line-height: 52px;
+}
+
+.voucherMaking tbody tr th {
+    height: 60px !important;
+    text-align: center;
+    padding: 0;
+    line-height: 60px;
+}
+
+.voucherMaking tr th:last-child, .voucherMaking tr th:first-child {
+    max-width: 35px;
+    min-width: 35px;
+    width: 32px;
+    height: 52px;
+    box-sizing: border-box;
+    border: none;
+}
+
+.voucherMaking tr th:nth-child(2) {
+    max-width: 200px;
+    min-width: 200px;
+    width: 200px;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+    border-bottom: none !important;
+    position: relative;
+}
+
+.voucherMaking tr th:nth-child(3) {
+    max-width: 380px;
+    min-width: 260px;
+    width: 380px;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+    border-bottom: none !important;
+    position: relative;
+
+}
+
+.voucherMaking tr th:nth-child(4) {
+    max-width: 116px;
+    min-width: 120px;
+    width: 120px;
+    height: 52px;
+    box-sizing: border-box;
+    border-bottom: none !important;
+    position: relative;
+    /*display: none;*/
+}
+
+.voucherMaking tr th:nth-child(5) {
+    min-width: 176px;
+    max-width: 176px;
+    width: 176px;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+    border-bottom: none !important;
+    position: relative;
+}
+
+.voucherMaking tr th:nth-child(6) {
+    max-width: 176px;
+    min-width: 176px;
+    width: 176px;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+    border-bottom: none !important;
+    position: relative;
+}
+
+.voucherMaking > thead > tr > th, .voucherMaking > tbody > tr > th {
+    border-color: #ccc;
+}
+
+/*.voucherMaking > thead:first-child > tr:first-child > th, .voucherMaking > tbody:first-child > tr:first-child > th {*/
+/*border-top: 1px solid #ccc;*/
+/*}*/
+
+/*.voucherMaking > th:first-child {*/
+/*border: none;*/
+/*}*/
+
+.voucherMaking thead tr th:nth-child(5) p {
+    width: 100%;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+.voucherMaking thead tr th:nth-child(6) p {
+    width: 100%;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+.voucherMaking thead tr th:nth-child(5) .moneyList {
+    width: 100%;
+    height: 22px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.voucherMaking thead tr th:nth-child(6) .moneyList {
+    width: 100%;
+    height: 22px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.voucherMaking .moneyList li {
+    float: left;
+    height: 22px;
+    width: 15px;
+    font-size: 12px;
+    line-height: 22px;
+    border-left: 1px solid #e6e6e6;
+    box-sizing: content-box;
+}
+
+.moneyList li:nth-child(4), .moneyList li:nth-child(7) {
+    border-color: #a5d9f6 !important;
+}
+
+.moneyList li:nth-child(10) {
+    border-color: #eeb9b9 !important;
+}
+
+.voucherMaking .moneyList li:first-child {
+    border: none;
+    width: 14px;
+}
+
+.lineBlue {
+    border-color: #a5d9f6 !important;
+}
+
+.lineRed {
+    border-color: #eeb9b9 !important;
+}
+
+.voucherMaking tbody tr th:nth-child(5) .moneyList, .voucherMaking tbody tr th:nth-child(6) .moneyList {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.voucherMaking tbody tr th .addList li {
+    height: 60px !important;
+    line-height: 60px;
+    font-size: 20px !important;
+}
+
+.addList li {
+    height: 60px !important;
+    line-height: 60px;
+    font-size: 20px !important;
+}
+
+.tbodyList {
+    width: 1020px;
+    height: 244px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.voucherMaking {
+    margin-bottom: 0 !important;
+}
+
+.tfootList {
+    margin-bottom: 0 !important;
+}
+
+.tfootList tr th {
+    height: 60px;
+    padding: 0;
+    line-height: 60px;
+}
+
+.tfootList tr th:first-child, .tfootList tr th:last-child {
+    max-width: 35px;
+    min-width: 35px;
+    width: 35px;
+    height: 60px;
+    box-sizing: border-box;
+    border: none;
+}
+
+.tfootList tr th:nth-child(2) {
+    width: 578px;
+    border: 1px solid #ccc !important;
+    box-sizing: border-box;
+    height: 60px;
+    line-height: 60px;
+    text-indent: 20px;
+}
+
+.tfootList tr th:nth-child(3) {
+    min-width: 176px;
+    max-width: 176px;
+    width: 176px;
+    height: 60px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+}
+
+.tfootList tr th:nth-child(4) {
+    min-width: 176px;
+    max-width: 176px;
+    width: 176px;
+    height: 60px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+}
+
+.listNumberShow {
+    display: block;
+}
+
+.listNumberHide {
+    display: none;
+}
+
+.tfootList tr th {
+    padding: 0 !important;
+}
+
+.tfootList tr th ul {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 60px;
+}
+
+.tfootList tr th ul li {
+    padding: 0;
+    float: left;
+    height: 60px;
+    width: 15px;
+    font-size: 12px;
+    line-height: 22px;
+    border-left: 1px solid #e6e6e6;
+    box-sizing: content-box;
+
+}
+
+.tfootList tr th ul li:nth-child(1) {
+    border: none !important;
+    margin-left: -1px;
+}
+
+.foot {
+    width: 1000px;
+    height: 60px;
+    background-color: #fff;
+}
+
+.fontColor {
+    color: red !important;
+}
+
+.voucherMaking .addDataLine {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    line-height: 18px;
+    text-align: center;
+    display: none;
+}
+
+.voucherMaking .addDataLine:hover {
+    border-color: #84ffff;
+    color: #84ffff;
+}
+
+.voucherMaking .removeDataLine {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    line-height: 18px;
+    text-align: center;
+    display: none;
+}
+
+.voucherMaking .removeDataLine:hover {
+    border-color: #84ffff;
+    color: #84ffff;
+}
+
+.voucherMaking tr:hover th span {
+    display: inline-block;
+}
+
+.voucherMaking .displayDiv {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    text-align: left;
+    line-height: 28px;
+    font-size: 12px;
+    text-indent: 6px;
+    left: 0;
+    top: 0;
+}
+
+.voucherMaking .displayInput {
+    width: 100%;
+    height: 59px;
+    line-height: 20px;
+    border: none;
+    box-sizing: border-box;
+    outline-color: #84ffff;
+    position: absolute;
+    overflow-y: hidden;
+    resize: none;
+    top: 0;
+    left: 0;
+    font-size: 12px;
+    opacity: 0;
+    text-indent: 2px;
+    overflow: hidden;
+}
+
+.voucherMaking .displayInput:focus,.voucherMaking .subjectInput:focus {
+    border: 2px solid #84ffff;
+    opacity: 1;
+}
+
+.controlShow {
+    display: block;
+}
+
+.controlHide {
+    display: none;
+}
+
+.subjectInput {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+    resize: none;
+    line-height: 1.5;
+    font-size: 12px;
+    text-indent: 2px;
+    opacity:0;
+}
+
+.subjectDiv {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    position: relative;
+}
+
+.borderHide {
+    border: 2px solid #84ffff;
+}
+
+.borderShow {
+    border-color: red;
+}
+
+.debitText {
+    width: 100%;
+    height: 60px;
+    border: none;
+    box-sizing: border-box;
+    position: absolute;
+    text-align: right;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    font-size: 20px;
+}
+
+.debitText:focus {
+    border: 2px solid #84ffff;
+    opacity: 1;
+}
+
+.creditText {
+    width: 100%;
+    height: 60px;
+    border: none;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: right;
+    opacity: 0;
+    font-size: 20px;
+}
+
+.creditText:focus {
+    border: 2px solid #84ffff;
+    opacity: 1;
+}
+
+.subjectUl {
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0px;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    z-index: 1;
+    display: none;
+}
+
+.subjectUl ul {
+    min-height: 0;
+    max-height: 150px;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.subjectUl ul li {
+    cursor:pointer;
+    height: 30px;
+    padding: 10px 0;
+    line-height: 10px;
+    font-size: 12px;
+    text-indent: 6px;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.subjectUl ul li:hover {
+    background-color: #d6ecf0;
+}
+
+.addSubject {
+    height: 34px;
+    background-color: #fff;
+    border: 1px solid #e0f0e9;
+    font-size: 12px;
+}
+
+.addSubject a {
+    display: block;
+    width: 100%;
+    height: 34px;
+    text-align: center;
+    line-height: 34px;
+    color: #23b7e5;
+}
+
+.abstractObj {
+    width: 200px;
+    max-height: 124px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    display: none;
+    overflow-y: auto;
+    z-index: 20;
+    font-size: 12px;
+    text-indent: 6px;
+}
+
+.abstractObj ul li {
+    height: 30px;
+    padding: 10px 0;
+    line-height: 10px;
+    text-indent: 10px;
+}
+
+.abstractObj ul li:hover {
+    background-color: #d6ecf0;
+}
+
+.balance {
+    width: 100%;
+    height: 20px;
+    position: absolute;
+    left: 0;
+    top: 36px;
+    text-align: left;
+    text-indent: 5px;
+    bottom: 20px;
+    color: gray;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.balance a:hover {
+    color: #16aad8;
+}
+
+.balance a {
+    text-decoration: underline;
+}
+
+.tfootList .fontSize li {
+    font-size: 20px;
+    line-height: 60px;
+    text-align: center;
+}
+
+.One-man {
+    margin-top: 20px;
+    margin-left: 50px;
+    width: 200px;
+    height: 100px;
+    float: left;
+}
+
+.addTemplate {
+    float: right;
+    margin-top: 14px;
+    margin-right: 18px;
+}
+
+.abstractDiv {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    position: relative;
+}
+
+.abstractStyle {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+    resize: none;
+    line-height: 14px;
+    font-size: 12px;
+    opacity: 0;
+}
+
+.abstractStyle:focus {
+    border: 2px solid #80deea;
+    opacity: 1;
+}
+
+.subjectArea {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+    resize: none;
+    line-height: 14px;
+    font-size: 12px;
+}
+
+.subjectArea:focus {
+    border: 2px solid #80deea;
+}
+
+.fixedDebit {
+    width: 100%;
+    height: 60px;
+    border: none;
+    outline: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0);
+    text-align: right;
+}
+
+.fixedDebit:focus {
+    background-color: rgba(255, 255, 255, 1);
+    border: 2px solid #80deea;
+}
+
+.fixedCredit:focus {
+    background-color: rgba(255, 255, 255, 1);
+    border: 2px solid #80deea;
+}
+
+.fixedCredit {
+    width: 100%;
+    height: 60px;
+    border: none;
+    outline: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0);
+    text-align: right;
+}
+
+.modal-voucher {
+    width: 1040px !important;
+}
+
+.modal-subsidiary {
+    width: 1200px !important;
+}
+
+.tplInterface {
+    height: 430px;
+}
+
+.tplInterface .interface {
+    margin-top: 40px;
+    height: 420px;
+    overflow-y: auto;
+}
+
+.tplInterface .interface ul li {
+    float: left;
+    width: 230px;
+    height: 200px;
+    margin-bottom: 10px;
+    margin-left: 16px;
+
+}
+
+.pzContentXj {
+    width: 230px;
+    height: 158px;
+    border: 1px solid #23b7e5;
+    box-sizing: border-box;
+    background: url("../../../../img/accounting/blue-line-big.png");
+    text-align: center;
+    position: relative;
+}
+
+.pzContentXj i {
+    font-size: 100px;
+    color: #23b7e5;
+    margin-top: 30px;
+    cursor: pointer;
+}
+
+.pzContentXj i:hover {
+    font-size: 105px;
+}
+
+.greenBtn {
+    margin-left: 70px;
+    margin-top: 6px;
+}
+
+.normalPanel {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.reflect {
+    width: 100%;
+    height: 34px;
+    background: url("../../../../img/accounting/tixian.png") #23b7e5 6px no-repeat;
+}
+
+.tixian {
+    display: block;
+    width: 120px;
+    height: 34px;
+    line-height: 34px;
+    text-align: left;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    max-width: 100%;
+    color: #fff;
+    float: left;
+    margin-left: 36px;
+}
+
+.editIcon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    background: url("../../../../img/accounting/edit-icon.png") center no-repeat;
+    float: left;
+    margin-top: 4px;
+    cursor: pointer;
+    margin-left: 6px;
+}
+
+.editIcon:hover {
+    background-size: 28px 28px;
+}
+
+.deleteIcon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    background: url("../../../../img/accounting/delete-icon.png") center no-repeat;
+    float: left;
+    margin-top: 4px;
+    cursor: pointer;
+    margin-left: 12px;
+
+}
+
+.deleteIcon:hover {
+    background-size: 28px 28px;
+}
+
+.tbodyjd {
+    margin-top: 22px;
+    margin-left: 26px;
+    color: #1c2b36;
+    text-align: left;
+}
+
+.els_span {
+    display: block;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    max-width: 170px;
+}
+
+.tbodyjd tr {
+    margin-top: 6px;
+}
+
+.tbodyjd tr td {
+    cursor: pointer;
+
+}
+
+.borderN {
+    border: none !important;
+}
+
+.bgcColorfff {
+    background-color: #fff;
+}
+
+.bgcColorGren {
+    background-color: #c0edb7;
+}
+
+/*赤字*/
+.redFont li {
+    color: red !important;
+}
+
+
+.tablefoot tr th {
+    height: 35px;
+    box-sizing: border-box;
+    border: 1px solid #ccc !important;
+    position: relative;
+}
+.otherInput {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+    resize: none;
+    line-height: 1.5;
+    font-size: 12px;
+    text-indent: 2px;
+}
+.tablefoot tbody tr th:nth-child(4) .moneyList, .tablefoot tbody tr th:nth-child(5) .moneyList {
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+.tablefoot .moneyList li {
+    float: left;
+    height: 22px;
+    width: 15px;
+    font-size: 12px;
+    line-height: 22px;
+    border-left: 1px solid #e6e6e6;
+    box-sizing: content-box;
+}
+.tablefoot tbody tr th .addList li {
+    height: 70px !important;
+    line-height: 70px;
+    font-size: 20px !important;
+}
+.tablefoot .moneyList li:first-child {
+    border: none;
+    width: 14px;
+}

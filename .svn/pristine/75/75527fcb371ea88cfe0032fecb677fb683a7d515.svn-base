@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>审批详情</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+    </script>
+</head>
+<body>
+    <div class="appContainer">
+        <div class="detailTemp">
+            <div class="itemLeft">
+                <p class="itemInfo">某某某员工转正申请表</p>
+                <p class="itemTime">2017-8-10-13:30</p>
+            </div>
+            <div class="itemRight">
+                <p class="rejectIcon">已驳回</p>
+            </div>
+        </div>
+        <div class="detailMain">
+            <ul>
+                <li class="item">
+                    <div>
+                        请假类型:
+                        <span class="info">事假</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        开始时间:
+                        <span class="info">2017-12-26</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        结束时间:
+                        <span class="info">2017-12-27</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        请假时长:
+                        <span class="info">1天</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        请假事由:
+                        <span class="info">办证</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        说明附件:
+                        <div class="uploadInfo">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/detailImg.png" height="120" width="100" />
+                            <div style="margin-left: 0.06rem;display: inline-block;vertical-align: middle;">
+                                <p style="color: #000; margin-bottom: 0.2rem;">123456.jpg</p>
+                                <p style="color: #999;">1.02M</p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="processBox">
+            <div class="title">审批流程</div>
+            <div class="detailProcess">
+                <div class="item">
+                    <div class="hDiv">
+                        <i class="iconfont icon-gou"></i>
+                        <div>
+                            <span style="font-size: 0.26rem; color: #333;">黄翠菊</span>
+                            <span class="whD"></span>
+                            <span style="font-size: 0.26rem; color: #02c056;">已通过</span>
+                            <span style="float: right;color: #999; font-size: 0.2rem; margin-top: 0.03rem; display: inline-block">2017-08-11-14:22</span>
+                        </div>
+                    </div>
+                    <div class="mDiv tg">
+                        准许毕业。
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="hDiv">
+                        <i class="iconfont icon-cha1"></i>
+                        <div>
+                            <span style="font-size: 0.26rem; color: #333;">赵小龙</span>
+                            <span class="whD"></span>
+                            <span style="font-size: 0.26rem; color: #df1813;">已驳回</span>
+                            <span style="float: right;color: #999; font-size: 0.2rem; margin-top: 0.03rem; display: inline-block">2017-08-11-14:22</span>
+                        </div>
+                    </div>
+                    <div class="mDiv bh">
+                        该员工要回老家办理身份证需要两天该员工要回老家办理身份证需要两天该员工要回老家办理身份证需要两天。
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="hDiv">
+                        <i class="iconfont icon-quan"></i>
+                        <div>
+                            <span style="font-size: 0.26rem; color: #333;">管京民</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyBox">
+            抄送人:
+            <span>王小明</span>
+        </div>
+        <div class="processFoot">
+            <div class="layui-row" style="height: 100%;">
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/tongyi.png" />
+                        <span class="processIcon">同意</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/bohui.png" />
+                        <span class="processIcon">驳回</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/zhuanshen.png" />
+                        <span class="processIcon">转审</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

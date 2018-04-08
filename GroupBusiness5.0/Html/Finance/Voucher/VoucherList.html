@@ -1,0 +1,55 @@
+﻿<div class="mainContainer" id="root">
+    <table id="listTable" lay-filter="listTable"></table>
+</div>
+
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-form-checkbox span { height: auto; }
+    .layui-form-label { width: 150px; }
+    .layui-input-block { margin-left: 180px; }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui','element','customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table=layui.table;
+
+            var vm = new Vue({
+                el: "#root",
+                data:{
+
+                },
+
+                ready: function () {
+
+                },
+                methods: {
+
+                }
+            });
+            var tableIns = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: true, //页分
+                cols: [
+                    [
+                        { field: 'Time', fixed: true, title: '制单日期', width: 120 },
+                        { field: 'No', title: '凭证编号', width: 120 },
+                        { field: 'Title', title: '摘要', width: 120 },
+                        { field: 'LeftMoney', title: '借方金额合计', width: 120 },
+                        { field: 'RightMoney', title: '贷方金额合计', width: 120 },
+                        { field: 'IsOpen', title: '制单人', width: 120 },
+                        { field: 'CourseInfo_ID', title: '审核人', width: 120 },
+                        { field: 'System_Station_ID', title: '审核时间', width: 120 },
+                        { field: 'ReviewStatus', title: '复核状态', width: 120 },
+                        { field: 'AddPerson', title: '状态', width: 120 },
+                    ]
+                ],
+                url: '/service/finance/Finance/GetFinanceList',
+            });
+        });
+</script>

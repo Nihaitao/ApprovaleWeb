@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery-1.4.4.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.core.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.excheck.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.exedit.js"></script>
+
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        require_js_file(["table", 'tree', "form", "jquery", "tableExt"],
+        function (fnr) {
+            var zTreeObj;
+            var setting = {
+                //async: {
+                //    enable: true,
+                //    autoParam: ["ID","Company_ID"],
+                //    type: "get",
+                //    dataFilter: ajaxDataFilter,
+                //    url: "/service/finance/Finance/GetProjectList",
+                //},
+                data: {
+                    key: {
+                        name: "Name"
+                    },
+                    simpleData: {
+                        enable: true,
+                        idKey: "ID",
+                        pIdKey: "CID"
+                    }
+                },
+                callback: {
+                    beforeDblClick:beforeDblClick,
+                }
+            };
+            function beforeDblClick(treeId, treeNode, clickFlag){
+                fnr.callDialog('refresh',{ID:treeNode.ID,Name:treeNode.Name})
+                fnr.closeDialog()
+            }
+            function ajaxDataFilter(treeId, parentNode, rsp) {
+                rsp.Data.map(function (a, b) {
+                    a.CID = a.CID;
+                    a.ID = a.ID;
+                    a.Code = a.Code;
+                    a.Valid = a.Valid;
+                    a.NewName = a.Name;
+                    a.isParent = false;
+                    a.open = 1;
+                });
+                if (parentNode == null) {
+                    rsp.Data.push({ ID: 0, Name: '核算项目', open: 1 })
+                } else {
+                    rsp.Data
+                }
+                return rsp.Data;
+            };
+            
+            $(document).ready(function () {
+                var Company_ID=fnr.getQueryString('Company_ID')
+                $.get("/service/finance/Finance/GetProjectList",{Company_ID:Company_ID},function(res){
+                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting,res.Data);
+                })
+            });
+        });
+    </script>
+
+
+
+</head>
+<body id="root" style="margin-top:20px;">
+    <div class="mainContainer">
+        <div class="layui-col-xs2">
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+    </div>
+</body>
+</html>

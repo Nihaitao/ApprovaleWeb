@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root">
+    <div class="mainContainer" id="root">
+        <div class="layui-tab-content">
+            <div class="layui-form" style="margin-bottom:30px;">
+                <div class="layui-row custom-title">
+                    <div class="layui-col-md1">制单日期</div>
+                    <div class="layui-col-md1">发生日期</div>
+                    <div class="layui-col-md1">凭证号</div>
+                    <div class="layui-col-md1">科目</div>
+                    <div class="layui-col-md1">对方科目</div>
+                    <div class="layui-col-md1">摘要</div>
+                    <div class="layui-col-md1">借方</div>
+                    <div class="layui-col-md1">贷方</div>
+                    <div class="layui-col-md1">方向</div>
+                    <div class="layui-col-md1">余额</div>
+                    <div class="layui-col-md1">状态</div>
+                </div>
+                <div class="custom-field">
+                    <div class="tree" v-for="(index,item) in formList">
+                        <div class="tree-content" v-if="item.VoucherDetail && item.VoucherDetail.length>0" v-for="child in item.VoucherDetail">
+                            <div class="layui-row custom-ele">
+                                <div class="layui-col-md1">{{child.Time}}</div>
+                                <div class="layui-col-md1">{{child.Date}}</div>
+                                <div class="layui-col-md1">{{child.Department_ID?child.Department_ID:''}}</div>
+                                <div class="layui-col-md1">{{child.LeftMoney}}</div>
+                                <div class="layui-col-md1">{{child.Project_ID}}</div>
+                                <div class="layui-col-md1">{{child.RightMoney}}</div>
+                                <div class="layui-col-md1">{{child.TicketNumber}}</div>
+                                <div class="layui-col-md1">{{child.Title}}</div>
+                                <div class="layui-col-md1">{{child.Code}}</div>
+                                <div class="layui-col-md1">{{child.Code}}</div>
+                                <div class="layui-col-md1">{{child.Code}}</div>
+                            </div>
+
+                        </div>
+                        <div class="tree-content" v-if="item.Total">
+                            <div class="layui-row custom-ele" v-cloak >
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">{{item.Total.Describe}}</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                                <div class="layui-col-md1">{{item.Total.Direction}}</div>
+                                <div class="layui-col-md1">{{item.Total.Value3}}</div>
+                                <div class="layui-col-md1">&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="../../../Resources/js/Controls/Common.js"></script>
+<style>
+    .custom-title {
+        line-height: 45px;
+        background: #f5f5f5;
+        padding-left: 10px;
+    }
+
+    .custom-block {
+        line-height: 45px;
+        height: 45px;
+        background: #e0e0e0;
+        padding-left: 10px;
+    }
+
+    .custom-ele, .custom-empty {
+        line-height: 45px;
+        height: 45px;
+        border-bottom: 1px solid #ebebeb;
+        padding-left: 10px;
+    }
+
+        .custom-ele:hover {
+            line-height: 45px;
+            height: 45px;
+            background: #f5f5f5;
+        }
+
+    .sort-icon {
+        cursor: move;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .spical {
+        color: #C9C9C9;
+        font-size: 12px;
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 5px;
+        margin-top: 8px;
+    }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate', 'layer'],
+        function (fnr) {
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+            var element = layui.element;
+            var table = layui.table;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    formList: [{
+                        Code: "",
+                        Describe:''
+                        //PersonalID: 0,
+                        //DepartmentID: 0,
+                        //ProjectID: 0,
+                        //ClientID: 0,
+                        //Money: "",
+                        //CompanyID: 0,
+                        //ProjectName: '',
+                        //DepartmentName: '',
+                    }],
+                    //DepartmentSetting: {
+                    //    search: true,
+                    //    fields: { key: 'ID', value: 'Description', root: 'ReturnData.Data' },
+                    //    options: [],
+                    //    remote: { url: "/service/HDictionary/GetHDictionaryList", data: { Valid: 1, ColumnName: 'Education_ID' } }
+                    //},
+                    //ProjectSetting: {
+                    //    search: true,
+                    //    fields: { key: 'ID', value: 'Description', root: 'ReturnData.Data' },
+                    //    options: [],
+                    //    remote: { url: "/service/HDictionary/GetHDictionaryList", data: { Valid: 1, ColumnName: 'Education_ID' } }
+                    //},
+                    //FinanceCode: {
+                    //    Code: '',
+                    //    Name: '',
+                    //    BalanceType: 0,
+                    //    DepartmentCheck: 0,
+                    //    PersonCheck: 0,
+                    //    ProjectCheck: 0,
+                    //    ClientCheck: 0,
+                    //}
+                },
+                ready: function () {
+                    //var code = fnr.getQueryString('code');
+                    //if (code != null && code != '') {
+                        //this.GetFinanceCodeDetail(code);
+                        this.GetFinanceCodeAmountData();
+                    //}
+                },
+                methods: {
+                    
+                    GetFinanceCodeAmountData: function () {
+                        var that = this;
+                        $.get("/service/finance/Finance/GetVoucherContacts", { CompanyID: 2, Code: '100101',StartTime: '2017-12-5', EndTime: '2017-12-20'}, function (res) {
+                            if (res.Data.length > 0) {
+                                that.formList = res.Data;
+                            }
+                            else {
+                               
+                            }
+                        });
+                    },
+                    //GetFinanceCodeDetail: function (val) {
+                    //    var self = this;
+                    //    $.get("/service/finance/Finance/GetFinanceCodeDetail", { query: val }, function (res) {
+                    //        self.FinanceCode = res.Data;
+                    //    });
+                    //},
+                   
+                    //deleteItem: function (item) {
+                    //    if (this.formList.length == 1) {
+                    //        fnr.msg("至少要保留一行数据");
+                    //        return;
+                    //    }
+                    //    fnr.deleteItem(this.formList, item);
+                    //},
+                    submit: function () {
+                        var self = this;
+                        $.each(self.formList,
+                               function () {
+                                   this.Code = self.FinanceCode.Code;
+                                   this.CompanyID = 1;
+                               });
+                        fnr.callDialog("new", self.formList);
+                        fnr.closeDialog();
+                    },
+                }
+            });
+        });
+</script>

@@ -1,0 +1,605 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        textarea { resize: none; }
+
+        .ww_groupSelBtn_item { float: left; max-width: 231px; line-height: 1.5; margin: 3px 10px 3px 0; padding: 3px 11px 3px 7px; background-color: #fff; border: 1px solid #E4E6E9; border-radius: 2px; }
+
+        .ww_groupSelBtn_item_text { max-width: 174px; padding-right: 11px; overflow: hidden; line-height: 18px; }
+
+        .approval_setting_cnt_AddBtn { display: inline-block; margin-left: 10px; border-radius: 4px; text-align: center; width: 40px; height: 40px; border: none; }
+
+        .ww_icon { display: inline-block; overflow: hidden; font-size: 0; line-height: 0; }
+
+        .ww_icon_AddBtnGray { background-position: -733px -350px; background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); width: 40px; height: 40px; }
+
+        .approval_setting_cnt_avatar { width: 40px; height: 40px; vertical-align: top; border-radius: 4px; cursor: move; }
+
+        .approval_setting_cnt_avatarWrap { position: relative; float: left; z-index: auto; border-radius: 4px; text-align: center; width: 60px; }
+
+        .ww_icon_IconCloseBlack { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -886px -630px; width: 14px; height: 14px; margin-left: -15px; }
+
+        .app_approval .app_approval_custom_template .ww_icon_IconCloseBlack, .app_approval .app_approval_custom_template .ww_icon_IconEditBlue { position: absolute; right: 4px; top: -6px; }
+
+        .approval_setting_cnt_name { margin-top: 5px; text-align: center; font-size: 12px; color: #9C9C9C; }
+
+        .app_approval .app_approval_custom_template .approval_setting_cnt_arrowWithLink { margin-left: -12px; }
+
+        .approval_custom_setting .approval_setting_cnt_arrowWithLink { margin-top: 20px; }
+
+        .approval_setting_cnt_arrowWithLink { position: relative; float: left; margin-left: -4px; margin-top: 24px; margin-bottom: 22px; font-size: 0; line-height: 0; width: 28px; height: 5px; z-index: 10; }
+
+        .ww_icon_approvalWithLink { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -621px -590px; width: 15px; height: 3px; }
+
+        .layui-form-label { width: 100px !important; }
+
+        .layui-form-label_ex { color: #9C9C9C; }
+
+        .custom-title { line-height: 45px; background: #f5f5f5; padding-left: 10px; }
+
+        .custom-block { line-height: 45px; height: 45px; background: #e0e0e0; padding-left: 10px; }
+
+        .custom-ele, .custom-empty { line-height: 45px; height: 45px; border-bottom: 1px solid #ebebeb; padding-left: 10px; }
+
+        .custom-ele:hover { line-height: 45px; height: 45px; background: #f5f5f5; }
+
+        .sort-icon { cursor: move; }
+
+        .spical { color: #C9C9C9; font-size: 12px; position: relative; display: inline-block; vertical-align: middle; height: 22px; line-height: 22px; padding: 0 5px; margin-top: 8px; }
+
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+            <div class="layui-input-inline">
+                <label class="layui-form-label">可见范围:</label>
+            </div>
+            <div class="layui-input-inline" v-for="(index,item) in queryFormData.Visrange">
+                <div class="ww_groupSelBtn_item">
+                    <i class="layui-icon" style="font-size: 15px; color: #808080; ">{{item.IsAccount == 1 ? "&#xe612;" : "&#xe613;"}}</i>
+                    <span class="ww_groupSelBtn_item_text">{{item.Name}}</span>
+                </div>
+            </div>
+            <div class="layui-input-inline" style="margin-left:20px">
+                <a href="javascript:;" style="float:left;color:#1E9FFF" @click="SelectPage">{{operateName}}</a>
+            </div>
+            <hr>
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">审批流程:</label>
+                </div>
+            </div>
+            <hr>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-label_ex">默认审批人:</label>
+                <div v-for="(index,item) in Approvers">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditing/img/account_32px.png">
+                        <a href="javascript:;" @click="deleteApprover(Approvers,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">{{item.Type == 0 ? ( SuperiorArr[index] == 1 ? "直接上级" : "第" +SuperiorArr[index]+"级上级") : item.AccName}}</div>
+                        <div class="approval_setting_cnt_name" v-if="item.Type == 0">（{{item.CounterSign == 0 ? "会签" : "或签"}}）</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" style=""><span class="ww_icon ww_icon_approvalWithLink"></span></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap">
+                    <a href="javascript:;" class="approval_setting_cnt_AddBtn" @click="addApprover">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-label_ex">默认抄送人:</label>
+                <div v-for="(index,item) in ApproverCC">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditing/img/account_32px.png">
+                        <a href="javascript:;" @click="deleteApproverCC(ApproverCC,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">{{item.Type == 0 ? ( SuperiorArrCC[index] == 1? "直接上级" : "第" +SuperiorArrCC[index]+"级上级") : item.AccName}}</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" style=""></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap">
+                    <a href="javascript:;" class="approval_setting_cnt_AddBtn" @click="addApproverCC">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <label class="layui-form-label layui-form-label_ex">条件审批流程:</label>
+                    <i class="layui-icon" style="font-size: 30px; color: #808080;cursor:pointer; margin-left:10px" @click="AddCondition(-1)">&#xe608;</i>
+                </div>
+            </div>
+            <div class="layui-form-item" v-if="ConditionView.length > 0">
+                <div class="layui-form" style="margin-left:140px;">
+                    <div class="layui-row custom-title">
+                        <div class="layui-col-md12">匹配优先级按当前排正序</div>
+                    </div>
+                    <div class="custom-field">
+                        <div class="tree">
+                            <div class="tree-content" v-for="(index,item) in ConditionView">
+                                <div class="layui-row custom-ele" v-cloak v-bind:data-item="item.FieldId">
+                                    <div class="layui-col-md10">{{item.FieldName}}  {{item.ConditionOp}}  {{item.ContrastValue}}</div>
+                                    <div class="layui-col-md2">
+                                        <button class="layui-btn layui-btn-small" @click="AddCondition(item.FieldId)">编辑</button>
+                                        <button class="layui-btn layui-btn-small layui-btn-danger" @click="delView(ConditionView,index)">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="layui-form-item" style="float: right; margin-right:40px;margin-top: 20px;">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit @click="formDemo">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "jqueryui"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    operateName: "添加",
+                    queryFormData: {
+                        Approval_ID: 0,//审批模板ID
+                        Visrange: [],//可见范围
+                        Condition: [],//审批条件
+                    },
+
+                    Approvers: [],//审批人
+                    Superior: 0,//审批人当前上级级别
+                    SuperiorArr: [],//审批人上级级别数组
+                    ApproverCC: [],//抄送人
+                    SuperiorCC: 0,//抄送人当前上级级别
+                    SuperiorArrCC: [],//抄送人上级级别数组
+
+                    ConditionView: [],//审批条件显示列表
+                    ConditionViewTemplete: {//审批条件显示模板
+                        FieldId: '',
+                        FieldName: "",
+                        ConditionOp: "",
+                        ContrastValue: "",
+                    },
+
+                    //条件审批模板
+                    ConditionTemplete: {
+                        ConditionType: '',
+                        FieldId: '',
+                        ConditionOp: '',
+                        ContrastValue: '',
+                        DeptId: '',
+                        AccId: '',
+                        Priority: '',
+                        ApprovalConditionObject: [],
+                        ApprovalConditionCC: [],
+                    },
+                    //审批人or抄送人模板
+                    ApprovalAccountTemplete: {
+                        CounterSign: '',
+                        Type: '',
+                        AccId: '',
+                        Priority: '',
+                    },
+                    //用于存放条件审批数据
+                    EdidConditoin: [],
+                    //存放条件审批数据模板
+                    EdidConditoinTemp: {
+                        FieldId: '',
+                        EditData1: [],
+                        EditData2: [],
+                    },
+                },
+                watch: {
+                },
+                ready: function () {
+                    this.queryFormData.Approval_ID = fnr.getQueryString("Approval_ID");
+                    var self = this;
+                    $.get("/service/approval/Approval/GetApprovalInfo", { Approval_ID: fnr.getQueryString("Approval_ID") }, function (rsp) {
+                        if (rsp.SuccessResponse) {
+                            //审批流程
+                            self.queryFormData.Visrange = rsp.Data.ApprovalTypeModel.Visrange;//可见范围
+                            $.each(rsp.Data.ApprovalTypeModel.Condition, function (i) {
+                                if (this.Priority == 10000) {//默认审批对象
+                                    $.each(this.ApprovalConditionObject, function (j) {
+                                        self.Approvers.push(this);
+                                        if (this.Type == 0)
+                                            self.Superior++;
+                                        self.SuperiorArr.push(self.Superior);
+                                    })
+                                    $.each(this.ApprovalConditionCC, function (j) {
+                                        self.ApproverCC.push(this);
+                                        if (this.Type == 0)
+                                            self.SuperiorCC++;
+                                        self.SuperiorArrCC.push(self.SuperiorCC);
+                                    })
+                                } else {//条件审批
+                                    self.queryFormData.Condition.push(this);
+                                    var view = JSON.parse(JSON.stringify(self.ConditionViewTemplete));
+                                    view.FieldId = this.FieldId;
+                                    view.ConditionOp = this.ConditionOp || "为";
+                                    view.ContrastValue = this.ContrastValue;
+                                    view.FieldName = this.FieldName;
+                                    if (this.ConditionType == 1) {//申请人
+                                        view.ConditionOp = "为";
+                                        view.ContrastValue = this.Names;
+                                    }
+                                    self.ConditionView.push(view);//条件审批显示
+                                    self.Drag();
+
+                                    //条件审批编辑数据
+                                    self.EdidConditoinTemp.FieldId = this.FieldId;
+                                    var data = {
+                                        ConditionOp: "",
+                                        ContrastValue: "",
+                                        Departs: [],
+                                        Approvers: this.ApprovalConditionObject,
+                                        ApproverCC: this.ApprovalConditionCC,
+                                        FieldId: this.FieldId,
+                                        FieldName: this.FieldName
+                                    }
+                                    var data2 = {
+                                        Superior: 0,
+                                        SuperiorArr: [],
+                                        SuperiorCC: 0,
+                                        SuperiorArrCC: [],
+                                    }
+                                    if (this.ConditionType == 1) {//申请人
+                                        var departCount = 0;
+                                        var nameArr = this.Names.split(",");
+                                        if (this.DeptId != null && this.DeptId != "") {
+                                            var deArr = this.DeptId.split(",");
+                                            departCount = deArr.length;
+                                            $.each(deArr, function (j) {
+                                                data.Departs.push({ "DepartmentID": deArr[j], "Name": nameArr[j], "IsAccount": 0 })
+                                            })
+                                        }
+                                        if (this.AccId != null && this.Accid != "") {
+                                            var deArr = this.AccId.split(",");
+                                            $.each(deArr, function (j) {
+                                                data.Departs.push({ "DepartmentID": deArr[j + departCount], "Name": nameArr[j + departCount], "IsAccount": 1 })
+                                            })
+                                        }
+                                    } else {
+                                        data.ConditionOp = this.ConditionOp;
+                                        data.ContrastValue = this.ContrastValue.split(",");
+                                    }
+                                    self.EdidConditoinTemp.EditData1 = data;
+                                    if (this.ApprovalConditionObject != null) {
+                                        $.each(this.ApprovalConditionObject, function (j) {
+                                            if (this.Type == 0)
+                                                data2.Superior++;
+                                            data2.SuperiorArr.push(data2.Superior);
+                                        })
+                                    }
+                                    if (this.ApprovalConditionCC != null) {
+                                        $.each(this.ApprovalConditionCC, function (j) {
+                                            if (this.Type == 0)
+                                                data2.SuperiorCC++;
+                                            data2.SuperiorArrCC.push(data2.SuperiorCC);
+                                        })
+                                    }
+                                    self.EdidConditoinTemp.EditData2 = data2;
+                                    var exist = false;
+                                    for (var i in self.EdidConditoin) {
+                                        if (self.EdidConditoin[i].FieldId == this.FieldId) {
+                                            self.EdidConditoin[i] = JSON.parse(JSON.stringify(self.EdidConditoinTemp));
+                                            exist = true;
+                                        }
+                                    }
+                                    if (!exist)
+                                        self.EdidConditoin.push(JSON.parse(JSON.stringify(self.EdidConditoinTemp)));
+                                }
+                            })
+                        }
+                    });
+                },
+                methods: {
+                    //拖拽
+                    Drag: function () {
+                        var that = this;
+                        return $(".tree").sortable({
+                            stop: function (event, ui) {
+
+                            }
+                        });
+                    },
+                    //添加审批人
+                    addApprover: function () {
+                        fnr.openDialog({
+                            title: '选择审批人',
+                            area: ['650px', '520px'],
+                            content: ['/Html/Auditing/ChooseApproval.html'],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    rootApp.Approvers.push(data);
+                                    if (data.Type == 0)//如果是上级，上级标识+1
+                                        rootApp.Superior++;
+                                    rootApp.SuperiorArr.push(rootApp.Superior);//上级标识数组添加标识数据
+
+                                }
+                            }
+                        });
+                    },
+                    //删除审批人
+                    deleteApprover: function (obj, index) {
+                        if (obj[index].Type == 0) {//如果删除的是上级，上级标识-1，该索引后面的标识数组全部减1
+                            rootApp.Superior--;
+                            for (var i = index; i < rootApp.SuperiorArr.length; i++) {
+                                rootApp.SuperiorArr[i] = rootApp.SuperiorArr[i] - 1;
+                            }
+                        }
+                        obj.splice(index, 1);
+                        rootApp.SuperiorArr.splice(index, 1);//删除标识数组指定元素
+                    },
+                    //添加抄送人
+                    addApproverCC: function () {
+                        fnr.openDialog({
+                            title: '选择抄送人',
+                            area: ['650px', '520px'],
+                            content: ['/Html/Auditing/ChooseApproval.html?CC=true'],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    rootApp.ApproverCC.push(data);
+                                    if (data.Type == 0)
+                                        rootApp.SuperiorCC++;
+                                    rootApp.SuperiorArrCC.push(rootApp.SuperiorCC);//上级标识数组添加标识数据
+                                }
+                            }
+                        });
+                    },
+                    //删除抄送人
+                    deleteApproverCC: function (obj, index) {
+                        if (obj[index].Type == 0) {//如果删除的是上级，上级标识-1，该索引后面的标识数组全部减1
+                            rootApp.SuperiorCC--;
+                            for (var i = index; i < rootApp.SuperiorArrCC.length; i++) {
+                                rootApp.SuperiorArrCC[i] = rootApp.SuperiorArrCC[i] - 1;
+                            }
+                        }
+                        obj.splice(index, 1);
+                        rootApp.SuperiorArrCC.splice(index, 1);//删除标识数组指定元素
+                    },
+                    //添加条件审批
+                    AddCondition: function (FieldId) {
+                        //console.log(rootApp.ConditionView);
+                        fnr.openDialog({
+                            title: '添加条件审批',
+                            area: ['800px', '600px'],
+                            content: ['/Html/Auditing/AddCondition.html?Approval_ID=' + this.queryFormData.Approval_ID + "&FieldId=" + FieldId],
+                            events: {
+                                refresh: function (rspData) {
+                                    var data = rspData.data;
+                                    var data2 = rspData.data2;
+                                    //存储条件审批编辑数据
+                                    rootApp.EdidConditoinTemp.FieldId = data.FieldId;
+                                    rootApp.EdidConditoinTemp.EditData1 = data;
+                                    rootApp.EdidConditoinTemp.EditData2 = data2;
+                                    var exist = false;
+                                    for (var i in rootApp.EdidConditoin) {
+                                        if (rootApp.EdidConditoin[i].FieldId == data.FieldId) {
+                                            rootApp.EdidConditoin[i] = JSON.parse(JSON.stringify(rootApp.EdidConditoinTemp));
+                                            exist = true;
+                                        }
+                                    }
+                                    if (!exist)
+                                        rootApp.EdidConditoin.push(JSON.parse(JSON.stringify(rootApp.EdidConditoinTemp)));
+
+                                    //条件审批显示模板
+                                    var view = rootApp.ConditionViewTemplete;
+                                    view.FieldId = data.FieldId;
+                                    view.FieldName = data.FieldName;
+                                    view.ConditionOp = data.ConditionOp || "为";
+                                    view.ContrastValue = data.ContrastValue;
+                                    if (data.FieldId == 0) {//申请人
+                                        var depart = "", account = "";
+                                        for (var index in data.Departs) {
+                                            if (data.Departs[index].IsAccount == 0)
+                                                depart += data.Departs[index].Name + ",";
+                                            else
+                                                account += data.Departs[index].Name + ",";
+                                        }
+                                        view.ContrastValue = depart + account;
+                                        if (view.ContrastValue.length > 0)
+                                            view.ContrastValue = view.ContrastValue.substr(0, view.ContrastValue.length - 1);
+                                    }
+                                    exist = false;
+                                    for (var i in rootApp.ConditionView) {
+                                        if (rootApp.ConditionView[i].FieldId == data.FieldId) {
+                                            rootApp.ConditionView.splice(i, 1, JSON.parse(JSON.stringify(view)));
+                                            exist = true;
+                                        }
+                                    }
+                                    if (!exist)
+                                        rootApp.ConditionView.push(JSON.parse(JSON.stringify(view)));//条件审批显示
+                                    //条件审批列表
+                                    rootApp.EditConditionInfo(data);
+                                    //拖拽
+                                    rootApp.Drag();
+                                }
+                            }
+                        });
+                    },
+                    //编辑条件审批列表
+                    EditConditionInfo: function (data) {
+                        //条件审批模板
+                        var condition = JSON.parse(JSON.stringify(rootApp.ConditionTemplete));
+                        condition.ApprovalConditionObject = [];
+                        condition.ApprovalConditionCC = [];
+                        //审核人列表
+                        for (var i = 0; i < data.Approvers.length; i++) {
+                            var account = JSON.parse(JSON.stringify(rootApp.ApprovalAccountTemplete));
+                            account.Type = data.Approvers[i].Type;
+                            account.CounterSign = data.Approvers[i].CounterSign;
+                            account.AccId = data.Approvers[i].AccId;
+                            account.Priority = i;
+                            condition.ApprovalConditionObject.push(account);
+                        }
+                        //抄送人列表
+                        for (var i = 0; i < data.ApproverCC.length; i++) {
+                            var accountCC = JSON.parse(JSON.stringify(rootApp.ApprovalAccountTemplete));
+                            accountCC.Type = data.ApproverCC[i].Type;
+                            accountCC.AccId = data.ApproverCC[i].AccId;
+                            accountCC.Priority = i;
+                            condition.ApprovalConditionCC.push(accountCC);
+                        }
+                        condition.FieldId = data.FieldId;
+                        if (data.FieldId == 0) {//申请人
+                            condition.ConditionType = 1;
+                            condition.ConditionOp = "";
+                            condition.ContrastValue = "";
+                            condition.DeptId = "";
+                            condition.AccId = "";
+                            for (var i = 0; i < data.Departs.length; i++) {
+                                if (data.Departs[i].IsAccount == 0) {//部门
+                                    condition.DeptId += data.Departs[i].DepartmentID + ",";
+                                } else {
+                                    condition.AccId += data.Departs[i].DepartmentID + ",";
+                                }
+                            }
+                            if (condition.DeptId.length > 0)
+                                condition.DeptId = condition.DeptId.substr(0, condition.DeptId.length - 1);
+                            if (condition.AccId.length > 0)
+                                condition.AccId = condition.AccId.substr(0, condition.AccId.length - 1);
+                        } else {//自定义字段
+                            condition.ConditionType = 2;
+                            condition.ConditionOp = data.ConditionOp;
+                            condition.ContrastValue = typeof data.ContrastValue == "object" ? data.ContrastValue.join(",") : data.ContrastValue;
+                            condition.DeptId = "";
+                            condition.AccId = "";
+                        }
+                        var exist = false;
+                        for (var i in rootApp.queryFormData.Condition) {
+                            if (rootApp.queryFormData.Condition[i].FieldId == data.FieldId) {
+                                rootApp.queryFormData.Condition[i] = condition;
+                                exist = true;
+                            }
+                        }
+                        if (!exist)
+                            rootApp.queryFormData.Condition.push(condition);//条件审批
+                    },
+                    //选择可见范围
+                    SelectPage: function () {
+                        var self = this;
+                        var Json = "";
+                        $.each(self.queryFormData.Visrange, function () {
+                            Json += this.DepartmentID + "|" + this.Name + "|" + this.IsAccount + ",";
+                        });
+                        Json = Json.substring(0, Json.length - 1);
+                        fnr.openDialog({
+                            title: '选择用户或部门',
+                            area: ['500px', '600px'],
+                            content: ['DepartmentSelect.html?json=' + Json],
+                            btn: ['确认'],
+                            events: {
+                                refresh: function (data) {
+                                    var jsondata = [];
+                                    $.each(self.queryFormData.Visrange, function (i, x) {
+                                        var flg = false;
+                                        $.each(data, function (ii, xx) {
+                                            if (x.DepartmentID == xx.ID)
+                                                flg = true;
+                                        });
+                                        if (flg)
+                                            jsondata.push(x);
+                                    })
+                                    self.queryFormData.Visrange = jsondata;
+                                    $.each(data, function (i, x) {
+                                        var flg = false;
+                                        $.each(self.queryFormData.Visrange, function (ii, xx) {
+                                            if (xx.DepartmentID == x.ID) {
+                                                flg = true;
+                                            }
+                                        })
+                                        if (!flg) {
+                                            self.queryFormData.Visrange.push({ "DepartmentID": x.ID, "Name": x.Name, "IsAccount": x.IsAccount });
+                                            self.operateName = "修改";
+                                        }
+                                    })
+                                }
+                            }
+                        });
+                    },
+                    //删除条件审批
+                    delView: function (obj, index) {
+                        //删除需要提交的数据
+                        for (var item in this.queryFormData.Condition) {
+                            if (obj[index].FieldId == this.queryFormData.Condition[item].FieldId) {
+                                this.queryFormData.Condition.splice(item, 1);
+                            }
+                        }
+                        //删除编辑数据
+                        for (var item in this.EdidConditoin) {
+                            if (obj[index].FieldId == this.EdidConditoin[item].FieldId) {
+                                this.EdidConditoin.splice(item, 1);
+                            }
+                        }
+                        //删除显示数据
+                        obj.splice(index, 1);
+                    },
+                    //保存数据关闭弹窗
+                    formDemo: function (e) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        this.ConditionTemplete.ConditionType = 0;//默认条件
+                        this.ConditionTemplete.FieldId = 0;
+                        this.ConditionTemplete.ConditionOp = "";
+                        this.ConditionTemplete.ContrastValue = "";
+                        this.ConditionTemplete.DeptId = "";
+                        this.ConditionTemplete.AccId = "";
+                        if (this.Approvers == null || this.Approvers == "") {
+                            layer.msg("请选择审批人");
+                            return false;
+                        }
+                        if (this.queryFormData.Visrange.length == 0) {
+                            layer.msg("请选择可见范围");
+                            return false;
+                        }
+                        //配置条件审批优先级
+                        var self = this;
+                        $('.tree .tree-content .custom-ele').each(function (i) {
+                            var selfData = $(this).data("item");
+                            for (var j in self.queryFormData.Condition) {
+                                if (selfData == self.queryFormData.Condition[j].FieldId) {
+                                    self.queryFormData.Condition[j].Priority = i;
+                                }
+                            }
+                        });
+
+                        this.ConditionTemplete.ApprovalConditionObject = this.Approvers;
+                        this.ConditionTemplete.ApprovalConditionCC = this.ApproverCC;
+                        this.queryFormData.Condition.push(JSON.parse(JSON.stringify(this.ConditionTemplete)));
+                        $.post("/service/approval/Approval/EditApprovalType", this.queryFormData, function (rsp) {
+                            parent.layer.msg(rsp.Message);
+                            fnr.closeDialog();
+                            parent.rootApp.doSearch();
+                        })
+                    },
+                }
+            });
+        });
+</script>

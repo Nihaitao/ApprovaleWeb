@@ -1,0 +1,187 @@
+﻿<div id="root" class="OpenContainer">
+    <div class="layui-form">
+        <div class="layui-col-xs12">
+            <blockquote class="layui-elem-quote">
+                <div class="layui-row layui-form">
+                    <label class="layui-form-label">审批名称：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="Name" id="Name" lay-verify="required" placeholder="填写审批名称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </blockquote>
+        </div>
+    </div>
+    <div class="layui-col-xs5">
+        <div class="layui-row">
+            <label style="line-height:40px">审批模板字段：</label>
+        </div>
+        <div class="layui-row layui-form">
+            <div class="layui-form-item" v-for="item in Field" style="border:1px dashed #808080;">
+                <div class="layui-input-inline">
+                    <input type="text" placeholder="字段名" autocomplete="off" class="layui-input" v-model="item.fieldName">
+                </div>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="item.fieldType" v-bind:value.sync="item.fieldValue"></remote-sel>
+                </div>
+                <div v-if="item.fieldValue == 103 || item.fieldValue == 109 || item.fieldValue == 110">
+                    <div class="layui-form-item" v-for="op in item.Option">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline">
+                                <input type="text" placeholder="选项名" autocomplete="off" class="layui-input" v-model="op.value">
+                                <span class="layui-icon" style="font-size: 30px; color: #1E9FFF;"><a @click="DeleteOption(item)">&#xe640;</a></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="line-height:50px;">
+                        <span class="layui-icon" style="cursor:pointer" style="font-size: 30px; color: #1E9FFF;"><a @click="AddOption(item)">&#xe654;</a></span>
+                    </div>
+                </div>
+                <div v-if="item.fieldValue == 0" style="border:1px dashed #808080;">
+                    <div class="layui-form-item" v-for="detail in item.DetailField">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline">
+                                <input type="text" placeholder="明细名称" autocomplete="off" class="layui-input" v-model="detail.fieldName">
+                            </div>
+                            <div class="layui-input-inline">
+                                <remote-sel v-bind:setting="detail.fieldType" v-bind:value.sync="detail.fieldValue">
+                                </remote-sel>
+                            </div>
+                            <div v-if="detail.fieldValue == 103 || detail.fieldValue == 109 || detail.fieldValue == 110">
+                                <div class="layui-form-item" v-for="opDetail in detail.DetailOption">
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-inline">
+                                            <input type="text" placeholder="明细选项名" autocomplete="off" class="layui-input" v-model="opDetail.value">
+                                            <span class="layui-icon" style="font-size: 30px; color: #1E9FFF;"><a @click="DeleteDetailOption(item)">&#xe640;</a></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="line-height:50px;">
+                                    <span style="cursor:pointer"><a @click="AddDetailOption(detail)">添加明细选项</a></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="line-height:50px;">
+                        <span style="cursor:pointer"><a @click="AddDetailField(item)">添加明细</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="line-height:50px;">
+            <span style="cursor:pointer"><a @click="AddField">添加字段</a></span>
+        </div>
+        <button class="layui-btn" @click="showValue">看下数据</button>
+    </div>
+</div>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="/Resources/js/Controls/Common.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    Field: [],//字段
+                    //字段模板
+                    FieldTemplate: {
+                        fieldName: '',//字段名称
+                        fieldType: {//字段类型
+                            options: [
+                                { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '109', value: '下拉框' }, { key: '104', value: '整数' }, { key: '105', value: '小数' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '107', value: '图片' }, { key: '0', value: '明细' }
+                            ]
+                        },
+                        fieldValue: '-1',//字段类型值
+                        Option: [{ value: "" }, { value: "" }],//选项
+                        DetailField: [{//明细字段
+                            fieldName: '',//字段名称
+                            fieldType: {//字段类型
+                                options: [
+                                     { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '109', value: '下拉框' }, { key: '104', value: '整数' }, { key: '105', value: '小数' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '107', value: '图片' }
+                                ]
+                            },
+                            fieldValue: '0',
+                            DetailOption: [{ value: "" }, { value: "" }],//明细选项
+                        }],
+
+                    },
+                    DetailFieldTemplate: {//明细字段
+                        fieldName: '',//字段名称
+                        fieldType: {//字段类型
+                            options: [
+                                 { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '109', value: '下拉框' }, { key: '104', value: '整数' }, { key: '105', value: '小数' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '107', value: '图片' }
+                            ]
+                        },
+                        fieldValue: '0',
+                        DetailOption: [{ value: "" }, { value: "" }],//明细选项
+                    },
+                    //提交的数据
+                    queryFormData: {
+                    }
+                },
+                ready: function () {
+                    this.AddField();
+                },
+                methods: {
+                    //添加字段
+                    AddField: function () {
+                        this.Field.push(JSON.parse(JSON.stringify(this.FieldTemplate)))
+                    },
+                    //添加选项
+                    AddOption: function (obj) {
+                        obj.Option.push({ value: "" });
+                    },
+                    //删除选项
+                    DeleteOption: function (obj) {
+                        obj.Option.pop();
+                    },
+                    //添加明细字段
+                    AddDetailField: function (obj) {
+                        obj.DetailField.push(JSON.parse(JSON.stringify(this.DetailFieldTemplate)))
+                    },
+                    //添加明细选项
+                    AddDetailOption: function (obj) {
+                        obj.DetailOption.push({ value: "" });
+                    },
+                    //删除明细选项
+                    DeleteDetailOption: function (obj) {
+                        console.log(obj.DetailField)
+                        //obj.DetailOption.pop();
+                        //obj.
+                    },
+                    showValue: function () {
+                        console.log(this.Field)
+                    }
+                    //filtersField: function (arr) {
+                    //    if (!arr) {
+                    //        return
+                    //    }
+                    //    var arr1 = new Array();
+                    //    arr.forEach(function (item, index, arr) {
+                    //        arr1.push({ 'Name': item.feildName, 'FieldType': item.SelectKeySetting })
+                    //    })
+                    //    return arr1;
+                    //},
+                    //next: function () {
+                    //    var TempletName = $("#Name").val();
+                    //    var CustonField = this.filtersField(this.Approval);
+                    //    console.log(CustonField);
+                    //    console.log(TempletName);
+                    //    $.post("/service/shenpi/Process/AddTempletCustom", { CustonField: CustonField, TempletName: TempletName }, function (resp) {
+                    //        if (resp) {
+
+                    //        }
+                    //    })
+                    //}
+                }
+            });
+
+        });
+</script>

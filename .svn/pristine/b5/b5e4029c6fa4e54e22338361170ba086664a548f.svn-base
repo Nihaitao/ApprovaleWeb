@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">预算年份</label>
+                    <div class="layui-input-inline">
+                        <lay-date v-bind:value.sync="submitForm.Year" type='year' initial="off"></lay-date>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">月份</label>
+                    <div class="layui-input-inline">
+                        <remote-sel v-bind:setting="MouthSetting" layverify="required" v-bind:value.sync="submitForm.Month"
+                                    initial="off"></remote-sel>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">                
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">部门</label>
+                    <div class="layui-input-block">
+                        <input type="text" autocomplete="off" placeholder="请选择部门" lay-verify="required" class="layui-input" v-model="submitForm.DeptName">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button type="button" class="layui-btn" id="upload" @click="GetDepartment()">
+                        ...
+                    </button>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">科目</label>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="SubjectSetting" layverify="required" v-bind:value.sync="submitForm.Code"
+                                initial="off" v-ref:subject></remote-sel>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">预算金额</label>
+                <div class="layui-input-block">
+                    <input type="number" lay-verify="required" autocomplete="off" placeholder="预算金额" class="layui-input" v-model="submitForm.Money">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">用途说明</label>
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入内容" class="layui-textarea" v-model="submitForm.Remart"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit @click="submit">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="/Resources/js/Controls/Common.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "laydate"],
+    function (fnr) {
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        var form = layui.form;
+        function trim(str) {
+            return str.replace(/(^\s*)|(\s*$)/g, "");
+        }
+        laydate.render({
+            elem: '#remindDate',
+            type: 'datetime',
+            min: 0,
+            max: 365,
+            done: function (value) {
+                rootApp.submitForm.Date = value;
+            }
+        });
+
+        window.rootApp = new Vue({
+            el: "#root",
+            data: {
+                QuarterSetting: {
+                    search: true,
+                    options:
+                        [
+                            { ID: 1, Description: '第一季度' },
+                            { ID: 2, Description: '第二季度' },
+                            { ID: 3, Description: '第三季度' },
+                            { ID: 4, Description: '第四季度' },
+                        ],
+                    fields: { root: 'Data', key: 'ID', value: 'Description' },
+                 },
+                MouthSetting: {
+                     search: true,
+                     options:
+                         [
+                             { ID: 1, Description: '一月份' },
+                             { ID: 2, Description: '二月份' },
+                             { ID: 3, Description: '三月份' },
+                             { ID: 4, Description: '四月份' },
+                             { ID: 5, Description: '五月份' },
+                             { ID: 6, Description: '六月份' },
+                             { ID: 7, Description: '七月份' },
+                             { ID: 8, Description: '八月份' },
+                             { ID: 9, Description: '九月份' },
+                             { ID: 10, Description: '十月份' },
+                             { ID: 11, Description: '十一月份' },
+                             { ID: 12, Description: '十二月份' },
+                         ],
+                    fields: { root: 'Data', key: 'ID', value: 'Description' },
+                 },
+                 DepartmentSetting: {
+                     search: true,
+                     options:
+                         [
+                             { ID: 1, Description: '一月份' },
+                             { ID: 2, Description: '二月份' },
+                     ],
+                     fields: { root: 'Data', key: 'ID', value: 'Description' },
+                     //remote: { url: '', data: { Valid: 1, ColumnName: 'AppointmentType_ID' } }
+                 },
+                 SubjectSetting: {
+                     search: true,
+                     options: [],
+                     fields: { root: 'Data', key: 'Code', value: 'Name' },
+                     remote: { url: '', data: '' }
+                },
+                chbSwitch: false,
+                submitForm: {
+                    ID: 0,
+                    Year: fnr.format(Date.now(), 'yyyy'),
+                    Quarter: 1,
+                    Month: 1,
+                    Department_ID: 0,
+                    Code: '',//科目编码
+                    Money: "",
+                    Remart: "",
+                    DeptName: '',
+                    CompanyID:'',
+                }
+            },
+            watch: {
+                'submitForm.CompanyID': function (val) {
+                    if (val != null && val != "") {
+                        this.SubjectSetting.remote.url = '/service/finance/Finance/GetFinanceCode';
+                        this.SubjectSetting.remote.data = { FinanceCodeType: 0, Valid: 1, CompanyID: val };
+                        this.SubjectSetting.remote.filter = function (resp) {
+                            var Arr = new Array();
+                            fnr.each(resp, function (k, v) {
+                                if (v.IsEnd == 1) {
+                                    v["Name"] = v["Code"] + " " + v["Name"];
+                                    Arr.push(v)
+                                }
+                            });
+                            return Arr;
+                        }
+                        this.$refs.subject.reset();
+                    }
+                }
+            },
+            ready: function () {
+                var self = this;
+                var ID = fnr.getQueryString('ID');
+                if (ID > 0) {                    
+                    $.ajax({
+                        url: '/service/finance/Finance/GetBudgetDetail',
+                        type: 'GET',
+                        data: { ID: fnr.getQueryString('ID') },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.SuccessResponse) {                               
+                                self.submitForm.ID = data.Data.ID;
+                                self.submitForm.Year = data.Data.Year;
+                                self.submitForm.Quarter = data.Data.Quarter;
+                                self.submitForm.Month = data.Data.Month;
+                                self.submitForm.Department_ID = data.Data.Department_ID;
+                                self.submitForm.Code = data.Data.Code;
+                                self.submitForm.Money = data.Data.Money;
+                                self.submitForm.Remart = data.Data.Remart;
+                                self.submitForm.DeptName = data.Data.DeptName;
+                                self.submitForm.CompanyID = data.Data.Company_ID;
+                            }
+                        }
+                    });
+                }
+            },
+            methods: {
+                GetDepartment:function(){
+                    var self = this;
+                    var Paras = '';
+                    if (self.submitForm.Department_ID > 0) {
+                        Paras = self.submitForm.Department_ID + '|' + self.submitForm.DeptName;
+                    }
+                    fnr.openDialog({
+                        title: '选择成员所在部门',
+                        area: ['500px', '500px'],
+                        content: ['DepartSelect.html'],
+                        events: {
+                            new: function (data) {
+                                self.submitForm.CompanyID = data.Company_ID;
+                                self.submitForm.Department_ID = data.ID;
+                                self.submitForm.DeptName = data.Name;
+                            }
+                        }
+                    });
+                },
+                submit: function (e) {
+                    var self = this;
+                    if (self.submitForm.Remart != null && self.submitForm.Remart !='') {
+                        self.submitForm.Remart = trim(self.submitForm.Remart)
+                    }
+                    if (!layui.form.checkInput(e)) {
+                        return false;
+                    }
+                    if (self.submitForm.ID > 0) {
+                        $.ajax({
+                            url: '/service/finance/Finance/UpdateBudget',
+                            type: 'POST',
+                            data: self.submitForm,
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.SuccessResponse) {                                    
+                                    fnr.callDialog('refresh', { status: data.SuccessResponse, msg: data.Message });
+                                    fnr.closeDialog();
+                                } else {
+                                    layer.msg(data.Message);
+                                }
+                            }
+                        });
+                    } else {
+                        $.ajax({
+                            url: '/service/finance/Finance/AddBudget',
+                            type: 'POST',
+                            data: self.submitForm,
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.SuccessResponse) {
+                                    self.submitForm.ID = 0;
+                                    self.submitForm.Year = fnr.format(Date.now(), 'yyyy');
+                                    self.submitForm.Quarter = 1;
+                                    self.submitForm.Month = 1;
+                                    self.submitForm.Department_ID = 0;
+                                    self.submitForm.Code = '';//科目编码
+                                    self.submitForm.Money = "";
+                                    self.submitForm.Remart = "";
+                                    self.submitForm.DeptName = '';
+                                    self.submitForm.CompanyID = '';
+                                    
+                                    fnr.callDialog('refresh',  data);
+                                    fnr.closeDialog();
+                                } else {
+                                    layer.msg(data.Message);
+                                }
+                            }
+                        });
+                       
+                    }
+                }
+            }
+        });
+    });
+</script>

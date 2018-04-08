@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        .layui-icon.open{
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+
+        i.layui-icon{
+            display: inline-block;
+        }
+        .styleIconA {
+            position:relative;
+            display:inline-block;
+        }
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="mainContainer">
+        <blockquote class="layui-elem-quote" style="height:70px; padding: 0;">
+            <div class="layui-form" style="line-height: 70px;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时间范围</label>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="searchConditon.BeginTime" placeholder="开始时间" initial="off"></lay-date>
+                        </div>
+                        <span style="float: left;width: 40px;margin-right: 10px;text-align:center;height:38px;line-height:38px;">—</span>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="searchConditon.EndTime" placeholder="结束时间" initial="off"></lay-date>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                    </div>
+                </div>
+            </div>
+        </blockquote>
+        <!--操作模板-->
+        <table class="layui-table">
+            <colgroup>
+                <col width="300">
+                <col width="250">
+                <col width="100">
+            </colgroup>
+            <thead>
+                <tr style="background: #f2f9fb;">
+                    <th rowspan="2">科目编码</th>
+                    <th rowspan="2">科目名称</th>
+                    <th colspan="2">期初余额</th>
+                    <th colspan="2">本期发生</th>
+                    <th colspan="2">期末余额</th>
+                </tr>
+                <tr style="background: #f2f9fb;">
+                    <th>借</th>
+                    <th>贷</th>
+                    <th>借</th>
+                    <th>贷</th>
+                    <th>借</th>
+                    <th>贷</th>
+                </tr>
+            </thead>
+            <tbody v-cloak>
+                <tr v-for="(index,item) in formList" v-if="item.ListShouHide">
+                    <td style="min-width:125px;width:16%;text-align: left">
+                        <a class="styleIconA" v-bind:style="{marginLeft:item.Level*20+'px'}" v-if="(!!item.Leaf) &amp;&amp; (item.SubjectID > 0)">
+                            <i @click="subjectShowHide(item,$event)" class="layui-icon" style="cursor: pointer;">&#xe602;</i>
+                            <span class="ng-binding">
+                                {{item.Code}}
+                            </span>
+                        </a>
+                        <a class="styleIconA" v-bind:style="{marginLeft:(item.Level*20 + 20)+'px'}" v-else>
+                            <span class="ng-binding">
+                                {{item.Code}}
+                            </span>
+                        </a>
+                    </td>
+                    <td>{{item.Name}}</td>
+                    <td>{{item.BalanceMoneyLeft}}</td>
+                    <td>{{item.BalanceMoneyRight}}</td>
+                    <td>{{item.TotalMoneyLeft}}</td>
+                    <td>{{item.TotalMoneyRight}}</td>
+                    <td>{{item.LastMoneyLeft}}</td>
+                    <td>{{item.LastMoneyRight}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "laydate"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#times'
+                , type: 'datetime'
+                , range: true,
+                done: function (value) {
+                    console.log(value);
+                    window.rootApp.submitForm.time = value;
+                }
+            });
+
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    formList: [],
+                    submitForm: {
+                        time: '',
+                    },
+                    searchConditon:
+                    {
+                        BeginTime: fnr.format(Date.now(), 'yyyy-MM'+'-01'),
+                        EndTime: fnr.format(Date.now(), 'yyyy-MM-dd'),
+                    },
+                },
+                ready: function () {
+                    this.GetBalanceByDate();
+                },
+                methods: {
+                    //列表显示或者隐藏
+                    subjectShowHide: function (item,cb) {
+                        var self = this;
+                        var ev = cb.srcElement || cb.target || cb.toElement;
+                        if (!$(ev).hasClass('open')) {
+                            $(ev).addClass('open');
+                        } else {
+                            $(ev).removeClass('open');
+                        }
+                        if (item.Level == 0) {
+                            for (var i = 0; i < self.formList.length; i++) {
+                                if (self.formList[i].ParentID != null && self.formList[i].ParentID.indexOf(item.Code) == 0) {
+                                    if (!self.formList[i].ListShouHide && self.formList[i].Code.length == 4) {
+                                        self.formList[i].ListShouHide = true;
+                                    }
+                                    else {
+                                        self.formList[i].ListShouHide = false;
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            for (var i = 0; i < self.formList.length; i++) {
+                                if (self.formList[i].ParentID != null && self.formList[i].ParentID.indexOf(item.Code) == 0) {
+                                    if (!self.formList[i].ListShouHide && self.formList[i].Code.length - 2 == item.Code.length) {
+                                        self.formList[i].ListShouHide = true;
+                                    }
+                                    else {
+                                        self.formList[i].ListShouHide = false;
+                                    }
+                                }
+                            }
+                        }
+                        
+                    },
+                    GetBalanceByDate: function () {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetBalanceByDate', { CompanyID: GetParentQueryString("ID"), BeginTime: self.searchConditon.BeginTime, EndTime: self.searchConditon.EndTime, }, function (res) {
+                            if (res.SuccessResponse) {
+                                if (res.Data) {
+                                    if (2==1) {
+                                        for (var i = 0; i < res.Data.length; i++) {
+                                            res.Data[i].ListShouHide = true;
+                                            res.Data[i].lconsPosition = false;
+                                        }
+                                    } else {
+                                        for (var i = 0; i < res.Data.length; i++) {
+                                            if (res.Data[i].Level == 0) {
+                                                res.Data[i].ListShouHide = true;
+                                            } else {
+                                                res.Data[i].ListShouHide = false;
+                                            }
+                                        }
+                                    }
+                                    self.formList = res.Data;
+                                }
+                                console.log(self.formList);
+                            } else {
+                                layer.msg(res.Message)
+                            }
+                        });
+                    }
+                }
+            });
+        });
+</script>

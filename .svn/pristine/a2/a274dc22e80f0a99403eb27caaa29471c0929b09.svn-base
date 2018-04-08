@@ -1,0 +1,152 @@
+﻿<div class="mainContainer" id="root">
+    <blockquote class="layui-elem-quote">
+        <button class="layui-btn layui-btn-small layui-btn-primary" @click="MultipleCheckVoucher" v-bind:class="{'layui-btn-disabled':VoucherIDArr.length<=0}" v-bind:disabled="VoucherIDArr.length<=0">一键审核</button>
+    </blockquote>
+    <table id="listTable" lay-filter="listTable"></table>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<!--<style>
+    .layui-form-checkbox span { height: auto; }
+    .layui-form-label { width: 150px; }
+    .layui-input-block { margin-left: 180px; }
+</style>-->
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    VoucherIDArr: [],
+                    VoucherID: fnr.getQueryString('voucherid')
+                },
+                ready: function () {
+
+                },
+                methods: {
+                    getParentQueryString: function (name) {
+                        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                        var r = window.parent.location.search.substr(1).match(reg);
+                        if (r != null) return decodeURIComponent(r[2]);
+                        return undefined;
+                    },
+                    //批量审核
+                    MultipleCheckVoucher: function () {
+                        var that = this;
+                        $.post('/service/finance/Finance/MultipleCheckVoucher', { strList: this.VoucherIDArr, Valid: 1 }, function (res) {
+                            if (res.SuccessResponse) {
+                                that.tableIns.reload();
+                            }
+                        })
+                    },
+                    HandleRender: function (data) {
+                        var that = this
+
+                    }
+                }
+            });
+
+            var where = {};
+            if (window.parent["voucherQuery"] != undefined) {
+                where = window.parent["voucherQuery"];
+                delete window.parent["voucherQuery"];
+            }
+            var tableIns = table.render({
+                elem: '#listTable',
+                id: 'listTable',
+                even: true, //开启隔行背景
+                page: true, //分页
+                height:'full-140',
+                method:'post',
+                where:where,
+                cols: [
+                    [
+                        { fixed: true, checkbox: true },
+                        {
+                            field: 'Time', fixed: true, title: '制单日期', width: 180, templet: function () {
+                                return fnr.format(this.Time, "yyyy-MM-dd HH:mm")
+                            }
+                        },
+                        {
+                            field: 'No', title: '凭证编号', width: 120, templet: function () {
+                                var str = '';
+                                if (this.Type == 0) {
+                                    str = '收'
+                                } else if (this.Type == 1) {
+                                    str = '付'
+                                } else if (this.Type == 2) {
+                                    str = '转'
+                                }
+                                return str + '-' + this.No
+                            }
+                        },
+                        { field: 'Title', title: '摘要', width: 120 },
+                        { field: 'LeftMoney', title: '借方金额合计', width: 120 },
+                        { field: 'RightMoney', title: '贷方金额合计', width: 120 },
+                        { field: 'HandlerName', title: '制单人', width: 120 },
+                        { field: 'ValiderName', title: '审核人', width: 120 },
+                        {
+                            field: 'ReviewTime', title: '审核时间', width: 120, templet: function () {
+                                if (this.Valid == 0) {
+                                    return '';
+                                }
+                                return fnr.format(this.ReviewTime, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        },
+                        {
+                            field: 'ReviewStatus', title: '复核状态', width: 120, templet: function () {
+                                return this.ReviewStatus ? '<span style="color:#009688">已复核<span>' : '<span style="color:#FF5722">未复核</span>'
+                            }
+                        },
+                        {
+                            field: 'Valid', title: '状态', width: 120, templet: function () {
+                                return this.Valid == 0 ? '<span>未审核<span>' : (this.Valid == 1 ? '<span style="color:#009688">审核通过</span>' : '<span style="color:#FF5722">审核拒绝</span>')
+                            }
+                        },
+                        {
+                            fixed: 'right',
+                            field: 'name',
+                            title: '操作',
+                            width: 80,
+                            toolbar: function () {
+                                return "<button class=\"layui-btn layui-btn-small\" lay-event='HandelEdit'>编辑</button>";
+                            }
+                        }
+                    ]
+                ],
+                url: '/service/finance/Finance/GetFinanceList' + location.search
+            });
+            tableExt.addEvent("tool(listTable)",
+                {
+                    //添加联系
+                    "HandelEdit": function (data) {
+                        fnr.openDialog({
+                            title: '凭证详情',
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Voucher/create.html?VoucherID=' + data.VoucherID],
+                            //btn: ['确认修改'],
+                            events:{
+                                refresh:function(data){
+                                    tableIns.reload();
+                                }
+                            },
+                        });
+                    }
+                });
+            table.on('checkbox(listTable)', function (obj) { //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+                var checkStatus = table.checkStatus('listTable'),
+                data = checkStatus.data;
+                vm.VoucherIDArr = [];
+                data.forEach(function (value, item, arr) {
+                    vm.VoucherIDArr.push(value.VoucherID)
+                });
+            });
+        });
+</script>

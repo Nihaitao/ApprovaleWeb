@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery-1.4.4.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.core.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.excheck.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.exedit.js"></script>
+
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        require_js_file(["table", 'tree', "form", "jquery", "tableExt"],
+        function (fnr) {
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                async: {
+                    enable: true,
+                    autoParam: ["ID"],
+                    type: "get",
+                    dataFilter: ajaxDataFilter,
+                    url: "/service/finance/Finance/GetProjectList?Valid=-1&Stationproxy_ID=" + fnr.getQueryString("Stationproxy_ID"),
+                },
+                data: {
+                    key: {
+                        name: "Name"
+                    },
+                    simpleData: {
+                        enable: true,
+                        idKey: "ID",
+                        pIdKey: "CID"
+                    }
+                },
+                view: {
+                    nameIsHTML: true,
+                    showTitle: false,
+                    fontCss: setEnable
+                },
+                callback: {
+                    onDblClick: function (e, treeId, treeNode) {
+                        if (treeNode.ID == 0) {
+                            layer.msg("不能选择根级，请重新选择！");
+                            return;
+                        }
+                        if (treeNode.Valid == 0) {
+                            layer.msg("所选部门已禁用，请重新选择！");
+                            return;
+                        }
+                        fnr.callDialog('refresh', { ID: treeNode.ID, Name: treeNode.Name })
+                        fnr.closeDialog()
+                    }
+                }
+            };
+            //启用/禁用
+            function setEnable(treeId, treeNode) {
+                return treeNode.Valid == 0 ? { color: "red" } : {};
+            }
+
+            //节点去掉删除
+            function showRemoveBtn(treeId, treeNode) {
+                return treeNode.ID;
+            }
+            //节点去掉修改
+            function showRenameBtn(treeId, treeNode) {
+                return treeNode.ID;
+            }
+
+            //获取地址栏参数
+            function GetQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]); return null;
+            }
+
+            function removeHoverDom(treeId, treeNode) {
+                $("#addBtn_" + treeNode.tId).unbind().remove();
+            };
+
+            function ajaxDataFilter(treeId, parentNode, rsp) {
+                rsp.Data.map(function (a, b) {
+                    a.CID = a.CID;
+                    a.ID = a.ID;
+                    a.Code = a.Code;
+                    a.Valid = a.Valid;
+                    a.NewName = a.Name;
+                    a.Name = a.Name + '(' + a.Code + ')'
+                    a.isParent = false;
+                    a.open = 1;
+                });
+                if (parentNode == null) {
+                    rsp.Data.push({ ID: 0, Name: '核算项目', open: 1 })
+                } else {
+                    rsp.Data
+                }
+                return rsp.Data;
+            };
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    queryFormData: {
+                        SearchValue: '',
+                        ID: 0,
+                        CID: 0,
+                        Name: '',
+                        Valid: 1
+                    }
+                },
+                ready: function () {
+                },
+                methods: {
+                }
+            });
+
+            $(document).ready(function () {
+                zTreeObj = $.fn.zTree.init($("#treeDemo"), setting);
+            });
+        });
+    </script>
+
+
+
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-col-xs2">
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+    </div>
+</body>
+</html>

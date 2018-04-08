@@ -1,0 +1,185 @@
+﻿<div class="mainContainer" id="root">
+    <blockquote class="layui-elem-quote">
+        <button class="layui-btn layui-btn-small layui-btn-primary" @click="MultipleCheckVoucher" v-bind:class="{'layui-btn-disabled':VoucherIDArr.length<=0}" v-bind:disabled="VoucherIDArr.length<=0">一键审核</button>
+        <button class="layui-btn layui-btn-small layui-btn-primary" @click="HandleVoucherNo">整理断号</button>
+    </blockquote>
+    <table id="listTable" lay-filter="listTable"></table>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-table-cell{ height:30px;line-height:30px;}
+    .layui-table-cell .layui-form-checkbox {top: 6px;}
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    VoucherIDArr: [],
+                    VoucherID: fnr.getQueryString('voucherid')
+                },
+                ready: function () {
+
+                },
+                methods: {
+                    getParentQueryString: function (name) {
+                        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                        var r = window.parent.location.search.substr(1).match(reg);
+                        if (r != null) return decodeURIComponent(r[2]);
+                        return undefined;
+                    },
+                    //批量审核
+                    MultipleCheckVoucher: function () {
+                        var that = this;
+                        $.post('/service/finance/Finance/MultipleCheckVoucher', { strList: this.VoucherIDArr, Valid: 1 }, function (res) {
+                            if (res.SuccessResponse) {
+                                tableIns.reload();
+                            }
+                        })
+                    },
+                    HandleVoucherNo: function () {
+                        if (where != {}) {
+                            var BeginTime = where.BeginTime;
+                            var Stationproxy_ID = where.Stationproxy_ID;
+                            $.post('/service/finance/Finance/HandleVoucherNo', { BeginTime: BeginTime, Stationproxy_ID: Stationproxy_ID }, function (res) {
+                                layer.msg(res.Message)
+                                if (res.SuccessResponse) {
+                                    tableIns.reload();
+                                }
+                            })
+                        }
+                    }
+                }
+            });
+
+            var where = {};
+            if (window.parent["voucherQuery"] != undefined) {
+                where = window.parent["voucherQuery"];
+                //delete window.parent["voucherQuery"];
+            }
+            var tableIns = table.render({
+                elem: '#listTable',
+                id: 'listTable',
+                even: true, //开启隔行背景
+                page:true,
+                height:'full-100',
+                method:'post',
+                cols: [
+                    [
+                        { fixed:true,checkbox:true,},
+                        {
+                            field: 'Time', title: '制单日期', width: 180, templet: function () {
+                                return fnr.format(this.Time, "yyyy-MM-dd HH:mm")
+                            }
+                        },
+                        {
+                            field: 'No', title: '凭证编号', width: 120, templet: function () {
+                                var str = '';
+                                if (this.Type == 0) {
+                                    str = '收'
+                                } else if (this.Type == 1) {
+                                    str = '付'
+                                } else if (this.Type == 2) {
+                                    str = '转'
+                                }else if (this.Type == 3) {
+                                    str = '记'
+                                }
+                                return str + '-' + this.No
+                            }
+                        },
+                        { field: 'Title', title: '摘要', width: 120 },
+                        { field: 'LeftMoney', title: '借方金额合计', width: 120 },
+                        { field: 'RightMoney', title: '贷方金额合计', width: 120 },
+                        { field: 'HandlerName', title: '制单人', width: 120 },
+                        { field: 'ValiderName', title: '审核人', width: 120 },
+                        {
+                            title: '审核时间', width: 180, templet: function () {
+                                if (this.Valid == 0) {
+                                    return '';
+                                }
+                                return fnr.format(this.ValidTime, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        },
+                        //{
+                        //    field: 'ReviewStatus', title: '复核状态', width: 120, templet: function () {
+                        //        return this.ReviewStatus ? '<span style="color:#009688">已复核<span>' : '<span style="color:#FF5722">未复核</span>'
+                        //    }
+                        //},
+                        {
+                            field: 'Valid', title: '状态', width: 120, templet: function () {
+                                if(this.Valid == 0){
+                                    return '<span>未审核<span>'
+                                }else if(this.Valid == 1){
+                                    return '<span style="color:#009688">审核通过</span>'
+                                }else if(this.Valid==2){
+                                    return '<span style="color:#FFB800">审核拒绝</span>'
+                                }else if(this.Valid==3){
+                                    return '<span style="color:#FF5722">作废</span>'
+                                }
+                            }
+                        },
+                        {
+                            fixed: 'right',
+                            field: 'name',
+                            title: '操作',
+                            width: 120,
+                            toolbar: function () {
+                                var btns = new Array();
+                                btns.push("<button class=\"layui-btn layui-btn-small\" lay-event='HandelEdit'>编辑</button>");
+                                if (this.Valid == 0 || this.Valid == 3) {
+                                    btns.push("<button class=\" layui-btn layui-btn-small layui-btn-danger \" lay-event='HandelDelete'>删除</button>");
+                                }                                
+                                return btns.join(",").replace(',','');
+                            }
+                        }
+                    ]
+                ],
+                url: '/service/finance/Finance/GetFinanceList' + location.search,
+                where:where,
+            });
+            tableExt.addEvent("tool(listTable)",
+                {
+                    //添加联系
+                    "HandelEdit": function (data) {
+                        fnr.openDialog({
+                            title: '凭证详情',
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Finance/Voucher/create.html?VoucherID=' + data.VoucherID],
+                            //btn: ['确认修改'],
+                            events:{
+                                refresh:function(data){
+                                    tableIns.reload();
+                                }
+                            },
+                        });
+                    },
+                    "HandelDelete": function (data) {
+                        layer.confirm('确定删除吗？删除后不可恢复！', function () {
+                            $.post("/service/finance/Finance/DeleteFinanceVoucher", { VoucherID: data.VoucherID }, function (res) {
+                                layer.msg(res.Message)
+                                if (res.SuccessResponse) {
+                                    tableIns.reload();
+                                }
+                            });
+                        });
+                    }
+                });
+            table.on('checkbox(listTable)', function (obj) { //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+                var checkStatus = table.checkStatus('listTable'),
+                data = checkStatus.data;
+                vm.VoucherIDArr = [];
+                data.forEach(function (value, item, arr) {
+                    vm.VoucherIDArr.push(value.VoucherID)
+                });
+            });
+        });
+</script>

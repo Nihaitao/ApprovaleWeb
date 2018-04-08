@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <label>{{Filed.Title}}</label>
+                </div>
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">{{Filed.ApprovalStatus==0?"未审核":(Filed.ApprovalStatus==1?"审核中":(Filed.ApprovalStatus==2?"审核通过":(Filed.ApprovalStatus==3?"审核未通过":"")))}}</label>
+                </div>
+            </div>
+            <div v-for="(index,item) in FieldShow">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">{{item.ShowName}}</label>
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">{{item.ShowValue}}</label>
+                    </div>
+                </div>
+                <div class="layui-form-item" v-for="(index,Detailsitem) in item.Details">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">{{Detailsitem.ShowName}}</label>
+                    </div>
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">{{Detailsitem.ShowValue}}</label>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" v-for="(index,Processitem) in ProcessList">
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">{{Processitem.AccName}}</label>
+                    <label class="layui-form-label">{{Processitem.OperationStatus==0?"未审核":(Processitem.OperationStatus==1?"审核中":(Processitem.OperationStatus==2?"审核通过":(Processitem.OperationStatus==3?"审核未通过":"")))}}</label>
+                </div>
+                <div class="layui-input-inline" v-for="(index,Accountitem) in Processitem.AccountList">
+                    <label class="layui-form-label">{{Accountitem.AccountName}}</label>
+                    <label class="layui-form-label">{{Accountitem.State==0?"未审核":(Accountitem.State==1?"审核中":(Accountitem.State==2?"审核通过":(Accountitem.State==3?"审核未通过":"")))}}</label>
+                </div>
+            </div>
+            <div class="layui-col-xs12" v-if="Isshow==1">
+                <button class="layui-btn layui-btn-primary" lay-filter="btn" @click="UpdateApprovalList">同意</button>
+                <button class="layui-btn layui-btn-primary" lay-filter="btn" @click="UpdateApprovalList">驳回</button>
+                <button class="layui-btn layui-btn-primary" lay-filter="btn" @click="AddApprovalTemplate">转审</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "jqueryui"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    queryFormData: {
+                        ApprovalListID: "",
+                    },
+                    Filed: '',
+                    FieldShow: [],
+                    ProcessList: [],
+                    Isshow:"",
+                },
+                watch: {
+                },
+                ready: function () {
+                    var that = this;
+                    this.queryFormData.ApprovalListID = fnr.getQueryString("ID");
+                    that.Isshow = fnr.getQueryString("Isshow");
+                    $.get("/service/approval/Process/GetSelectApproval", { ApprovalListID: this.queryFormData.ApprovalListID }, function (rsp) {
+                        that.Filed = rsp.Data.ApModel;
+                        that.FieldShow = rsp.Data.FieldShow;
+                        that.ProcessList = rsp.Data.ProcessList;
+                    });
+                },
+                methods: {
+                    //保存数据关闭弹窗
+                    formDemo: function (e) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        this.ConditionTemplete.ConditionType = 0;//默认条件
+                        if (this.Approvers == null || this.Approvers == "") {
+                            layer.msg("请选择审批人");
+                            return false;
+                        }
+                        if (this.queryFormData.Visrange.length == 0) {
+                            layer.msg("请选择可见范围");
+                            return false;
+                        }
+                        //配置条件审批优先级
+                        var self = this;
+                        $('.tree .tree-content .custom-ele').each(function (i) {
+                            var selfData = $(this).data("item");
+                            for (var j in self.queryFormData.Condition) {
+                                if (selfData == self.queryFormData.Condition[j].FieldId) {
+                                    self.queryFormData.Condition[j].Priority = i;
+                                }
+                            }
+                        });
+
+                        this.ConditionTemplete.ApprovalConditionObject = this.Approvers;
+                        this.ConditionTemplete.ApprovalConditionCC = this.ApproverCC;
+                        this.queryFormData.Condition.push(JSON.parse(JSON.stringify(this.ConditionTemplete)));
+                        $.post("/service/approval/Approval/AddApprovalType", this.queryFormData, function (rsp) {
+                            layer.msg(rsp.Message);
+                            fnr.closeDialog();
+                            parent.rootApp.doSearch();
+                        })
+                    },
+                    UpdateApprovalList: function (e) {
+                        $.post("/service/approval/Process/UpdateApprovalList", { operationStatus: 1, ApprovalList_ID: fnr.getQueryString("ID"), Remark: 123 }, function (rsp) {
+                            layer.msg(rsp.Message);
+                            fnr.closeDialog();
+                            parent.rootApp.doSearch();
+                        })
+                    },
+                }
+            });
+        });
+</script>

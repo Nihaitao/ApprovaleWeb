@@ -1,0 +1,220 @@
+﻿<div class="tempBlock" id="root" v-cloak>
+        <div class="layui-row" style="height: 80px;">
+            <div class="layui-col-xs12" style="height: 100%; background: #F6F8F8;">
+                <p style="line-height: 80px;text-align: center; font-size: 24px; border-radius: 3px;">结转</p>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12" style="height: 50px; margin-top: 10px;">
+                <div class="layui-form">
+                    <div class="layui-inline">
+                        <lay-date v-bind:value.sync="submitForm.BeginTime" type='month' initial="off"></lay-date>
+                    </div>
+                    <div class="layui-inline">
+                        <button class=" layui-btn layui-btn-small layui-btn-primary" @click="GetFinanceCarryoverList(0)">查看结转</button>
+                    </div>
+                    <div class="layui-inline">
+                        <button class=" layui-btn layui-btn-small layui-btn-danger" @click="GetFinanceCarryoverList(1)">生成结转</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="interface">
+            <ul class="clear">
+                <li class="text-center" v-for="item in tempList">
+                    <div class="pzContentXj">
+                        <div class="normalPanel">
+                            <div class="reflect">
+                                <i class="layui-icon">&#xe65e;</i>
+                                <span class="tixian">{{item.WarningText}}</span>
+                            </div>
+                            <table class="tbodyjd">
+                                <tbody>
+                                    <tr >
+                                        <td>
+                                            <span>金额:&nbsp;&nbsp;</span>
+                                        </td>
+                                        <td class="ssba">
+                                            <span class="els_span" title="">{{item.Money}}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button class="layui-btn" v-bind:disabled="!item.Voucher" @click="tempEdit(item)" v-bind:class="{'layui-btn-disabled':!item.Voucher}">查看结转</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    .tempBlock {
+        padding: 15px;
+    }
+
+    .pzContentXj i.icon-plus {
+        color: #009f95;
+        font-size: 143px;
+    }
+
+    .clear, .text-ellipsis {
+        display: block;
+        overflow: hidden;
+    }
+
+    .interface ul li {
+        float: left;
+        width: 230px;
+        height: 200px;
+        margin-bottom: 10px;
+        margin-left: 16px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .pzContentXj {
+        width: 230px;
+        height: 158px;
+        border: 1px solid #009f95;
+        box-sizing: border-box;
+        text-align: center;
+        position: relative;
+        margin-bottom: 5px;
+    }
+
+        .pzContentXj i {
+            vertical-align: middle;
+            display: inline-block;
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+    .normalPanel {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .reflect {
+        width: 100%;
+        height: 34px;
+        background-color: #009f95;
+    }
+
+    .tixian {
+        display: inline-block;
+        width: 130px;
+        height: 34px;
+        line-height: 34px;
+        text-align: left;
+        word-break: keep-all;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        max-width: 100%;
+        color: #fff;
+    }
+
+    .tbodyjd {
+        margin-top: 22px;
+        margin-left: 26px;
+        color: #1c2b36;
+        text-align: left;
+        font-size: 14px;
+    }
+
+        .tbodyjd tr {
+            margin-top: 6px;
+        }
+
+            .tbodyjd tr td {
+                cursor: pointer;
+            }
+
+    .els_span {
+        display: block;
+        word-break: keep-all;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        max-width: 170px;
+    }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    Stationproxy_ID: 0,
+                    tempList: '',
+                    submitForm: {
+                        BeginTime: fnr.format(Date.now(), 'yyyy-MM'),
+                    }
+                },
+                ready: function () {
+                    this.Stationproxy_ID = GetParentQueryString('ID'),
+                    this.GetFinanceCarryoverList(0);
+                },
+                methods: {
+                    GetFinanceCarryoverList: function (data) {
+                        var that = this;
+                        $.get('/service/finance/Finance/GetFinanceCarryoverList', { BeginTime: that.submitForm.BeginTime, Stationproxy_ID: that.Stationproxy_ID, Status: data }, function (res) {
+                            if (res.SuccessResponse) {
+                                if (data == 1) {
+                                    layer.msg(res.Message);
+                                }
+                                that.tempList = res.Data;
+                            }
+                            else {
+                                if (data == 1) {
+                                    layer.msg(res.Message);
+                                }
+                            }
+                        })
+                    },
+                    tempEdit: function (item) {
+                        if (item.Voucher == null) {
+                            return;
+                        }
+                        //产看凭证
+                        fnr.openDialog({
+                            title: '结转详情',
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Finance/Voucher/create.html?VoucherID=' + item.Voucher.VoucherID],
+                            events:{
+                                refresh:function(data){
+                                }
+                            },
+                        });
+                    }
+                }
+            });
+        });
+</script>

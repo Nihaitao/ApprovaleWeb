@@ -1,0 +1,210 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title" v-cloak>
+            <li class="m-l-lg "
+                v-for="(index,item) in query"
+                v-bind:class="{ 'layui-this': index === selected }"
+                @click="choose(index,item)">
+                <a href="javascript:;" v-bind:data-bustype="item.val">{{item.query}}</a>
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-form">
+                <div class="layui-row custom-title">
+                    <div class="layui-col-md1">级次</div>
+                    <div class="layui-col-md2">科目编码</div>
+                    <div class="layui-col-md4">科目名称</div>
+                    <div class="layui-col-md2">辅助核算</div>
+                    <div class="layui-col-md1">操作</div>
+                </div>
+                <div class="custom-field">
+                    <div class="tree" v-for="(rootIndex,rootItem) in formList">
+                        <div class="tree-content" v-cloak>
+                            <div class="layui-row custom-ele">
+                                <div class="layui-col-md1">{{rootItem.Code | togglejici}}</div>
+                                <div class="layui-col-md2">{{rootItem.Code}}</div>
+                                <div class="layui-col-md4" v-bind:style="{textIndent: (rootItem.Code.length-4) + 'em' }">{{rootItem.Name?rootItem.Name:'&nbsp;'}}</div>
+                                <div class="layui-col-md2">{{rootItem.Hesuan}}</div>
+                                <div class="layui-col-md1">
+                                    <a v-if="rootItem.IsEnd>0" href="javascript:;" @click="setFinanceCodeAmount(rootItem)">设置期初余额</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<!--<script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/util.js"></script>-->
+
+<style>
+    .custom-title {
+        line-height: 45px;
+        background: #f5f5f5;
+        padding-left: 10px;
+    }
+
+    .custom-block {
+        line-height: 45px;
+        height: 45px;
+        background: #e0e0e0;
+        padding-left: 10px;
+    }
+
+    .custom-ele, .custom-empty {
+        line-height: 45px;
+        height: 45px;
+        border-bottom: 1px solid #ebebeb;
+        padding-left: 10px;
+    }
+
+        .custom-ele:hover {
+            line-height: 45px;
+            height: 45px;
+            background: #f5f5f5;
+        }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .spical {
+        font-size: 12px;
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 5px;
+        margin-top: 8px;
+        color: #C9C9C9;
+    }
+</style>
+<script>
+
+    Vue.filter('togglejici', function (value) {
+        if (value.length == 1) { return 0; }
+        else if (value.length == 4) {
+            return 1;
+        } else if (value.length == 6) {
+            return 2;
+        } else if (value.length == 8) {
+            return 3;
+        } else if (value.length == 10) {
+            return 4;
+        } else if (value.length == 12) {
+            return 5;
+        }
+    })
+
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui','element'],
+        function (fnr) {
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+            var element=layui.element;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                directives: {
+                    "data":
+                    {
+                        params: ["self", "parent", "index"],
+                        bind: function () {
+                            $(this.el).data("self", this.params.self);
+                            $(this.el).data("parent", this.params.parent);
+                        }
+                    }
+                },
+                data:{
+                    selected: 0,
+                    isnew: '',
+                    query: [
+                        { 'query': '全部', "val": 0 },
+                        { 'query': '资产', "val": 1 },
+                        { 'query': '负债', "val": 2 },
+                        { 'query': '权益', "val": 3 },
+                        { 'query': '损益', "val": 5 },
+                    ],
+                    formList: [],
+                    content: ''
+                },
+                ready: function () {
+                    this.GetFinanceCode(0);
+                },
+                methods: {
+                    //切换
+                    choose: function (index, item) {
+                        this.selected = index;
+                        this.GetFinanceCode(item.val);
+                    },
+                    togglehs:function(arr){
+                        if(!arr){
+                            return
+                        }
+                        arr.forEach(function(item,index,arr){
+                            item.Hesuan=[];
+                            if (!!item.ProjectCheck || !!item.ClientCheck || !!item.DepartmentCheck || !!item.PersonCheck) {
+                                if (!!item.ProjectCheck) {
+                                    item.Hesuan.push("项目核算")
+                                } if (!!item.ClientCheck) {
+                                    item.Hesuan.push("客户核算")
+                                } if (!!item.DepartmentCheck) {
+                                    item.Hesuan.push("部门核算")
+                                } if (!!item.PersonCheck) {
+                                    item.Hesuan.push("个人核算")
+                                }
+                            } else {
+                                item.Hesuan.push("无核算方式")
+                            }
+                            return item.Hesuan.join('')
+                        })
+                        return arr
+                    },
+                    //设置科目
+                    setFinanceCodeAmount: function (item) {
+                        var that = this;
+                        fnr.openDialog({
+                            title: "设置期初余额" ,
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 1000) / 2],
+                            content: ["/html/Set/setFinanceCodeAmount.html?Code=" + item.Code, "yes"],
+                            area: ["1000px", "620px"],
+                            btn: ["保存"],
+                            events: {
+                                new: function (data) {
+                                    $.ajax({
+                                        url: "/service/finance/Finance/SetFinanceCodeAmount",
+                                        contentType: "application/json",
+                                        method: "post",
+                                        data: JSON.stringify(data),
+                                        success: function (resp) {
+                                            if (resp.SuccessResponse) {                                                
+                                                layer.msg(resp.Message);
+                                            } else {
+                                                return layer.msg(resp.Message);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    },
+                    GetFinanceCode: function (val) {
+                        var self = this;
+                        $.get("/service/finance/Finance/GetFinanceCode", {Company_ID:1,FinanceCodeType: val,Valid:1 }, function (res) {
+                            self.formList=self.togglehs(res.Data);
+                        });
+                    },
+
+                }
+            });
+        });
+</script>

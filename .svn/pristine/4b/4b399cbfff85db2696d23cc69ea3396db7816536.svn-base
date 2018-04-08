@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>请假表填写</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+    </script>
+</head>
+<body>
+    <div class="appContainer">
+        <!--请假类型-->
+        <div class="leaveTypeList">
+            <ul class="leaveTitle">
+                <li class="item">
+                    <span class="title">请假类型</span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <!--分割线-->
+        <div class="line"></div>
+        <div class="leaveMain">
+            <ul class="mainItems">
+                <li class="item">
+                    <span class="title">
+                        开始时间
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+                <li class="item">
+                    <span class="title">
+                        结束时间
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+                <li class="item">
+                    <span class="title">
+                        请假时长
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        <b style="font-style: normal; font-weight: normal; margin-right: 0.5rem;">0天</b><b style="font-style: normal; font-weight: normal;">0小时</b>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="line"></div>
+
+        <!--请假事由-->
+        <div class="leaveReason">
+            <p class="reasonText">
+                请假事由
+                <i class="xing">*</i>
+            </p>
+            <textarea placeholder="请输入请假事由"></textarea>
+        </div>
+        <div class="line"></div>
+
+        <!--说明附件-->
+        <div class="annex">
+            <p class="annexText">
+                说明附件
+            </p>
+            <div class="addAnnex">
+                <i class="iconfont icon-jia"></i>
+            </div>
+        </div>
+        <div class="line"></div>
+
+        <!--审批人-->
+        <div class="approver">
+            <p class="approverText">
+                审批人
+                <i class="xing">*</i>
+            </p>
+            <div class="addApprover">
+                <div class="approveImgBox">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/leaveHead.png" height="88" width="88" />
+                        <span>王小明</span>
+                        <i class="iconfont icon-cha"></i>
+                    </div>
+                    <img class="dian" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/dian.png" height="88" width="30" />
+                </div>
+                <div class="addAnnex" style="vertical-align: top; margin: 0;">
+                    <i class="iconfont icon-jia"></i>
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+
+        <!--抄送人-->
+        <div class="makeCopy">
+            <p class="annexText">
+                抄送人
+            </p>
+            <div class="addAnnex">
+                <i class="iconfont icon-jia"></i>
+            </div>
+        </div>
+
+        <!--提交-->
+        <div class="submitTemp">
+            <p class="submitBtn">提交</p>
+        </div>
+    </div>
+</body>
+</html>

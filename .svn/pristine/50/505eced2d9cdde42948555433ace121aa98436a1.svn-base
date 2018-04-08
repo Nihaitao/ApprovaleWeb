@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>预算列表</title>
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <blockquote class="layui-elem-quote">
+            <div class="layui-row layui-form">
+                <div class="layui-col-xs10">
+                    <div class="layui-input-inline">
+                        <lay-date v-bind:value.sync="submitForm.Year" type='year' placeholder="年份" initial="off"></lay-date>
+                    </div>
+                    <div class="layui-input-inline">
+                        <remote-sel v-bind:setting="QuarterSetting" laytips="季度" v-bind:value.sync="submitForm.Quarter"
+                                    initial="off"></remote-sel>
+                    </div>
+                    <div class="layui-input-inline">                        
+                        <input type="text" required autocomplete="off" placeholder="请选择部门" lay-verify="required" class="layui-input" @dblclick="GetDepartment()" v-bind:value.sync="submitForm.DeptName">
+                        <i v-if="submitForm.DepartmentID>0" @click="clearDepart()" class="layui-del layui-icon" style="position: absolute;right: 5px;top: 50%;cursor: pointer;font-size: 13px;transform: translateY(-50%);">ဆ</i>
+                    </div>
+                    <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                </div>
+            </div>
+        </blockquote>      
+        <!--操作模板-->
+        <table id="listTable" lay-filter="listTable"></table>
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate', 'layer'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var layer = layui.layer;
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            var tableColsConfig =
+                [
+                    { field: 'DeptName', title: '所属部门', width: 150, sort: true },
+                    {
+                        field: 'Quarter', title: '年季度', width: 180, sort: true, templet: function () {
+                            return this.Year+'年第'+this.Quarter+'季度'
+                        }
+                    },
+                    { field: 'TotalMoney', title: '预算金额', width: 120, sort: true },
+                    { field: '', title: '剩余预算', width: 120, sort: true },
+                    {
+                        field: 'Valid', title: '状态', width: 120, templet: function () {
+                            var array = new Array();
+                            array.push("<a href='javascript:;'>" + (this.Valid == 0 ? "未审核" : "已审核") + "</a>");
+                            return "<div>" + array.join("") + "</div>"; shen
+                        }
+                    },
+                    {
+                        fixed: 'right',
+                        title: '操作',
+                        width: 280,
+                        toolbar: function () {
+                            var array = new Array();
+                            array.push("<button href='javascript:;' class='layui-btn layui-btn-info layui-btn-small' lay-event='SeeDudget'>查看</button>");
+                            return "<div>" + array.join("") + "</div>";
+                        }
+                    }
+                ];
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    CompanyID: '',
+                    submitForm: {
+                        //Year: fnr.format(Date.now(), 'yyyy'),
+                        Year:"",
+                        DeptName: "",
+                        DepartmentID: "",
+                        Quarter: 0,
+                        CompanyID: GetParentQueryString('ID'),
+                    },
+                    QuarterSetting: {
+                        search: true,
+                        options:
+                            [
+                                { ID: 1, Description: '第一季度' },
+                                { ID: 2, Description: '第二季度' },
+                                { ID: 3, Description: '第三季度' },
+                                { ID: 4, Description: '第四季度' },
+                            ],
+                        fields: { key: 'ID', value: 'Description' },
+                    },
+                },
+                ready: function () {                   
+                    this.CompanyID = GetParentQueryString('ID');
+                },
+                methods: {
+                    clearDepart: function () {
+                        var self = this;
+                        self.submitForm.DepartmentID = 0;
+                        self.submitForm.DeptName = "";
+                    },
+                    //查询条件
+                    doSearch: function () {
+                        var self = this;
+                        self.submitForm.ModelValue = self.submitForm.ModelValue;
+                        listTable.reload({
+                            where: this.submitForm
+                        })
+                    },
+                    GetDepartment: function () {                        
+                        var self = this;
+                        var Paras = '';
+                        if (self.submitForm.DepartmentID > 0) {
+                            Paras = self.submitForm.DepartmentID + '|' + self.submitForm.DeptName;
+                        }
+                        fnr.openDialog({
+                            title: '选择成员所在部门',
+                            area: ['500px', '500px'],
+                            content: ['DepartSelect.html?CompanyID=' + self.CompanyID],
+                            events: {
+                                new: function (data) {
+                                    self.submitForm.DepartmentID = data.ID;
+                                    self.submitForm.DeptName = data.Name;
+                                }
+                            }
+                        });
+                    },
+                    SeeDudgetList: function (data) {
+                        var self = this;
+                        fnr.openDialog({
+                            title: '查看明细',
+                            area: ['1320px', '700px'],
+                            content: ['BudgetDetailedList.html?Year=' + data.Year + '&DepartmentID=' + data.Department_ID + '&Quarter=' + data.Quarter + '&CompanyID=' + self.CompanyID],
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg(data.msg);
+                                        listTable.refresh()
+                                    } else {
+                                        layer.msg(data.msg);
+                                    }
+                                }
+                            }
+                        });
+                    },
+                }
+            })
+            //绑定列表
+            var listTable = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: true, //页分,
+                id: 'listTable',
+                cols: [tableColsConfig],
+                url: "/service/finance/Finance/GetBudgetList",
+                where: {
+                    CompanyID: window.rootApp.$data.CompanyID
+                }
+            });
+            tableExt.addEvent("tool(listTable)", {
+                "SeeDudget": function (data, obj, e) {
+                    rootApp.SeeDudgetList(data);
+                },
+            })
+        })
+</script>

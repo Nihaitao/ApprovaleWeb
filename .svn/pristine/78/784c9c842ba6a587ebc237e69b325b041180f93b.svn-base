@@ -1,0 +1,188 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-tab layui-tab-card">
+        <div class="layui-tab-content">
+            <div class="layui-form">
+                <div class="custom-field">
+                    <div class="layui-form-item">
+                        <div class="layui-col-space10" style="text-align:center;">
+                            <div v-if="FinanceCode.PersonCheck>0 ||FinanceCode.ClientCheck>0 || FinanceCode.DepartmentCheck>0 || FinanceCode.ProjectCheck>0" class="layui-col-xs5 layui-col-sm5 layui-col-md5">内容项</div>
+                            <div class="layui-col-xs5 layui-col-sm5 layui-col-md5">期初金额</div>
+                            <div v-if="FinanceCode.PersonCheck>0 ||FinanceCode.ClientCheck>0 || FinanceCode.DepartmentCheck>0 || FinanceCode.ProjectCheck>0" class="layui-col-xs2 layui-col-sm2 layui-col-md2" style="text-align:left;">
+                                <a @click="addItem" class="layui-btn">+</a>
+                            </div>
+                        </div>
+                        <div class="layui-form-item" v-for="(index,item) in formList">
+                            <div class="layui-col-space10">
+                                <div class="layui-col-xs5 layui-col-sm5 layui-col-md5" v-if="FinanceCode.PersonCheck>0 ||FinanceCode.ClientCheck>0 || FinanceCode.DepartmentCheck>0 || FinanceCode.ProjectCheck>0">
+                                    <remote-sel v-if="FinanceCode.PersonCheck>0" lay-verify="required" v-bind:setting="PersonSetting" laytips="请选择个人选择项" v-bind:value.sync="item.PersonalID" initial="off"></remote-sel>
+                                    <remote-sel v-if="FinanceCode.ClientCheck>0" lay-verify="required" v-bind:setting="ClientSetting" laytips="请选择客户选择项" v-bind:value.sync="item.ClientID" initial="off"></remote-sel>
+                                    <input v-if="FinanceCode.DepartmentCheck>0" @dblclick="ChoiceDepart(item)" class=" layui-input" type="text" placeholder="请选择部门选择项" v-model="item.DepartmentName" />
+                                    <input v-if="FinanceCode.ProjectCheck>0" @dblclick="ChoiceProject(item)" class="layui-input" type="text" placeholder="请选择项目选择项" v-model="item.ProjectName" />
+                                </div>
+                                <div class="layui-col-xs5 layui-col-sm5 layui-col-md5">
+                                    <input class="layui-input" type="number" placeholder="请填写期初金额" v-model="item.Money" />
+                                </div>
+                                <div class="layui-col-xs1 layui-col-sm1 layui-col-md1">
+                                    <button class="layui-btn layui-btn-danger layui-btn-sm" @click="deleteItem(item)"><i class="layui-icon"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="layui-btn layui-hide" lay-submit @click="submit"></button>
+            </div>
+        </div>
+    </div>
+
+
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <!--<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/util.js"></script>-->
+
+    <style>
+        .custom-title { line-height: 45px; background: #f5f5f5; padding-left: 10px; }
+
+        .custom-block { line-height: 45px; height: 45px; background: #e0e0e0; padding-left: 10px; }
+
+        .custom-ele, .custom-empty { line-height: 45px; height: 45px; border-bottom: 1px solid #ebebeb; padding-left: 10px; }
+
+        .custom-ele:hover { line-height: 45px; height: 45px; background: #f5f5f5; }
+
+        [v-cloak] { display: none; }
+
+        .spical { font-size: 12px; position: relative; display: inline-block; vertical-align: middle; height: 22px; line-height: 22px; padding: 0 5px; margin-top: 8px; color: #C9C9C9; }
+    </style>
+    <script>
+        require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element'],
+            function (fnr) {
+                var $ = layui.$;
+                var jqueryui = layui.jqueryui;
+                var element = layui.element;
+                var table = layui.table;
+
+                var vm = new Vue({
+                    el: "#root",
+                    data: {
+                        Stationproxy_ID: fnr.getQueryString('Stationproxy_ID'),
+                        formList: [{
+                            Code: "",
+                            PersonalID: 0,
+                            DepartmentID: 0,
+                            ProjectID: 0,
+                            ClientID: 0,
+                            Money: "",
+                            Stationproxy_ID: 0,
+                            ProjectName: '',
+                            DepartmentName: '',
+                        }],
+                        ClientSetting: {
+                            search: true,
+                            fields: { key: 'ID', value: 'Name', root: "Data" },
+                            options: [],
+                            remote: { url: "/service/finance/Finance/GetFinanceClient", data: { Valid: 1, ClientType_ID: 0, Stationproxy_ID: fnr.getQueryString('Stationproxy_ID') } }
+                        },
+                        PersonSetting: {
+                            search: true,
+                            fields: { root: "Data", key: 'Account_ID', value: 'Name' },
+                            options: [],
+                            remote: { url: "/service/hr/Station/GetListStationAccount?CompanyType=-1&Stationproxy_ID=" + fnr.getQueryString('Stationproxy_ID') }
+                        },
+                        FinanceCode: {
+                            Code: '',
+                            Name: '',
+                            BalanceType: 0,
+                            DepartmentCheck: 0,
+                            PersonCheck: 0,
+                            ProjectCheck: 0,
+                            ClientCheck: 0,
+                        }
+                    },
+                    ready: function () {
+                        var code = fnr.getQueryString('code');
+                        if (code != null && code != '') {
+                            this.GetFinanceCodeDetail(code);
+                            this.GetFinanceCodeAmountData(code);
+                        }
+                    },
+                    methods: {
+                        ChoiceProject: function (item) {
+                            var self = this;
+                            fnr.openDialog({
+                                title: "选择项目",
+                                content: ["ProjectSelect.html?Code=" + item.ProjectID + "&Stationproxy_ID=" + self.Stationproxy_ID, "yes"],
+                                area: ['800px', (parent.document.documentElement || parent.document.body).clientHeight - 240 + "px"],
+                                events: {
+                                    new: function (data) {
+                                        item.ProjectID = data.ID;
+                                        item.ProjectName = data.Name;
+                                    }
+                                }
+                            });
+                        },
+                        ChoiceDepart: function (item) {
+                            var self = this;
+                            fnr.openDialog({
+                                title: "选择部门",
+                                content: ["DepartSelect.html?Stationproxy_ID=" + self.Stationproxy_ID, "yes"],
+                                area: ['800px', (parent.document.documentElement || parent.document.body).clientHeight - 240 + "px"],
+                                events: {
+                                    new: function (data) {
+                                        console.log(data);
+                                        item.DepartmentID = data.ID;
+                                        item.DepartmentName = data.Name;
+                                    }
+                                }
+                            });
+                        },
+                        GetFinanceCodeAmountData: function (code) {
+                            var self = this;
+                            $.get("/service/finance/Finance/GetFinanceCodeAmount", { Code: code, Stationproxy_ID: self.Stationproxy_ID }, function (res) {
+                                if (res.Data.length > 0) {
+                                    self.formList = res.Data;
+                                }
+                            });
+                        },
+                        GetFinanceCodeDetail: function (val) {
+                            var self = this;
+                            $.get("/service/finance/Finance/GetFinanceCodeDetail", { Stationproxy_ID: self.Stationproxy_ID, Code: val }, function (res) {
+                                self.FinanceCode = res.Data;
+                            });
+                        },
+                        addItem: function () {
+                            var self = this;
+                            self.formList.push(
+                                {
+                                    Code: '',
+                                    PersonalID: 0,
+                                    DepartmentID: 0,
+                                    ProjectID: 0,
+                                    ClientID: 0,
+                                    Money: "",
+                                    Stationproxy_ID: 0,
+                                    ProjectName: '',
+                                    DepartmentName: '',
+                                });
+                        },
+                        deleteItem: function (item) {
+                            if (this.formList.length == 1) {
+                                fnr.msg("至少要保留一行数据");
+                                return;
+                            }
+                            fnr.deleteItem(this.formList, item);
+                        },
+                        submit: function () {
+                            var self = this;
+                            $.each(self.formList,
+                                   function () {
+                                       this.Code = self.FinanceCode.Code;
+                                       this.Stationproxy_ID = self.Stationproxy_ID;
+                                   });
+                            fnr.callDialog("new", self.formList);
+                            fnr.closeDialog();
+                        },
+                    }
+                });
+            });
+    </script>

@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        div.layui-table-cell { height: 30px; }
+    </style>
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-col-xs12">
+            <blockquote class="layui-elem-quote">
+                <div class="layui-row layui-form">
+                    <div class="layui-col-xs12" style="text-align: right">
+                        <button class="layui-btn layui-btn-primary" lay-filter="btn" @click="AddApprovalTemplate">添加模板</button>
+
+                    </div>
+                </div>
+            </blockquote>
+            <!--操作模板-->
+            <table id="listTable" lay-filter="listTable"></table>
+        </div>
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+             
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    operateName: "添加",
+                    queryFormData: {
+                        Departs: [],
+                    },
+                },
+                ready: function () {
+
+                },
+                methods: {
+                    doSearch: function () {
+                        tableIns.reload();
+                    },
+                    //添加模板
+                    AddApprovalTemplate: function () {
+                        fnr.openDialog({
+                            title: '添加模板',
+                            area: ['1050px', '700px'],
+                            content: ['/Html/Auditing/AddapprovalTemplate.html'],
+                        });
+                    },
+                }
+            });
+            var tableIns = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: false, //页分
+                cols: [
+                    [
+                        { field: 'ID', title: 'ID', width: 60 },
+                        { field: 'Name', title: '审批类型', width: 500 },
+                         { field: 'AddPersonName', title: '添加人', width: 100 },
+                         {
+                             field: 'AddTime', title: '添加时间', width: 250, templet: function () {
+                                 var array = new Array();
+                                 array.push("<span>" + fnr.format(this.AddTime, "yyyy-MM-dd HH:mm") + "</span>");
+                                 return "<div>" + array.join("") + "</div>";
+                             }
+                         },
+                        {
+                            fixed: 'right',
+                            field: '',
+                            title: '操作',
+                            width: 240,
+                            toolbar: function () {
+                                var array = new Array();
+                                array.push("<button class=\"layui-btn layui-btn-small " + (this.Enditable == 1 ? "layui-btn-warm" : "layui-btn-normal") + " \" lay-event='editisenable'>" + (this.Enditable == 1 ? "禁用" : "启用") + "</button>");
+                                array.push("<button class=\"layui-btn layui-btn-small\" lay-event='modify'>编辑</button>");
+                                array.push("<button class=\"layui-btn layui-btn-small layui-btn-primary\" lay-event='view'>查看</button>");
+                                if (this.Enditable == 0) {
+                                    array.push("<button class=\"layui-btn layui-btn-small layui-btn-danger \" lay-event='delete'>删除</button>");
+                                }
+                                return "<div>" + array.join("") + "</div>";
+                            }
+                        }
+                    ]
+                ],
+                url: '/service/approval/Process/GetApprovalTemplet',
+                response: {
+                    dataName: 'Data'
+                }
+            });
+            tableExt.addEvent("tool(listTable)",
+                {
+                    //工具栏删除事件
+                    "delete": function (data, obj) {
+                        layer.confirm('确认要删除吗?', { icon: 3, title: '提示' }, function (index) {
+                            var params = { ID: data.ID }
+                            $.post("/service/approval/Process/DeleteApprovalTemplet", params, function (res) {
+                                if (res.SuccessResponse) {
+                                    tableIns.reload();
+                                }
+                                layer.msg(res.Message);
+                            })
+                            layer.close(index);
+                        });
+
+                    },
+                    //工具栏禁用启用事件
+                    "editisenable": function (data, obj) {
+                        var params = { ID: data.ID, Enditable: data.Enditable == 1 ? 0 : 1 }
+                        $.post("/service/approval/Process/EnditableApprovalTemplet", params, function (res) {
+                            if (res.SuccessResponse) {
+                                tableIns.reload();
+                            }
+                            layer.msg(res.Message);
+                        })
+                    },
+                    //工具栏编辑事件
+                    "modify": function (data, obj) {
+                        fnr.openDialog({
+                            title: '编辑模板',
+                            area: ['1050px', "700px"],
+                            content: ['/Html/Auditing/ModifyapprovalTemplate.html?ID='] + data.ID,
+                        });
+                    },
+                    //工具栏查看事件
+                    "view": function (data, obj) {
+                        fnr.openDialog({
+                            title: '查看模板',
+                            area: ['1080px', "700px"],
+                            content: ['/Html/Auditing/ViewapprovalTemplate.html?ID='] + data.ID,
+                        });
+                    }
+                });
+        });
+</script>

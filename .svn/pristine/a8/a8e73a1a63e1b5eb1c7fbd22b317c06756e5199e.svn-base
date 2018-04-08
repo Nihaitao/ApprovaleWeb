@@ -1,0 +1,865 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="edge" />
+    <title>凭证详情</title>
+    <script src="http://g.chutoukj.com/js/sea-modules/jquery/1.10.1/jquery.js"></script>
+
+    <script src="http://g.chutoukj.com/js/sea-modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/template/template-native-debug.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/knockout/3.4.0/knockout.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/laypage/laypage.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/laypage/skin/laypage.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/pageList.js"></script>
+    <script src="http://g.chutoukj.com/js/bindSelect.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/layer-v2.3/layer/layer.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/layer-v2.3/layer/skin/layer.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/sea-modules/My97DatePicker/WdatePicker.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/select2-4.0.3/dist/js/select2.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/select2-4.0.3/dist/css/select2.css" rel="stylesheet" />
+    <link href="http://g.chutoukj.com/js/sea-modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="http://g.chutoukj.com/themes/Default/fonts/font-awesome-4/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="http://g.chutoukj.com/themes/Default/css/style.css" rel="stylesheet" />
+
+    <script src="http://g.chutoukj.com/js/validate.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/jquery.nanoscroller/nanoscroller.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/sea-modules/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+    <link href="http://g.chutoukj.com/themes/Default/css/report.css" rel="stylesheet" />
+    <script src="../../Resources/js/moment.min.js"></script>
+    <script type="text/javascript">
+        function GetCurrentTime(cb){
+            var data=moment().format("YYYY-M-D H:mm:ss");
+            cb && cb(data)
+        }
+        $(function () {
+            //SkinManage();
+            if ($(".Wdate").length > 0) {
+                GetCurrentTime(function (rsp) {
+                    $(".Wdate").each(function () {
+                        if ($(this).attr("timebind") != undefined && $(this).attr("timebind") != "" && $(this).attr("timebind").length > 0 && $.trim($(this).val()) == "") {
+                            var params1 = $(this).attr("timebind");
+                            var p1 = params1.split("|")[0];//1 or 0   1代表有value默认值  0没有默认值
+                            var p2 = params1.split("|")[1];//时间格式   ymdhms:年月日时分秒 ymdhm:年月日时分 ymd:年月日 ym:年月 ym1:显示默认某年某月1日（仅对默认显示有效）y11:显示默认某年1月1日（仅对默认显示有效）
+                            var p3 = params1.split("|")[2];//0 or 1 or -1 or 2    0代表没有最值限制(没有限制则不需要修改onfocus赋值)   1代表有最大值限制 -1代表有最小值限制  2代表有最大值和最小值限制(暂时未用到)
+                            if (p1 == "1") {
+                                if (p2 == "ymdhms") {
+                                    $(this).val(rsp);
+                                }
+                                if (p2 == "ymdhm") {
+                                    $(this).val(String(rsp).substr(0, 16));
+                                }
+                                if (p2 == "ymd") {
+                                    $(this).val(String(rsp).substr(0, 10));
+                                }
+                                if (p2 == "ym") {
+                                    $(this).val(String(rsp).substr(0, 7));
+                                }
+                                if (p2 == "ym1") {
+                                    $(this).val(String(rsp).substr(0, 8) + "01");
+                                }
+                                if (p2 == "y11") {
+                                    $(this).val(String(rsp).substr(0, 5) + "01-01");
+                                }
+                            }
+
+                            //if (p3 == "0") {
+                            //    $(this).attr("onfocus","WdatePicker({ dateFmt: 'yyyy-MM-dd'}))";
+                            //}
+                            if (p3 == "1") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 10) + "'})");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 7) + "'})");
+                                }
+                            }
+                            if (p3 == "-1") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate:'" + String(rsp).substr(0, 10) + "'})");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM', minDate:'" + String(rsp).substr(0, 7) + "'})");
+                                }
+                            }
+                            if (p3 == "2") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 10) + "',minDate:'" + String(rsp).substr(0, 10) + "')");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM', maxDate:'" + String(rsp).substr(0, 7) + "',minDate:'" + String(rsp).substr(0, 7) + "')");
+                                }
+                            }
+                        }
+                        //else {
+                        //    $(this).val("");
+                        //}
+                    });
+                });
+            }
+
+        });
+
+        //function SkinManage() {
+
+        //    $.post("/api/SystemSet/SkinManageSetUp", {}, function (rsp) {
+        //        if (rsp != null) {
+        //            var head = document.getElementsByTagName('head')[0],
+        //            cssURL = " http://g.chutoukj.com/themes" + rsp[0].Url + "",
+        //            linkTag = document.createElement('link');
+
+        //            linkTag.id = 'dynamic-style';
+        //            linkTag.href = cssURL;
+        //            linkTag.setAttribute('rel', 'stylesheet');
+        //            linkTag.setAttribute('media', 'all');
+        //            linkTag.setAttribute('type', 'text/css');
+        //            head.appendChild(linkTag);
+        //            //head.appendChild(linkTag);
+
+        //        }
+        //    });
+        //}
+    </script>
+</head>
+<body>
+
+    <style type="text/css">
+        body { border: 0; overflow: hidden; background: #fff; width: 800px; padding: 10px; margin: 0px; padding-top: 0px; padding-bottom: 0px; }
+
+        body, th, td, input, button, textarea { font-family: arial,宋体,sans-serif; font-size: 12px; }
+
+        select { font-family: "Tahoma"; font-size: 12px; margin-left: 0px; margin-right: 0px; }
+
+        a { text-decoration: none; cursor: pointer; }
+
+        a:link, a:visited, a:active { color: #000000; text-decoration: none; }
+
+        a:hover { color: #ff6600; text-decoration: none; }
+
+        input[type=text] { height: 20px; line-height: 20px; overflow: hidden; }
+
+        th { font-weight: normal; }
+
+        td { line-height: 28px; padding: 0px; }
+
+        * { margin: 0px; padding: 0px; }
+
+        .tb { border: 1px solid #000; border-width: 1px 1px 0px 0px; font-size: 12px; margin: 0px auto; }
+
+        .tb td { border: 1px solid #000; border-width: 0px 0px 1px 1px; }
+
+        .tb td textarea { width: 99%; border: 0px; overflow: hidden; }
+
+        .tb td input { width: 100%; border: 0px; height: 28px; }
+
+        .tb td input.price { width: 99%; border: 0px; height: 29px; line-height: 29px; padding-right: 1px; }
+
+        .tb td input.h { height: 61px; line-height: 61px; }
+
+        .ntb { border: 0px; }
+
+        .ntb td { border: 0px; padding: 2px; }
+
+        .ntb td span { width: 30px; display: block; }
+
+        .t_text { font-size: 12px; font-family: "宋体", "Arial Narrow", HELVETICA; }
+
+        .t_text input { border: 0px; font-size: 12px; border-bottom: 1px solid #999; color: #999; }
+
+        .b td { line-height: 20px; }
+
+        input:disabled { background: none; }
+    </style>
+    <script type="text/javascript">
+        var valid1html = '<p style="width:60px;height:30px;border:2px solid green;color:green;font-size:14px;line-height:25px;display:inline-block; margin-top:10px;margin-left:10px;">审核</p>';
+        var ToReviewHtml = '<p style="width:60px;height:30px;border:2px solid blue;color:blue;font-size:14px;line-height:25px;display:inline-block; margin-top:10px;margin-left:10px;">已复核</p>';
+        var status0html = '<p style="width:60px;height:30px;border:2px solid red;color:red;font-size:14px;line-height:25px;display:inline-block; margin-top:10px;margin-left:10px;">作废</p>';
+        var voucherid = getQueryString("voucherid");
+        console.log(voucherid)
+            //获取指定参数的值
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return decodeURIComponent(r[2]);
+            return undefined;
+        };
+        function SaveVoucher() {
+            $("#appointmentDateSubmit").attr("disabled", "disabled");
+            var DetailsType = $("#DetailsType").val();//凭证类型 0收 1付 2转
+            var detailsCount = 0;
+            var flg = false;//收款凭证  现金和银行也就是1001，1002借方必有***付款凭证  现金和银行也就是1001，1002贷方必有***转账凭证是现金和银行也就是1001，1002必无（借贷方都没有）
+            $("#voucherMain").find("input[name='code']").each(function () {
+                if ($(this).val() != "")
+                    detailsCount++;
+            });
+            $("#voucherMain").find("input[name='code']").each(function () {
+                if (DetailsType == "0" && $(this).val() != "" && ($(this).val().substring(0, 4) == "1001" || $(this).val().substring(0, 4) == "1002") && $(this).parent().next().children().first().val() != "") {
+                    flg = true;
+                    return;
+                }
+                else if (DetailsType == "1" && $(this).val() != "" && ($(this).val().substring(0, 4) == "1001" || $(this).val().substring(0, 4) == "1002") && $(this).parent().next().next().children().first().val() != "") {
+                    flg = true;
+                    return;
+                }
+                else if (DetailsType == "2") {
+                    flg = true;
+                    if ($(this).val() != "" && ($(this).val().substring(0, 4) == "1001" || $(this).val().substring(0, 4) == "1002")) {
+                        flg = false;
+                        return;
+                    }
+                }
+            });
+            if (detailsCount > 0) {
+                for (var i = 0; i < detailsCount; i++) {
+                    if ($("#voucherMain tr").eq(i).children().first().children().first().val() == "") {
+                        parent.layer.msg("请填写摘要！");
+                        $("#appointmentDateSubmit").removeAttr("disabled");
+                        return;
+                    }
+                }
+                SumLeftMoney();
+                SumRightMoney();
+                var handler = $("#Handler").attr("acid");
+                var leftPrice = parseFloat($("#leftPrice").val());
+                var rightPrice = parseFloat($("#rightPrice").val());
+                if ($("#leftPrice").attr("numType") == "fushu")
+                    leftPrice = leftPrice * (-1);
+                if ($("#rightPrice").attr("numType") == "fushu")
+                    rightPrice = rightPrice * (-1);
+                var No = $("#No").val();
+                if (flg) {
+                    if (leftPrice == rightPrice) {
+                        if (handler != undefined && handler != "" && No != undefined && No != "") {
+                            //保存参数，还缺少审核日期，审核人
+                            var data = { DetailsType: DetailsType, No: No, AddTime: $("#AddTime").val(), ProjectID: $("#ProjectID").val(), Handler: $("#Handler").attr("acid"), CompanyID: $("#DropDownListCompany").val() };
+                            if (voucherid == undefined || voucherid == null)
+                                data.VoucherID = "";
+                            else
+                                data.VoucherID = voucherid;
+                            var flg=true;
+                            var array = new Array();
+                            $("#voucherMain tr").each(function (ii) {
+                                if ($(this).find("input[type='text']").eq(0).val() != "" && $(this).find("input[type='text']").eq(1).val() != "" && ($(this).find("input[type='text']").eq(2).val() != "" || $(this).find("input[type='text']").eq(3).val() != "")) {
+                                    var index = $("#voucherMain tr").index($(this));
+                                    var detail = {
+                                        Title: $(this).children().first().children().first().val(),
+                                        Code: $(this).children().eq(1).children().eq(1).val(),
+                                        LeftMoney: $(this).children().eq(2).children().first().attr("numtype") != "fushu" ? parseFloat($(this).children().eq(2).children().first().val()) : (-1 * parseFloat($(this).children().eq(2).children().first().val())),
+                                        RightMoney: $(this).children().eq(3).children().first().attr("numtype") == "fushu" ? (-1 * parseFloat($(this).children().eq(3).children().first().val())) : parseFloat($(this).children().eq(3).children().first().val()),
+                                        ClientID: $(this).children().eq(1).find("input[name='ClientID']").first().val(),
+                                        ProjectID: $(this).children().eq(1).find("input[name='ProjectID']").first().val(),
+                                        PersonalID: $(this).children().eq(1).find("input[name='PersonalID']").first().val(),
+                                        DepartmentID: $(this).children().eq(1).find("input[name='DepartmentID']").first().val(),
+                                        TicketNumber: $(this).children().eq(1).find("input[name='TicketNumber']").first().val(),
+                                        Date: $(this).children().eq(1).find("input[name='Date']").first().val(),
+                                        VoucherDetailsID: $(this).children().eq(1).find("input[name='VoucherDetailsID']").first().val(),
+                                        ID: $(this).children().eq(1).find("input[name='ID']").first().val(),
+                                        OrderIndex: index
+                                    };
+                                    array[index] = detail;
+                                }
+                                else if($(this).find("input[type='text']").eq(0).val() == "" && $(this).find("input[type='text']").eq(1).val() == "" && $(this).find("input[type='text']").eq(2).val() == "" && $(this).find("input[type='text']").eq(3).val() == ""){
+
+                                }
+                                else{
+                                    flg=false;
+                                    parent.layer.msg("明细数据有异常，请检查！");
+                                    return;
+                                }
+                            });
+                            if(flg){
+                                debugger;
+                                data["Details"] = array;
+                                $.post("/api/FinanceData/SaveVoucher", data, function (rsp) {
+                                    parent.layer.msg(rsp.msg);
+                                    if (rsp.msg == "保存成功！") {
+                                        voucherid = rsp.voucherid;
+                                    }
+                                    $("#appointmentDateSubmit").removeAttr("disabled");
+                                });
+                            }
+                        }
+                        else {
+                            parent.layer.msg("保存失败，制单人和凭证号获取失败");
+                            $("#appointmentDateSubmit").removeAttr("disabled");
+                        }
+                    }
+                    else {
+                        parent.layer.msg("左右金额不相等，无法保存！");
+                        $("#appointmentDateSubmit").removeAttr("disabled");
+                    }
+                }
+                else {
+                    parent.layer.msg("凭证填写规则与所填不一致，请检查凭证类型！");
+                    $("#appointmentDateSubmit").removeAttr("disabled");
+                }
+            }
+            else {
+                parent.layer.msg("没有明细，无法保存！");
+                $("#appointmentDateSubmit").removeAttr("disabled");
+            }
+        }
+        function deleteThisRow() {
+            $("#voucherMain tr").eq($("#TrIndex").val()).find("input").css("background", "red");
+            $("#voucherMain tr").eq($("#TrIndex").val()).css("background", "red");
+            if (confirm("是否确认删除该条记录？")) {
+                $("#voucherMain tr").eq($("#TrIndex").val()).remove();
+                SumLeftMoney();
+                SumRightMoney();
+            }
+            else {
+                $("#voucherMain tr").eq($("#TrIndex").val()).find("input").css("background", "");
+                $("#voucherMain tr").eq($("#TrIndex").val()).css("background", "");
+            }
+        }
+        function addNewRow(self) {
+            //var text = $(self).parent().prev().children().first().val();
+            var newrow = "<tr class='list' onclick='setFocusDetail(this)'><td width='182px'><input type='text' value='' onfocus='setFocusDetailClick(this)' /></td><td width='320px'><input type='text' value='' class='codename' onpaste='return false' ondrop='return false' ondragenter='return false;' ondragstart='return false' onblur='addNewRow(this)' onfocus='ClickNameLookCode(this)' ondblclick='selectNode(this)' /><input type='hidden' name='code' /><input type='hidden' name='name' /><input type='hidden' name='TicketNumber' /><input type='hidden' name='Date' /><input type='hidden' name='ProjectID' /><input type='hidden' name='ProjectName' /><input type='hidden' name='ClientID' /><input type='hidden' name='ClientName' /><input type='hidden' name='DepartmentID' /><input type='hidden' name='DepartmentName' /><input type='hidden' name='PersonalID' /><input type='hidden' name='PersonalName' /></td><td width='108px'><input type='text' value='' dir='rtl' class='price' onpaste='return false' ondrop='return false' ondragenter='return false;' onblur='SumLeftMoney()' ondragstart='return false' /></td><td width='108px'><input type='text' value='' dir='rtl' class='price' onpaste='return false' ondrop='return false' ondragenter='return false;' onblur='SumRightMoney()' ondragstart='return false' /><input type='hidden' name='AideType' /></td></tr>";
+            if (self == undefined) {
+                //target = document.activeElement;
+                //alert(target.tagName);
+                self = $("#voucherMain tr").eq($("#TrIndex").val()).children().eq(1).children().first();
+                $(newrow).insertBefore($(self).parent().parent());
+            }
+            if ($(self).parent().parent().nextAll().length == 0 && $(self).val() != "") {
+                $("#voucherMain").append(newrow);
+                //$(".list").last().children().first().children().first().val($(".list").last().prev().children().first().children().first().val());
+            }
+            else if ($(self).parent().parent().nextAll().length == 1 && $(self).val() == "" && $(self).parent().parent().next().val() == "") {
+                $(self).parent().parent().next().remove();
+            }
+            bindKeyPress();
+            if ($(self).val() != "" && $(self).val() != $(self).next().val() && $(self).val() != $(self).next().next().val()) {
+                $.get("/api/FinanceData/GetInfoByText", { text: $(self).val() }, function (data) {
+                    if (data == "未找到该财务科目")
+                        parent.layer.msg(data);
+                    else {
+                        $(self).val(data.Name);
+                        $(self).next().val(data.Code);
+                        $(self).next().next().val(data.Name);
+                        var i = $("#voucherMain tr").index($(self).parent().parent());
+                        $("#voucherMain tr").eq(i).find("input[name='AideType']").first().val(data.AideType);
+                        setFootInfo(i);
+                    }
+                });
+            }
+            else
+                $(self).val($(self).next().next().val());
+        }
+        function SumLeftMoney() {
+            var sum = 0;
+            $("#voucherMain tr").each(function () {
+                var leftmoney = $(this).children().eq(2).children().first().val();
+                if ($(this).children().eq(2).children().first().attr("numType") == "fushu")
+                    leftmoney = leftmoney * (-1);
+                if (leftmoney != "")
+                    sum += parseFloat(leftmoney);
+            });
+            if (sum >= 0) {
+                $("#leftPrice").css("color", "black");
+                $("#leftPrice").attr("numType", "zhengshu");
+                $("#leftPrice").val(sum.toFixed(2));
+            }
+            else {
+                $("#leftPrice").css("color", "red");
+                $("#leftPrice").attr("numType", "fushu");
+                $("#leftPrice").val(sum.toFixed(2) * (-1));
+            }
+        }
+        function SumRightMoney() {
+            var sum = 0;
+            $("#voucherMain tr").each(function () {
+                var rightmoney = $(this).children().eq(3).children().first().val();
+                if ($(this).children().eq(3).children().first().attr("numType") == "fushu")
+                    rightmoney = rightmoney * (-1);
+                if (rightmoney != "")
+                    sum += parseFloat(rightmoney);
+            });
+            if (sum >= 0) {
+                $("#rightPrice").css("color", "black");
+                $("#rightPrice").attr("numType", "zhengshu");
+                $("#rightPrice").val(sum.toFixed(2));
+            }
+            else {
+                $("#rightPrice").css("color", "red");
+                $("#rightPrice").attr("numType", "fushu");
+                $("#rightPrice").val(sum.toFixed(2) * (-1));
+            }
+        }
+        function selectNode(self) {
+            var i = $("#voucherMain tr").index($(self).parent().parent());
+            parent.layer.open({
+                type: 2,
+                title: '选择节点',
+                shadeClose: true,
+                area: ['500px', '400px'],
+                content: '/UserControl/FinanceNodeSelect.cshtml?index=' + i + "&windowName=" + window.name,
+                btn: ["取消"],
+                shift: 5,
+                end: function () {
+                    $(self).blur();
+                    setFootInfo(i);
+                }
+            });
+        }
+        function setFootInfo(i) {
+            if (i == undefined)
+                i = $("#TrIndex").val();
+            if (!isNaN(i)) {
+                var AideType = $("#voucherMain tr").eq(i).find("input[name='AideType']").first().val();//核算类型：1部门核算  2个人往来   3客户往来  4项目核算  0银行
+                var code = $("#voucherMain tr").eq(i).children().eq(1).children().eq(1).val();
+                if (AideType == "-1" && code.substring(0, 4) == "1002")
+                    AideType = "0";
+                if (code != "" && AideType != "-1") {
+                    parent.layer.open({
+                        type: 2,
+                        title: '选择节点',
+                        shadeClose: false,
+                        area: ['500px', '400px'],
+                        closeBtn: 0, //不显示关闭按钮
+                        content: '/Finance/UFIDA/SetVoucherFooter.cshtml?AideType=' + AideType + "&index=" + $("#TrIndex").val() + "&windowName=" + window.name,
+                        shift: 5
+                    });
+                }
+            }
+        }
+        function changeTitle() {
+            var title = "";
+            var type = $("#DetailsType").val();
+            if (type == "0")
+                title = "收款凭证";
+            else if (type == "1")
+                title = "付款凭证";
+            else if (type == "2")
+                title = "转账凭证";
+            else {
+                parent.layer.msg("error!")
+                location.reload();
+            }
+            $("#title").html(title);
+            $.get("/api/FinanceData/GetVoucherNo", { "Type": type }, function (data) {
+                $("#No").val(data);
+            });
+        }
+        $(function () {
+            GetToReviewType();
+            bindKeyPress();
+            bindSelect({
+                list:
+                [
+                    {
+                        url: "/service/Company/GetCompanyList",//请求的url
+                        container: "#DropDownListCompany",
+                        value: "ID",
+                        text: "Name",
+                        rspdata: "",
+                        defaultselect: false
+                    }
+                ]
+            });
+            if (voucherid == undefined || voucherid == null) {//VoucherID为空，是填制凭证
+                $("#ChangeValid").remove();
+                var timeStr=$("#AddTime").val();
+                $.get("/service/finance/Finance/GetCurrentNo", 
+                    { "Year":moment(timeStr).format("YYYY"),"Month":moment(timeStr).format("M"),"Type": "0" },
+                    function (data) {
+                    $("#No").val(data);
+                });
+                $.get("/api/FinanceData/GetHandler", {}, function (data) {
+                    $("#Handler").html(data.split("|")[1]);
+                    $("#Handler").attr("acid", data.split("|")[0]);
+                });
+            }
+            else {
+                $.get("/service/finance/Finance/GetVoucherDetail", { voucherid: voucherid }, function (rsp) {
+                    $("#VoucherValid").val(rsp.Valid);
+                    if (rsp.ToReviewStatus == 1) {
+                        $("#title").after(ToReviewHtml);
+                    }
+                    if (rsp.Status == 0) {
+                        $("#ChangeStatus").remove();
+                        $("#ChangeValid").nextAll().remove();
+                        $("#title").after(status0html);
+                        //$("#ChangeValid").remove();
+                    }
+                    else if (rsp.Valid == 1) {
+                        $("#ChangeValid").nextAll().remove();
+                        $("#title").after(valid1html);
+
+
+                        //$("#ChangeValid").remove();
+                    }
+
+
+                    var render = template("VoucherInfoTemplate", { list: rsp.Details });
+                    $("#voucherMain").empty().html(render);
+                    SumLeftMoney();
+                    SumRightMoney();
+                    $("#Handler").html(rsp.HandlerName);
+                    $("#Handler").attr("acid", rsp.Handler);
+                    $("#DetailsType>option[value='" + rsp.DetailsType + "']").attr("selected", "selected");
+                    $("#DropDownListCompany>option[value='" + rsp.CompanyID + "']").attr("selected", "selected");
+                    $("#AddTime").val(rsp.StrAddTime);
+                    $("#validTime").val(rsp.StrValidTime);
+                    $("#No").val(rsp.No);
+                    var title = "";
+                    var type = rsp.DetailsType;
+                    if (type == "0")
+                        title = "收款凭证";
+                    else if (type == "1")
+                        title = "付款凭证";
+                    else if (type == "2")
+                        title = "转账凭证";
+                    $("#title").html(title);
+                    $("#ValiderName").html(rsp.ValiderName);
+                });
+            }
+        });
+        function bindKeyPress() {
+            $(".price").keypress(function () {
+                var code = window.event.keyCode;
+                if (code != 45) {
+                    if (code == 43) {
+                        $(this).css("color", "black");
+                        $(this).attr("numType", "zhengshu");
+                        event.returnValue = false;
+                    }
+                    if ((code > 47 && code <= 57) || (code == 8) || code == 46)
+                        event.returnValue = true;
+                    else
+                        event.returnValue = false;
+                }
+                else {
+                    $(this).css("color", "red");
+                    $(this).attr("numType", "fushu");
+                    event.returnValue = false;
+                }
+            });
+        }
+        function setFocusDetailClick(self) {
+            $(self).parent().parent().click();
+        }
+        function setFocusDetail(self,ReviewStatus) {
+
+            if(ReviewStatus==1){
+
+
+            }else{
+                var i = $("#voucherMain tr").index($(self));//当前行的index
+                $("#TrIndex").val(i);
+                $("#TicketNumber").val($(self).children().eq(1).find("input[name='TicketNumber']").first().val());
+                $("#Date").val($(self).children().eq(1).find("input[name='Date']").first().val());
+                $("#ProjectName").val($(self).children().eq(1).find("input[name='ProjectName']").first().val());
+                $("#ProjectID").val($(self).children().eq(1).find("input[name='ProjectID']").first().val());
+                $("#DepartmentName").val($(self).children().eq(1).find("input[name='DepartmentName']").first().val());
+                $("#DepartmentID").val($(self).children().eq(1).find("input[name='DepartmentID']").first().val());
+                $("#AcName").val($(self).children().eq(1).find("input[name='PersonalName']").first().val());
+                $("#AcID").val($(self).children().eq(1).find("input[name='PersonalID']").first().val());
+                $("#ClientName").val($(self).children().eq(1).find("input[name='ClientName']").first().val());
+                $("#ClientID").val($(self).children().eq(1).find("input[name='ClientID']").first().val());
+
+                if ($(self).children().first().children().first().val() == "" && i > 0) {
+                    $(self).children().first().children().first().val($(self).prev().children().first().children().first().val());
+                }}
+        }
+        function ClickNameLookCode(self) {
+            $(self).val($(self).next().val());
+        }
+        function ChangeValid() {
+
+            var valid = $("#VoucherValid").val();
+            if (valid != "2") {
+                if (valid == "1" && confirm("是否确认恢复此凭证？")) {
+                    $.get("/api/FinanceData/ChangeValid", { valid: valid, VoucherID: voucherid }, function (rsp) {
+                        if (rsp == "success")
+                            location.reload();
+                        else
+                            layer.msg(rsp);
+                    });
+                }
+                else {
+                    if (confirm("是否确认审核通过？")) {
+                        {
+                            $.get("/api/FinanceData/ChangeValid", { valid: valid, VoucherID: voucherid }, function (rsp) {
+                                if (rsp == "success") {
+                                    $("#ChangeStatus").remove();
+                                    $("#ChangeValid").nextAll().remove();
+                                    //$("#ChangeValid").remove();
+                                    $("#title").after(valid1html);
+
+                                    layer.msg("操作成功！");
+                                }
+                                else
+                                    layer.msg(rsp);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        function ChangeStatus() {
+            layer.confirm("一旦作废不可恢复，是否确认作废？", function () {
+                $.get("/api/VoucherSearch/SetVoucherDisable", { VoucherID: voucherid }, function (rsp) {
+                    parent.layer.msg(rsp);
+                    location.reload();
+                });
+            });
+        }
+        function printVoucher() {
+            window.open("/Print/PrintIncome.cshtml?VoucherID=" + voucherid);
+        }
+
+        //出纳复核
+        function GetToReviewType() {
+            //判断是否有复核的权限
+            $.get("/service/finance/Finance/ReviewFinanceVoucher", { VoucherID: voucherid }, function (rsp) {
+                if (rsp) {
+                    var ReviewHtml = "<button type=\"button\" class=\"btn btn-default\" onclick=\"ReviewStatus();\">出纳复核</button>";
+                    $("#load").before(ReviewHtml);
+                }
+            });
+        }
+
+        function ReviewStatus() {
+            layer.confirm("一旦复审通过，支出科目将不可修改,是否确认审核通过？", function () {
+                $.get("/api/VoucherSearch/ReviewStatus", { VoucherID: voucherid }, function (rsp) {
+                    if (rsp) {
+                        parent.layer.msg("操作成功");
+                        location.reload();
+                    } else {
+                        parent.layer.msg("审核失败");
+
+                    }
+                });
+
+
+            });
+        }
+    </script>
+    <div style="text-align: center; line-height: 80px; height: 80px">
+        <span id="title" style=" font-size: 30px; font-weight: bold; ">收款凭证</span>
+
+    </div>
+    <div style="margin-left: 20px">
+        <table border="0" cellpadding="0" cellspacing="0" width="730px" style="float: left">
+            <tr align="center" height="25">
+                <td width="25%" class="t_text" align="left">
+                    <select id="DetailsType" onchange="changeTitle()">
+                        <option value="0">收</option>
+                        <option value="1">付</option>
+                        <option value="2">转</option>
+                    </select>
+                    <input id="Type" type="hidden" value="0" />
+                    字
+                    <input id="No" type="text" value="" size="2" disabled="disabled" />
+                </td>
+                <td width="30%" class="t_text" align="left">
+                    制单日期：<input id="AddTime" type="text" readonly timebind="1|ymdhms|1" value="" size=" 12" style="color: #000; width:150px;" class="Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss', maxDate: '%y-%M-%d' })" />
+                </td>
+                <td width="45%" class="t_text" align="left">
+                    审核日期：<input type="text" value="" size="12" id="validTime" style="color: #000; width:150px;" class="Wdate" readonly />
+                </td>
+            </tr>
+        </table>
+        <table class="tb" border="0" cellpadding="0" cellspacing="0" width="730px" style="float: left">
+            <tr align="center" height="25">
+                <td width="182px">
+                    摘要
+                </td>
+                <td width="320px">
+                    科目名称
+                </td>
+                <td width="108px">
+                    借方金额
+                </td>
+                <td width="108px">
+                    贷方金额
+                </td>
+            </tr>
+        </table>
+        <div style="width: 747px; overflow-y: scroll; overflow-x: hidden; height: 151px; float: left">
+            <table id="voucherMain" class="tb" border="0" cellpadding="0" cellspacing="0" width="730px" align="left">
+                <tr class="list" onclick='setFocusDetail(this)'>
+                    <td width="182px">
+                        <input type="text" value="" onfocus='setFocusDetailClick(this)' />
+                    </td>
+                    <td width="320px">
+                        <input type="text" value="" class="codename" onpaste="return false" ondrop="return false" ondragenter="return false;" ondragstart="return false" onblur="addNewRow(this)" ondblclick="selectNode(this)" onfocus="ClickNameLookCode(this)" />
+                        <input type="hidden" name="code" />
+                        <input type="hidden" name="name" />
+                        <input type="hidden" name="TicketNumber" />
+                        <input type="hidden" name="Date" />
+                        <input type="hidden" name="ProjectID" />
+                        <input type="hidden" name="ProjectName" />
+                        <input type="hidden" name="ClientID" />
+                        <input type="hidden" name="ClientName" />
+                        <input type="hidden" name="DepartmentID" />
+                        <input type="hidden" name="DepartmentName" />
+                        <input type="hidden" name="PersonalID" />
+                        <input type="hidden" name="PersonalName" />
+                        <input type="hidden" name="AideType" />
+                        <input type="hidden" name="VoucherDetailsID" />
+                        <input type="hidden" name="ID" />
+                    </td>
+                    <td width="108px">
+                        <input type="text" value="" dir='rtl' class="price" onpaste="return false" ondrop="return false" ondragenter="return false;" onblur="SumLeftMoney()" ondragstart="return false" />
+                    </td>
+                    <td width="108px">
+                        <input type="text" value="" dir='rtl' class="price" onpaste="return false" ondrop="return false" ondragenter="return false;" onblur="SumRightMoney()" ondragstart="return false" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table class="tb b" border="0" cellpadding="0" cellspacing="0" width="730px" style="float: left">
+            <tr height="20px">
+                <td width="55px" align="center">
+                    票号
+                </td>
+                <td width="311px" o="1">
+                    <input type="text" value="" id="TicketNumber" readonly ondblclick="setFootInfo()" />
+                </td>
+                <td rowspan="2" width="143px" align="center">
+                    合计
+                </td>
+                <td rowspan="2">
+                    <input id="leftPrice" type="text" dir='rtl' value="" class="price" onpaste="return false" readonly
+                           ondrop="return false" ondragenter="return false;" ondragstart="return false" />
+                </td>
+                <td rowspan="2">
+                    <input id="rightPrice" type="text" dir='rtl' value="" class="price" onpaste="return false" readonly
+                           ondrop="return false" ondragenter="return false;" ondragstart="return false" />
+                </td>
+            </tr>
+            <tr height="20px">
+                <td align="center">
+                    日期
+                </td>
+                <td o="1">
+                    <input type="text" value="" id="Date" readonly ondblclick="setFootInfo()" />
+                </td>
+            </tr>
+        </table>
+        <table class="tb b" border="0" cellpadding="0" cellspacing="0" width="730px" style="float: left">
+            <tr height="20px">
+                <td width="55px" align="center">
+                    项目
+                </td>
+                <td width="128px" o="1">
+                    <input type="text" value="" id="ProjectName" readonly ondblclick="setFootInfo()" />
+                    <input type="hidden" value="" id="ProjectID" />
+                </td>
+                <td width="55px" align="center">
+                    部门
+                </td>
+                <td width="128px" o="1">
+                    <input type="text" value="" id="DepartmentName" readonly ondblclick="setFootInfo()" />
+                    <input type="hidden" value="" id="DepartmentID" />
+                </td>
+                <td width="143px" align="center">
+                    制单
+                </td>
+                <td id="Handler"></td>
+            </tr>
+            <tr height="20px">
+                <td align="center">
+                    客户
+                </td>
+                <td o="1">
+                    <input type="text" value="" id="ClientName" readonly ondblclick="setFootInfo()" />
+                    <input type="hidden" value="" id="ClientID" />
+                </td>
+                <td align="center">
+                    个人
+                </td>
+                <td o="1">
+                    <input type="text" value="" id="AcName" readonly ondblclick="setFootInfo()" />
+                    <input type="hidden" value="" id="AcID" />
+                </td>
+                <td align="center">
+                    审核
+                </td>
+                <td id="ValiderName">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="clear: both; margin-left: 20px">
+        <p style="line-height: 40px; font-size: 16px; font-weight: bold; display:inline-block;">
+            制单公司：<select name="DropDownListCompany" id="DropDownListCompany">
+                <option value="1">湖南出头科技有限公司</option>
+                <option value="2">同城网络科技有限公司</option>
+                <option value="4">公司名称</option>
+            </select>
+            <div style="margin-left:250px; display:inline-block;">签字：</div>
+        </p>
+    </div>
+
+
+    <div class="modal-footer" id="bottomDiv">
+
+        <button type="button" id="load" class="btn btn-default" onclick="location.reload();">
+            刷新
+        </button>
+        <button type="button" class="btn btn-default" onclick="printVoucher()">
+            打印
+        </button>
+        <button type="button" class="btn btn-default" id="ChangeStatus" onclick="ChangeStatus()">
+            作废
+        </button>
+        <button type="button" class="btn btn-default" id="ChangeValid" onclick="ChangeValid()">
+            审核
+        </button>
+        <button type="button" class="btn btn-default" onclick="addNewRow()">
+            插分
+        </button>
+        <button type="button" class="btn btn-default" onclick="deleteThisRow()">
+            删分
+        </button>
+        <button type="button" id="appointmentDateSubmit" class="btn btn-primary" onclick="SaveVoucher()">
+            保存
+        </button>
+    </div>
+    <input type="hidden" id="VoucherID" />
+    <input type="hidden" id="TrIndex" />
+    <input type="hidden" id="VoucherValid" />
+
+    <script type="text/html" id="VoucherInfoTemplate">
+        <tbody>
+            <%for(var i in list){%>
+            <tr class="list" onclick='setFocusDetail(this,<%=list[i].ToReviewStatus%>)'>
+                <td width="182px">
+                    <input type="text" value="<%=list[i].Title%>" onfocus='setFocusDetailClick(this)'><%=list[i].ToReviewStatus==1?"disabled":""%> />
+                </td>
+                <td width="320px">
+                    <input type="text" value="<%=list[i].CodeName%>" class="codename" onpaste="return false" ondrop="return false" ondragenter="return false;" ondragstart="return false" onblur="addNewRow(this)" ondblclick="selectNode(this)" onfocus="ClickNameLookCode(this)"><%=list[i].ToReviewStatus==1?"disabled":""%> />
+                    <input type="hidden" name="code" value="<%=list[i].Code%>" />
+                    <input type="hidden" name="name" value="<%=list[i].CodeName%>" />
+                    <input type="hidden" name="TicketNumber" value="<%=list[i].TicketNumber%>" />
+                    <input type="hidden" name="Date" value='<%=dateFormat(list[i].Date, " yyyy-MM-dd")%>' />
+                    <input type="hidden" name="ProjectID" value="<%=list[i].ProjectID%>" />
+                    <input type="hidden" name="ProjectName" value="<%=list[i].ProjectName%>" />
+                    <input type="hidden" name="ClientID" value="<%=list[i].ClientID%>" />
+                    <input type="hidden" name="ClientName" value="<%=list[i].ClientName%>" />
+                    <input type="hidden" name="DepartmentID" value="<%=list[i].DepartmentID%>" />
+                    <input type="hidden" name="DepartmentName" value="<%=list[i].DepartmentName%>" />
+                    <input type="hidden" name="PersonalID" value="<%=list[i].PersonalID%>" />
+                    <input type="hidden" name="PersonalName" value="<%=list[i].PersonalName%>" />
+                    <input type="hidden" name="AideType" value="<%=list[i].AideType%>" />
+                    <input type="hidden" name="VoucherDetailsID" value="<%=list[i].VoucherDetailsID%>" />
+                    <input type="hidden" name="ID" value="<%=list[i].ID%>" />
+                </td>
+
+                <td width="108px">
+                    <input type="text" value='<%=list[i].LeftMoney==0?"":(list[i].LeftMoney<0?(list[i].LeftMoney*(-1)):list[i].LeftMoney)%>' dir='rtl' class="price" onpaste="return false" ondrop="return false" ondragenter="return false;" numtype='<%=list[i].LeftMoney<0?"fushu":"zhengshu"%>' onblur="SumLeftMoney()" style='<%=list[i].LeftMoney<0?"color:red;":"color:black;"%>' ondragstart="return false"><%=list[i].ToReviewStatus==1?"disabled":""%> />
+                </td>
+                <td width="108px">
+                    <input type="text" value='<%=list[i].RightMoney==0?"":(list[i].RightMoney<0?(list[i].RightMoney*(-1)):list[i].RightMoney)%>' dir='rtl' class="price" onpaste="return false" ondrop="return false" ondragenter="return false;" onblur="SumRightMoney()" numtype='<%=list[i].RightMoney<0?"fushu":"zhengshu"%>' style='<%=list[i].RightMoney<0?"color:red;":"color:black;"%>' ondragstart=" return false"><%=list[i].ToReviewStatus==1?"disabled":""%>/>
+                </td>
+            </tr>
+            <%}%>
+        </tbody>
+    </script>
+</body>
+</html>

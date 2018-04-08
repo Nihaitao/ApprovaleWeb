@@ -1,0 +1,38 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-row">
+        <div class="layui-col-md3"></div>
+    </div>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                },
+                watch: {
+                },
+                ready: function () {
+                    this.GetVoucherTemplateList();
+                },
+                methods: {
+                   GetVoucherTemplateList:function(cb){
+                    $.get('/service/finance/Finance/GetVoucherTemplateList',function(res){
+                        if(res.SuccessResponse){
+                            this.temp=res.Data;
+                        }
+                    })
+                   } 
+                }
+            });
+        });
+</script>

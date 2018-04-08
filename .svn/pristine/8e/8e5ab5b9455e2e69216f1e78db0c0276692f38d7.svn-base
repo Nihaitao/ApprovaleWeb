@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery-1.4.4.min.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.core.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.excheck.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.exedit.js"></script>
+
+    <link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        require_js_file(["table", 'tree', "form", "jquery", "tableExt"],
+        function (fnr) {
+            var zTreeObj;
+            // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+            var setting = {
+                //async: {
+                //    enable: true,
+                //    autoParam: ["ID",'Company_ID'],
+                //    type: "get",
+                //    dataFilter: ajaxDataFilter,
+                //    url: "/service/finance/Finance/GetProjectList",
+                //},
+                edit: {
+                    enable: true,
+                    editNameSelectAll: true,
+                    showRemoveBtn: showRemoveBtn,
+                    showRenameBtn: showRenameBtn
+                },
+                data: {
+                    key: {
+                        name: "Name"
+                    },
+                    simpleData: {
+                        enable: true,
+                        idKey: "ID",
+                        pIdKey: "CID"
+                    }
+                },
+                view: {
+                    addHoverDom: addHoverDom,  //添加事件
+                    removeHoverDom: removeHoverDom, //鼠标移开移除添加按钮
+                    nameIsHTML: true,
+                    showTitle: false,
+                    fontCss: setEnable
+                },
+                callback: {
+                    beforeEditName: beforeEditName,//修改
+                    beforeRemove: beforeRemove,//删除
+                    beforeClick: beforeClick, //点击事件
+                }
+            };
+            //启用/禁用
+            function setEnable(treeId, treeNode) {
+                return treeNode.Valid == 0 ? { color: "red" } : {};
+            }
+
+            //节点去掉删除
+            function showRemoveBtn(treeId, treeNode) {
+                return treeNode.ID;
+            }
+            //节点去掉修改
+            function showRenameBtn(treeId, treeNode) {
+                return treeNode.ID;
+            }
+            //修改
+            function beforeEditName(treeId, treeNode) {
+                zTreeObj.selectNode(treeNode);
+                rootApp.$data.queryFormData.ID = treeNode.ID;
+                rootApp.$data.queryFormData.CID = treeNode.CID;
+                rootApp.$data.queryFormData.Name = treeNode.NewName;
+
+                fnr.openDialog({
+                    title: '修改',
+                    area: ['470px', '300px'],
+                    content: ['ProjectEdit.html?ID=' + treeNode.ID + '&CID=' + treeNode.CID + "&Code=" + treeNode.Code + "&Name=" + treeNode.NewName + "&Valid=" + treeNode.Valid],
+                    btn: ['确认修改'],
+                    yes: function (index, layero) {
+                        var iframeWin = window[layero.find('iframe')[0]['name']];
+                        $(iframeWin.document).find(".layui-btn").click();
+                    },
+
+                    events: {
+                        refresh: function (data) {
+                            if (data.status) {
+                                layer.msg(data.msg);
+                            } else {
+                                layer.msg(data.msg);
+                            }
+                            var nodes = zTreeObj.getSelectedNodes();
+                            if (!nodes[0].isParent) {
+                                nodes[0].isParent = true;
+                                zTreeObj.updateNode(nodes[0]);
+                                zTreeObj.reAsyncChildNodes(null, "refresh");
+                            }
+                        }
+                    }
+                });
+
+                return false;
+            }
+
+            //删除节点事件
+            function beforeRemove(treeId, treeNode) {
+                zTreeObj.selectNode(treeNode);
+                rootApp.$data.queryFormData.ID = treeNode.ID;
+                rootApp.$data.queryFormData.CID = treeNode.CID;
+                layer.confirm('确定删除吗？删除后不可恢复！', function () {
+                    $.ajax({
+                        url: '/service/finance/Finance/DeleteProject?ID=' + treeNode.ID,
+                        success: function (data) {
+                            layer.msg(data.Message)
+                            if (data.SuccessResponse) {
+                                var nodes = zTreeObj.getNodesByParam("ID", treeNode.CID, null);
+                                zTreeObj.selectNode(nodes[0]);
+                                rootApp.$data.queryFormData.ID = nodes[0].ID;
+                                rootApp.$data.queryFormData.CID = nodes[0].CID
+                                rootApp.$data.queryFormData.Name = nodes[0].Name
+
+                                zTreeObj.removeNode(treeNode);
+                            }
+                        }
+                    });
+                })
+                return false;
+            }
+
+            //添加项目
+            function addHoverDom(treeId, treeNode) {
+                var sObj = $("#" + treeNode.tId + "_span");
+                if (treeNode.editNameFlag || $("#addBtn_" + treeNode.tId).length > 0) return;
+                var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+                    + "' title='add node' onfocus='this.blur();'></span>";
+                sObj.after(addStr);
+                var btn = $("#addBtn_" + treeNode.tId);
+                if (btn)
+                    btn.bind("click", function () {
+                        zTreeObj.selectNode(treeNode);
+                        rootApp.$data.queryFormData.ID = treeNode.ID;
+                        rootApp.$data.queryFormData.CID = treeNode.CID;
+                        fnr.openDialog({
+                            title: '添加项目',
+                            area: ['470px', '300px'],
+                            content: ['ProjectEdit.html?ID=0&CID=' + treeNode.ID + '&Valid=1'],
+                            btn: ['确认添加'],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+
+                            },
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg(data.msg);
+                                    } else {
+                                        layer.msg(data.msg);
+                                    }
+                                    var nodes = zTreeObj.getSelectedNodes();
+                                    console.log(nodes[0].isParent);
+                                    if (!nodes[0].isParent) {
+                                        nodes[0].isParent = true;
+                                        zTreeObj.updateNode(nodes[0]);
+                                    }
+                                    zTreeObj.reAsyncChildNodes(null, "refresh");
+                                }
+                            }
+                        });
+
+                        return false;
+                    });
+            };
+
+
+
+            function removeHoverDom(treeId, treeNode) {
+                $("#addBtn_" + treeNode.tId).unbind().remove();
+            };
+
+            function ajaxDataFilter(treeId, parentNode, rsp) {
+                rsp.Data.map(function (a, b) {
+                    a.CID = a.CID;
+                    a.ID = a.ID;
+                    a.Code = a.Code;
+                    a.Valid = a.Valid;
+                    a.NewName = a.Name;
+                    a.Name = a.Name + '(' + a.Code + ')'
+                    a.isParent = false;
+                    a.open = 1;
+                });
+                if (parentNode == null) {
+                    rsp.Data.push({ ID: 0, Name: '核算项目', open: 1 })
+                } else {
+                    rsp.Data
+                }
+                return rsp.Data;
+            };
+            function beforeClick(treeId, treeNode, clickFlag) {
+                rootApp.$data.queryFormData.ID = treeNode.ID;
+                rootApp.$data.queryFormData.CID = treeNode.CID;
+                rootApp.$data.queryFormData.Name = treeNode.Name;
+                rootApp.$data.queryFormData.Valid = treeNode.Valid;
+                console.log(treeNode.Valid);
+            }
+
+            function showall(data, CID) {
+
+                var array = new Array();
+                $.each(data, function (i, x) {
+                    if (x.ID == CID) {
+                        array.push("<a href='javascript:;'>" + this.Name + "</a>>");
+                        array = array.concat(showall(data, x.CID));
+                    }
+                });
+                return array;
+            }
+
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    queryFormData: {
+                        SearchValue: '',
+                        ID: 0,
+                        CID: 0,
+                        Name: '',
+                        Valid: 1
+                    }
+                },
+                ready: function () {
+                },
+                methods: {
+                }
+            });
+
+            $(document).ready(function () {
+                $.get('/service/finance/Finance/GetProjectList',{Company_ID:1},function(res){
+                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting,res.Data);
+                })
+            });
+
+            //$(document).ready(function () {
+            //    $.get("/service/Company/GetCompanyList", function (rsp) {
+            //        rsp.ReturnData.Data.map(function (a, b) {
+            //            a.isParent = true;
+            //            a.Company_ID = a.ID;
+            //            a.Department_ID = 0;
+            //        })
+            //        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, rsp.ReturnData.Data);
+
+            //        var nodes = zTreeObj.getNodes();
+            //        if (nodes.length > 0) {
+            //            zTreeObj.selectNode(nodes[0]);
+            //            zTreeObj.expandNode(nodes[0], true, null, true, true);
+            //        }
+            //    });
+            //});
+        });
+    </script>
+
+
+
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-col-xs2">
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        .isDisplay {
+            display: none;
+        }
+        .toggleNext {
+            height: 39px;
+            background: #fff;
+            line-height: 39px;
+            border: 1px solid #e2e2e2;
+            border-top-color: transparent;
+        }
+        .padding20 {
+            padding-left: 20px;
+        }
+        .padding40 {
+            padding-left: 40px;
+        }
+    </style>
+</head>
+<body id="root" style="background: #ddd;">
+    <div class="OpenContainer">
+        <div class="layui-row" style="height: 80px;">
+            <div class="layui-col-xs12" style="height: 100%; background: #F6F8F8;">
+                <p style="line-height: 80px;text-align: center; font-size: 24px; border-radius: 3px;">总账</p>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12" style="height: 50px; margin-top: 10px;">
+                <div class="layui-form">
+                    <div class="layui-inline">
+                        <lay-date v-bind:value.sync="submitForm.time" type='datetime' initial="off"></lay-date>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs3">
+                <div class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="margin-left: 0;">
+                            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请选择科目或搜索科目编码和名称" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="treeData" style="height: 100%;">
+                    <tree v-bind:list="FirstListData"></tree>
+                </div>
+            </div>
+            <div class="layui-col-xs9" style="padding-left:15px;">
+                <table class="layui-table" style="width: 100%; margin: 0;">
+                    <colgroup>
+                        <col width="100">
+                        <col width="400">
+                        <col width="100">
+                        <col width="100">
+                        <col width="50">
+                        <col width="100">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>期间</th>
+                            <th>摘要</th>
+                            <th>借方</th>
+                            <th>贷方</th>
+                            <th>方向</th>
+                            <th>余额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2016-08</td>
+                            <td>初期余额</td>
+                            <td></td>
+                            <td></td>
+                            <td>平</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>2016-10</td>
+                            <td>本月合计</td>
+                            <td></td>
+                            <td>203.58</td>
+                            <td>贷</td>
+                            <td>203.58</td>
+                        </tr>
+                        <tr>
+                            <td>2016-10</td>
+                            <td>本年累计</td>
+                            <td></td>
+                            <td>203.58</td>
+                            <td>平</td>
+                            <td>203.58</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="../../Resources/js/jquery.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="../../Resources/js/Controls/SortTable.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            
+            Vue.component('tree', {
+                name: 'tree',
+                props: ['list'],
+                template: '<ul class="listBox isDisplay"><template  v-for="item in list">' +
+                '   <li class="toggleNext">\n' +
+                '       <i class="layui-icon" @click="toggleThis($event)">&#xe602;</i>\n' +
+                '       <a href="javascript:;">{{item.Code}} - {{item.Name}}</a>\n' +
+                '   </li>\n' +
+                '   <li v-if="item.ChildList">\n' +
+                '       <tree v-bind:list="item.ChildList"></tree>\n' +
+                '   </li>\n' +
+                '</template></ul>',
+                ready: function () {
+                    $('.listBox:first').css('display', 'block');
+                },
+                methods: {
+                    toggleThis: function (e) {
+                        var ev = e.srcElement || e.target || e.toElement;
+                        $(ev).parent('li').next().children('ul').slideToggle();
+                    }
+                }
+            });
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    submitForm: {
+                        time: fnr.format(Date.now(), 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    FirstListData: []
+                },
+                ready: function () {
+                    this.GetFinanceCodeFn();
+                },
+                methods: {
+                    HandleData: function (data) {
+                        var obj = {};
+                        data = data.sort(function (a, b) {
+                            return a.Code.length - b.Code.length;
+                        });
+                        var depthFind = function (code) {
+                            if (code.length === 1) {
+                                return obj;
+                            } else if (code.length === 4) {
+                                return obj["_" + code.substr(0, 1)].ChildList;
+                            } else {
+                                var startNode = depthFind(code.substr(0, 4));
+                                for (var i = 4; i < code.length; i += 2) {
+                                    var tempNode = startNode["_" + code.substr(0, i)];
+                                    if (tempNode) {
+                                        startNode = tempNode.ChildList;
+                                    }
+                                }
+                                return startNode;
+                            }
+                        }
+                        data.map(function (v, k) {
+                            v.ChildList = {};
+                            depthFind(v.Code)["_" + v.Code] = v;
+                        });
+                        return obj;
+                    },
+                    GetFinanceCodeFn: function () {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetFinanceCode', { Company_ID: 2, FinanceCodeType: 0 }, function (res) {
+                            if (res.SuccessResponse) {
+                                if (res.Data) {
+                                    self.FirstListData = self.HandleData(res.Data);
+                                    console.log(self.FirstListData)
+                                } else {
+                                    layer.msg('返回值为空')
+                                }
+                            } else {
+                                layer.msg(res.Message)
+                            }
+                        });
+                    },
+           
+                }
+            });
+        });
+</script>

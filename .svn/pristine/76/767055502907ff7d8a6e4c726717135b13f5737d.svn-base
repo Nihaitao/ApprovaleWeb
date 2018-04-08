@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery-1.4.4.min.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.core.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.excheck.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/zTree_v3/js/jquery.ztree.exedit.js"></script>
+
+    <link href="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="//bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        require_js_file(["table", 'tree', "form", "jquery", "tableExt"],
+        function (fnr) {
+            var zTreeObj;
+            var setting = {
+                async: {
+                    enable: true,
+                    autoParam: ["Company_ID", "Department_ID"],
+                    type: "get",
+                    dataFilter: ajaxDataFilter,
+                    url: "/service/Company/GetListDepartmentNew",
+                },
+                data: {
+                    key: {
+                        name: "Name"
+                    },
+                    simpleData: {
+                        enable: true,
+                        idKey: "ID",
+                        pIdKey: "CID"
+                    }
+                },
+                callback: {
+                    beforeDblClick: beforeDblClick,
+                }
+            };
+            function beforeDblClick(treeId, treeNode, clickFlag) {
+                fnr.callDialog('refresh',{ID:treeNode.ID,Name:treeNode.Name})
+                fnr.closeDialog()
+            }
+            function ajaxDataFilter(treeId, parentNode, rsp) {
+                rsp.ReturnData.Data.map(function (a, b) {
+                    a.Company_ID = parentNode.Company_ID;
+                    a.Department_ID = a.ID;
+                    a.isParent = a.IsExistChild;
+                    a.NewName = a.Name;
+                    //a.Name = a.Name + '[' + a.Organization + '/' + a.ExistOrganization + ']';
+                    //console.log(parentNode);
+                })
+                return rsp.ReturnData.Data;
+            };
+            $(document).ready(function () {
+                $.get("/service/Company/GetCompanyList", function (rsp) {
+                    rsp.ReturnData.Data.map(function (a, b) {
+                        a.isParent = true;
+                        a.Company_ID = a.ID;
+                        a.Department_ID = 0;
+                    })
+                    zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, rsp.ReturnData.Data);
+
+                    var nodes = zTreeObj.getNodes();
+                    if (nodes.length > 0) {
+                        zTreeObj.selectNode(nodes[0]);
+                        zTreeObj.expandNode(nodes[0], true, null, true, true);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-col-xs2">
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+    </div>
+</body>
+</html>

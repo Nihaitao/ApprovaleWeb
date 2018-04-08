@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>角色和权限设置</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .isDisplay {
+            display: none;
+        }
+
+        .toggleNext {
+            height: 39px;
+            background: #fff;
+            line-height: 39px;
+            border: 1px solid #e2e2e2;
+            border-top-color: transparent;
+        }
+        .listBox{
+            border: 1px solid #dedede;
+            border-bottom: none;
+            border-right: none;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        .listItem{
+            height: 39px;
+            line-height: 39px;
+            border-bottom: 1px solid #dedede;
+            position: relative;
+            background: #F6F8F8;
+            transition: background 0.3s;
+        }
+        .listItem div{
+            display: inline-block;
+        }
+        .tempBox{
+            width: 100%;
+            padding: 0 20px;
+        }
+        .hoverColor{
+            background-color: #009688;
+            width: 0;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.3s;
+        }
+        .deleteBtn,
+        .modifyBtn{
+            display: none;
+            float: right;
+            transition: color 0.3s;
+        }
+        .modifyBtn{
+            margin-right: 10px;
+        }
+        .defalutTxt{
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            right: 85px;
+            color: #999;
+        }
+        .itemName{
+            transition: color 0.3s;
+        }
+        .listItem:hover .itemName{
+            color: #009688;
+        }
+        .listItem:hover{
+            background: #fff;
+        }
+        .listItem:hover .hoverColor{
+            width: 8px;
+        }
+        .listItem:hover .deleteBtn,
+        .listItem:hover .modifyBtn{
+            display: inline-block;
+            color: #009688;
+        }
+        .layui-collapse{
+            margin-bottom: 30px;
+        }
+        div.layui-tab-content{
+            padding-left: 0;
+            padding-bottom: 0;
+        }
+        .rightTitle{
+            height: 39px;
+            line-height: 39px;
+        }
+        div.layui-input-block{
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <div class="layui-row" style="height: 80px;">
+            <div class="layui-col-xs12" style="height: 100%; background: #F6F8F8;">
+                <p style="line-height: 80px;text-align: center; font-size: 24px; border-radius: 3px;">角色和权限设置</p>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs2" style="height: 50px; margin-top: 10px;">
+                <h3>公司角色</h3>
+            </div>
+            <div class="layui-col-xs2 layui-col-xs-offset8" style="height: 50px; margin-top: 10px; text-align: right;">
+                <button class="layui-btn  layui-btn-normal"><i class="layui-icon">&#xe654;</i> 新增角色</button> 
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs3">
+                <div class="treeData" style="height: 100%;">
+                    <ul class="listBox">
+                        <li class="listItem">
+                            <div class="hoverColor"></div>
+                            <div class="tempBox">
+                                <a href="javscript:;" class="itemName">超级管理员</a>
+                                <i class="layui-icon deleteBtn" @click="deleteThis">&#xe640;</i>
+                                <i class="layui-icon modifyBtn" @click="modifyThis">&#xe642;</i>
+                            </div>
+                        </li>
+                        <li class="listItem">
+                            <div class="hoverColor"></div>
+                            <div class="tempBox">
+                                <a href="javscript:;" class="itemName">超级管理员</a>
+                                <i class="layui-icon deleteBtn" @click="deleteThis">&#xe640;</i>
+                                <i class="layui-icon modifyBtn" @click="modifyThis">&#xe642;</i>
+                            </div>
+                        </li>
+                        <li class="listItem">
+                            <div class="hoverColor"></div>
+                            <div class="tempBox">
+                                <a href="javscript:;" class="itemName">超级管理员</a>
+                                <i class="layui-icon deleteBtn" @click="deleteThis">&#xe640;</i>
+                                <i class="layui-icon modifyBtn" @click="modifyThis">&#xe642;</i>
+                                <span class="defalutTxt">系统默认</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="layui-col-xs9" style="padding-left:15px; border: 1px solid #dedede; border-top-right-radius: 3px;border-bottom-right-radius: 3px;">
+                <div class="layui-row">
+                    <div class="layui-col-xs12">
+                        <h3 class="rightTitle">超级管理员设置</h3>
+                    </div>
+                </div>
+                <div class="layui-row">
+                    <div class="layui-col-xs12">
+                        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">操作权限</li>
+                                <li>数据权限</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <div class="layui-collapse" lay-filter="test">
+                                        <div class="layui-colla-item">
+                                            <h2 class="layui-colla-title">线索 - 权限</h2>
+                                            <div class="layui-colla-content">
+                                                <div class="layui-form">
+                                                    <div class="layui-form-item" pane="">
+                                                        <div class="layui-input-block">
+                                                            <div style="display:inline-block;">
+                                                                <input type="checkbox" lay-skin="primary" title="查看线索">
+                                                                <i class="layui-icon" @click="modifyClue" style="position: relative;top: 6px;right: 15px;">&#xe642;</i>
+                                                            </div>
+                                                            <div style="display:inline-block;">
+                                                                <input type="checkbox" lay-skin="primary" title="新增线索">
+                                                                <i class="layui-icon" @click="modifyClue" style="position: relative;top: 6px;right: 15px;">&#xe642;</i>
+                                                            </div>
+                                                            <div style="display:inline-block;">
+                                                                <input type="checkbox" lay-skin="primary" title="编辑线索">
+                                                                <i class="layui-icon" @click="modifyClue" style="position: relative;top: 6px;right: 15px;">&#xe642;</i>
+                                                            </div>
+                                                            <div style="display:inline-block;">
+                                                                <input type="checkbox" lay-skin="primary" title="删除线索">
+                                                                <i class="layui-icon" @click="modifyClue" style="position: relative;top: 6px;right: 15px;">&#xe642;</i>
+                                                            </div>
+                                                            <div style="display:inline-block;">
+                                                                <input type="checkbox" lay-skin="primary" title="导入线索">
+                                                                <i class="layui-icon" @click="modifyClue" style="position: relative;top: 6px;right: 15px;">&#xe642;</i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-collapse" lay-filter="test">
+                                        <div class="layui-colla-item">
+                                            <h2 class="layui-colla-title">客户 - 权限</h2>
+                                            <div class="layui-colla-content">
+                                                同上
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-tab-item">同操作权限 - 线索权限</div>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="../../Resources/js/jquery.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="../../Resources/js/Controls/SortTable.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "element"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var element = layui.element;
+
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+          
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    submitForm: {
+                    }
+                },
+                ready: function () {
+                    
+                },
+                methods: {
+                    doSearch: function (e) {
+                        var ev = e.target || e.srcElement || e.toElement;
+                    },
+
+                    //删除
+                    deleteThis: function (e) {
+                        alert('删除函数调用成功.....');
+                    },
+
+                    //修改
+                    modifyThis: function (e) {
+                        alert('修改函数调用成功.....');
+                    },
+
+                    //修改线索名
+                    modifyClue: function (e) {
+                        alert('修改线索名函数调用....');
+                    }
+                   
+                }
+            });
+
+        });
+</script>

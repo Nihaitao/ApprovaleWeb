@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="edge" />
+    <title></title>
+    <link rel="shortcut icon" href="http://g.chutoukj.com/themes/Default/images/favicon.png">
+    <script src="http://g.chutoukj.com/js/sea-modules/jquery/1.10.1/jquery.js"></script>
+
+    <script src="http://g.chutoukj.com/js/sea-modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/template/template-native-debug.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/knockout/3.4.0/knockout.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/laypage/laypage.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/laypage/skin/laypage.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/pageList.js"></script>
+    <script src="http://g.chutoukj.com/js/bindSelect.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/layer-v2.3/layer/layer.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/layer-v2.3/layer/skin/layer.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/sea-modules/My97DatePicker/WdatePicker.js"></script>
+    <script src="http://g.chutoukj.com/js/sea-modules/select2-4.0.3/dist/js/select2.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/select2-4.0.3/dist/css/select2.css" rel="stylesheet" />
+    <link href="http://g.chutoukj.com/js/sea-modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="http://g.chutoukj.com/themes/Default/fonts/font-awesome-4/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="http://g.chutoukj.com/themes/Default/css/style.css" rel="stylesheet" />
+
+    <script src="http://g.chutoukj.com/js/validate.js"></script>
+    <link href="http://g.chutoukj.com/js/sea-modules/jquery.nanoscroller/nanoscroller.css" rel="stylesheet" />
+    <script src="http://g.chutoukj.com/js/sea-modules/jquery.nanoscroller/jquery.nanoscroller.js"></script>
+    <link href="http://g.chutoukj.com/themes/Default/css/report.css" rel="stylesheet" />
+
+    <link href="" rel=" stylesheet" />
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            //SkinManage();
+            if ($(".Wdate").length > 0) {
+                $.get("/api/Student/GetCurrentTime", {}, function (rsp) {
+                    $(".Wdate").each(function () {
+                        if ($(this).attr("timebind") != undefined && $(this).attr("timebind") != "" && $(this).attr("timebind").length > 0 && $.trim($(this).val()) == "") {
+                            var params1 = $(this).attr("timebind");
+                            var p1 = params1.split("|")[0];//1 or 0   1代表有value默认值  0没有默认值
+                            var p2 = params1.split("|")[1];//时间格式   ymdhms:年月日时分秒 ymdhm:年月日时分 ymd:年月日 ym:年月 ym1:显示默认某年某月1日（仅对默认显示有效）y11:显示默认某年1月1日（仅对默认显示有效）
+                            var p3 = params1.split("|")[2];//0 or 1 or -1 or 2    0代表没有最值限制(没有限制则不需要修改onfocus赋值)   1代表有最大值限制 -1代表有最小值限制  2代表有最大值和最小值限制(暂时未用到)
+                            if (p1 == "1") {
+                                if (p2 == "ymdhms") {
+                                    $(this).val(rsp);
+                                }
+                                if (p2 == "ymdhm") {
+                                    $(this).val(String(rsp).substr(0, 16));
+                                }
+                                if (p2 == "ymd") {
+                                    $(this).val(String(rsp).substr(0, 10));
+                                }
+                                if (p2 == "ym") {
+                                    $(this).val(String(rsp).substr(0, 7));
+                                }
+                                if (p2 == "ym1") {
+                                    $(this).val(String(rsp).substr(0, 8) + "01");
+                                }
+                                if (p2 == "y11") {
+                                    $(this).val(String(rsp).substr(0, 5) + "01-01");
+                                }
+                            }
+
+                            //if (p3 == "0") {
+                            //    $(this).attr("onfocus","WdatePicker({ dateFmt: 'yyyy-MM-dd'}))";
+                            //}
+                            if (p3 == "1") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 10) + "'})");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 7) + "'})");
+                                }
+                            }
+                            if (p3 == "-1") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', minDate:'" + String(rsp).substr(0, 10) + "'})");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM', minDate:'" + String(rsp).substr(0, 7) + "'})");
+                                }
+                            }
+                            if (p3 == "2") {
+                                if (p2 == "ymd" || p2 == "ym1" || p2 == "y11") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate:'" + String(rsp).substr(0, 10) + "',minDate:'" + String(rsp).substr(0, 10) + "')");
+                                }
+                                if (p2 == "ym") {
+                                    $(this).attr("onfocus", "WdatePicker({ dateFmt: 'yyyy-MM', maxDate:'" + String(rsp).substr(0, 7) + "',minDate:'" + String(rsp).substr(0, 7) + "')");
+                                }
+                            }
+                        }
+                        //else {
+                        //    $(this).val("");
+                        //}
+                    });
+                });
+            }
+
+        });
+
+        //function SkinManage() {
+
+        //    $.post("/api/SystemSet/SkinManageSetUp", {}, function (rsp) {
+        //        if (rsp != null) {
+        //            var head = document.getElementsByTagName('head')[0],
+        //            cssURL = " http://g.chutoukj.com/themes" + rsp[0].Url + "",
+        //            linkTag = document.createElement('link');
+
+        //            linkTag.id = 'dynamic-style';
+        //            linkTag.href = cssURL;
+        //            linkTag.setAttribute('rel', 'stylesheet');
+        //            linkTag.setAttribute('media', 'all');
+        //            linkTag.setAttribute('type', 'text/css');
+        //            head.appendChild(linkTag);
+        //            //head.appendChild(linkTag);
+
+        //        }
+        //    });
+        //}
+    </script>
+</head>
+<body>
+
+    <script type="text/javascript">
+    var AideType = " ";
+    var index = $.Query("index");
+    function closeWindow() {
+        var index1 = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index1);
+    }
+    function saveValue() {
+        var flg = true;
+        $("select").each(function () {
+            if ($(this).val() == "0" && $(this).parent().parent().css("display") != "none")
+                flg = false;
+        });
+        if (!flg)
+            parent.layer.msg("请填写完整！")
+        else {
+            var windowName = $.Query("windowName");
+            $(window.parent.frames[windowName].document).find("#TicketNumber").val($("#ticketNumber").val());
+            $(window.parent.frames[windowName].document).find("#Date").val($("#date").val());
+            $(window.parent.frames[windowName].document).find("#DepartmentName").val($("#departmentID").find("option:selected").text());
+            $(window.parent.frames[windowName].document).find("#DepartmentID").val($("#departmentID").val());
+            $(window.parent.frames[windowName].document).find("#AcName").val($("#acName").find("option:selected").text());
+            $(window.parent.frames[windowName].document).find("#AcID").val($("#AcName").val());
+            $(window.parent.frames[windowName].document).find("#ProjectName").val($("#project_Name").val());
+            $(window.parent.frames[windowName].document).find("#ProjectID").val($("#project_id").val());
+            $(window.parent.frames[windowName].document).find("#ClientName").val($("#F_Client").find("option:selected").text());
+            $(window.parent.frames[windowName].document).find("#ClientID").val($("#F_Client").val());
+
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='TicketNumber']").first().val($("#ticketNumber").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='Date']").first().val($("#date").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='ProjectID']").first().val($("#project_id").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='ProjectName']").first().val($("#project_Name").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='ClientID']").first().val($("#F_Client").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='ClientName']").first().val($("#F_Client").find("option:selected").text());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='DepartmentID']").first().val($("#departmentID").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='DepartmentName']").first().val($("#departmentID").find("option:selected").text());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='PersonalID']").first().val($("#acName").val());
+            $(window.parent.frames[windowName].document).find("#voucherMain tr").eq(index).children().eq(1).find("input[name='PersonalName']").first().val($("#acName").find("option:selected").text());
+            closeWindow();
+        }
+    }
+    $(function () {
+        //AideType 核算类型： 1部门核算  2个人往来   3客户往来  4项目核算  0银行
+        if (("begin:" + AideType).indexOf("0") > 0) {
+        }
+        if (("begin:" + AideType).indexOf("1") > 0) {
+            bindDropDownList();
+            $("#departmentID").parent().parent().show();
+        }
+        if (("begin:" + AideType).indexOf("2") > 0) {
+            bindDropDownList();
+            $("#departmentID").parent().parent().show();
+            $("#acName").parent().parent().show();
+        }
+        if (("begin:" + AideType).indexOf("3") > 0) {
+            bindClient();
+            $("#F_Client_Category").parent().parent().show();
+            $("#F_Client").parent().parent().show();
+        }
+        if (("begin:" + AideType).indexOf("4") > 0) {
+            $("#project_Name").parent().parent().show();
+        }
+
+    });
+    function bindClient() {
+        bindSelect(
+            {
+                list: [
+                {
+                    url: "/api/FinanceData/GetCategory",//请求的url
+                    container: "#F_Client_Category",
+                    value: "ID",
+                    text: "Name",
+                    rspdata: "",
+                    defaultselect: true
+                }, {
+                    url: "/api/FinanceData/GetClient",//请求的url
+                    container: "#F_Client",
+                    value: "ID",
+                    text: "Name",
+                    rspdata: "",
+                    rendcomplete: function () {
+                        $("#F_Client").select2();
+                    }
+                }
+                ]
+            });
+    }
+    function bindDropDownList() {
+        bindSelect(
+            {
+                list: [
+                {
+                    url: "/api/FinanceData/GetDepartment",//请求的url
+                    container: "#departmentID",
+                    value: "ID",
+                    text: "Name",
+                    rspdata: "",
+                    defaultselect: true
+                }, {
+                    url: "/api/FinanceData/GetAccount",//请求的url
+                    container: "#acName",
+                    value: "AcId",
+                    text: "AcName",
+                    rspdata: ""
+                }
+                ]
+            });
+    }
+    //function setProject() {
+    //    layer.open({
+    //        type: 2,
+    //        title: '',
+    //        shadeClose: true,
+    //        shade: true,
+    //        maxmin: false, //开启最大化最小化按钮
+    //        area: ['470px', '500px'],
+    //        content: '/Finance/UFIDA/SelectFinanceProject.cshtml',
+    //        shift: 5
+    //    });
+    //}
+    </script>
+    <div class="container-fluid" data-bind="load: events.SearchBind">
+        <table class="table2">
+            <tbody>
+                <tr style="display:none;">
+                    <td>客户类型</td>
+                    <td><select style="width:235px;" id="F_Client_Category"></select></td>
+                </tr>
+                <tr style="display:none;">
+                    <td>选择客户</td>
+                    <td><select style="width:235px;" id="F_Client"></select></td>
+                </tr>
+                <tr style="display:none;">
+                    <td>
+                        项目
+                    </td>
+                    <td>
+                        <input type="text" readonly id="project_Name" style="width:235px;" ondblclick="layer.open({
+    type: 2,
+    title: '选择项目',
+    shadeClose: false,
+    shade: false,
+    maxmin: false, //开启最大化最小化按钮
+    area: ['470px', '350px'],
+    content: '/Finance/UFIDA/SelectFinanceProject.cshtml',
+    shift: 5
+});" /><input type="hidden" id="project_id" />
+                    </td>
+
+                </tr>
+                <tr style="display:none;">
+                    <td>
+                        部门
+                    </td>
+                    <td>
+                        <select id="departmentID" style="width:235px;"></select>
+                    </td>
+
+                </tr>
+                <tr style="display:none;">
+                    <td>
+                        个人
+                    </td>
+                    <td>
+                        <select style="width:235px;" id="acName"></select><input type="hidden" id="acID" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        票号
+                    </td>
+                    <td><input type="text" style="width:235px;" id="ticketNumber" /></td>
+                </tr>
+                <tr>
+                    <td>
+                        发生日期
+                    </td>
+                    <td><input type="text" style="width:235px;" id="date" readonly timebind="1|ymd|1" value="" class="Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd', maxDate: '%y-%M-%d' })" /></td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-primary" onclick="saveValue()">
+                            保存
+                        </button>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-col-xs12">
+            <blockquote class="layui-elem-quote">
+                <div class="layui-row layui-form">
+                    <div class="layui-form-item">
+                        
+                        <label class="layui-form-label">系统模块</label>
+                        <div class="layui-input-inline">
+                            <remote-sel v-bind:setting="TypeSetting" v-bind:value.sync="queryFormData.ApprovalStatus" laytips="系统模块" initial="off"></remote-sel>
+                        </div>
+                        <label class="layui-form-label">操作类别</label>
+                        <div class="layui-input-inline">
+                            <remote-sel v-bind:setting="ApprovalSetting" v-bind:value.sync="queryFormData.ApprovalType_ID" laytips="操作类别" initial="off"></remote-sel>
+                        </div>
+                        <label class="layui-form-label">操作人员</label>
+                        <div class="layui-input-inline">
+                            <remote-sel v-bind:setting="ApprovalSetting" v-bind:value.sync="queryFormData.ApprovalType_ID" laytips="操作人员" initial="off"></remote-sel>
+                        </div>
+                        <label class="layui-form-label">操作时间：</label>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="queryFormData.StartTime" placeholder="开始时间" initial="off"></lay-date>
+                        </div>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="queryFormData.EndTime" placeholder="结束时间" initial="off"></lay-date>
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                        </div>
+                    </div>
+                </div>
+            </blockquote>
+            <!--操作模板-->
+            <table id="listTable" lay-filter="listTable"></table>
+        </div>
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+
+            var DeptOptions = [];
+            var AccountOptions = [];
+            //搜索条件
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    queryFormData: {
+                        StartTime: "",
+                        EndTime: "",
+                        ApprovalStatus: "",
+                        Department_ID: "",
+                        AddPerson: ""
+                    },
+                    TypeSetting: {
+                        search: true,
+                        defaultValue: -1,
+                        options: [
+                            { key: '1', value: '审核中' },
+                            { key: '2', value: '审核通过' },
+                             { key: '3', value: '审核未通过' }
+                        ]
+                    },
+                    ApprovalSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'ID', value: 'Name' },
+                        options: AccountOptions,
+                        remote: { url: "/service/approval/Process/GetApprovalTemplet" }
+                    },
+                    AccountSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'Account_ID', value: 'Name' },
+                        options: AccountOptions,
+                        remote: { url: "/service/hr/Station/GetListStationAccount" }
+                    },
+                    DeptSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'ID', value: 'Name' },
+                        options: DeptOptions,
+                        remote: { url: "/service/hr/Station/GetListDepartment" }
+                    },
+                },
+                ready: function () {
+                },
+
+                methods: {
+                    doSearch: function () {
+                        tableIns.reload({
+                            where: this.queryFormData
+                        });
+                    },
+                }
+            });
+
+            var tableIns = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: true, //页分
+                cols: [
+                    [
+                        { field: 'ID', title: 'ID', width: 60 },
+                        { field: '操作时间', title: 'ID', width: 60 },
+                        { field: '操作人', title: 'ID', width: 60 },
+                        { field: '所属模块', title: 'ID', width: 60 },
+                        { field: '操作对象', title: 'ID', width: 60 },
+                        { field: '操作类型', title: 'ID', width: 60 },
+                        { field: '字段名', title: 'ID', width: 60 },
+                        { field: '旧字段名', title: 'ID', width: 60 },
+                        { field: '新字段名', title: 'ID', width: 60 },
+                        { field: '备注', title: 'ID', width: 60 }
+                    ]
+                ],
+                url: '/service/approval/Process/GetApprovallist',
+                response: {
+                    dataName: 'Data'
+                }
+            });
+            tableExt.addEvent("tool(listTable)",
+                {
+                    //工具栏编辑事件
+                    "edit": function (data, obj) {
+                        rootApp.modifyData(data)
+                    },
+                    "select": function (data, obj) {
+                        fnr.openDialog({
+                            title: '查看记录',
+                            area: ['850px', '700px'],
+                            content: ['/Html/Auditing/SelectApproval.html?ID=' + data.ID],
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg(data.msg);
+                                        listTable.reload();
+                                    } else {
+                                        layer.msg(data.msg);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+        });
+</script>

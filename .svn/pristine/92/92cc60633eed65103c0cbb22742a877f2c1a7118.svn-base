@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <blockquote class="layui-elem-quote" style="height:70px;">
+            <div class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时间范围</label>
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <input type="text" name="date" id="date" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid">-</div>
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <input type="text" name="date" id="date" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                    </div>
+                </div>                
+            </div>
+        </blockquote>
+
+
+        <!--操作模板-->
+        <table class="layui-table">
+            <colgroup>
+                <col width="150">
+                <col width="300">
+                <col width="100">
+            </colgroup>
+            <thead>
+                <tr style="background: #f2f9fb;">
+                    <th rowspan="2">科目编码</th>
+                    <th rowspan="2">科目名称</th>
+                    <th rowspan="2">方向</th>
+                    <th colspan="2">期初余额</th>
+                    <th colspan="2">本期发生</th>
+                    <th colspan="2">期末余额</th>
+                </tr>
+                <tr style="background: #f2f9fb;">
+                    <th>借</th>
+                    <th>贷</th>
+                    <th>借</th>
+                    <th>贷</th>
+                    <th>借</th>
+                    <th>贷</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1001</td>
+                    <td>现金</td>
+                    <td>借</td>
+                    <td>415646.80</td>
+                    <td></td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                </tr>
+                <tr>
+                    <td>1001</td>
+                    <td>现金</td>
+                    <td>借</td>
+                    <td>415646.80</td>
+                    <td></td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                    <td>1014689</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+

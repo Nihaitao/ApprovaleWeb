@@ -1,0 +1,267 @@
+﻿<title>余额表详细信息</title>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+</style>
+<div class="mainContainer" id="root" v-cloak>
+
+    <div id="listTable" lay-filter="listTable" v-show="visible" v-cloak>
+        <div class="layui-tab-content">
+            <div class="layui-form" style="margin-bottom:30px;">
+                <div class="layui-row custom-title">
+                    <div class="layui-col-xs1">制单日期</div>
+                    <div class="layui-col-xs1">发生日期</div>
+                    <div class="layui-col-xs1">凭证号</div>
+                    <div class="layui-col-xs1">科目</div>
+                    <div class="layui-col-xs2">摘要</div>
+                    <div class="layui-col-xs1">借方</div>
+                    <div class="layui-col-xs1">贷方</div>
+                    <div class="layui-col-xs1">方向</div>
+                    <div class="layui-col-xs1">余额</div>
+                    <div class="layui-col-xs2">状态</div>
+                </div>
+                <div class="custom-field">
+                    <div class="tree" v-for="(index,item) in formList">
+                        <div class="tree-content" v-if="item.VoucherDetail && item.VoucherDetail.length>0" v-for="child in item.VoucherDetail" style="border-bottom: 1px solid #e2e2e2;">
+                            <div class="layui-row custom-ele" v-on:dblclick="DoubleClick(child)">
+                                <div class="layui-col-xs1">{{child.Time | format 'yyyy-MM-dd'}}</div>
+                                <div class="layui-col-xs1">{{child.Date | format 'yyyy-MM-dd'}}</div>
+                                <div class="layui-col-xs1">{{child.Type | types}}{{child.No}}</div>
+                                <div class="layui-col-xs1 normalText" v-bind:title="child.CodeName">{{child.CodeName}}</div>
+                                <div class="layui-col-xs2 normalText" v-bind:title="child.Title">{{child.Title}}</div>
+                                <div class="layui-col-xs1">{{child.LeftMoney | ' '}}</div>
+                                <div class="layui-col-xs1">{{child.RightMoney}}</div>
+                                <div class="layui-col-xs1">{{child.BalanceType == 0?"借":"贷"}}</div>
+                                <div class="layui-col-xs1">{{child.Money | ' '}}</div>
+                                <div class="layui-col-xs2">{{child.Valid == 0 ? "未审核" : (child.Valid == 1 ? "审核通过":(child.Valid == 2 ? "审核拒绝":"作废"))}}</div>
+
+                            </div>
+                        </div>
+                        <div class="tree-content" v-if="item.Total" style="background:#f8f8f8;border-bottom: 1px solid #e2e2e2;">
+                            <div class="layui-row custom-ele" v-cloak>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs2">{{item.Total.Describe}}</div>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs1">&nbsp;</div>
+                                <div class="layui-col-xs1">{{item.Total.Direction}}</div>
+                                <div class="layui-col-xs1">{{item.Total.Value3}}</div>
+                                <div class="layui-col-xs2">&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-col-xs1,
+    .layui-col-xs2 {
+        text-align: center;
+        border-right: 1px solid #e2e2e2;
+    }
+
+    .layui-form-checkbox span {
+        height: auto;
+    }
+
+    .layui-form-label {
+        width: 150px;
+    }
+
+    .layui-input-block {
+        margin-left: 180px;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .custom-title {
+        line-height: 38px;
+        background-color: #f2f2f2;
+        border: 1px solid #e2e2e2;
+        border-right: none;
+    }
+
+    .custom-field {
+        border-left: 1px solid #e2e2e2;
+    }
+
+    .custom-block {
+        line-height: 45px;
+        height: 45px;
+        background: #e0e0e0;
+        padding-left: 10px;
+    }
+
+    .custom-ele, .custom-empty {
+        line-height: 40px;
+        height: 40px;
+    }
+
+        .custom-ele:hover {
+            background: #f5f5f5;
+        }
+
+    .sort-icon {
+        cursor: move;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .spical {
+        color: #C9C9C9;
+        font-size: 12px;
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 5px;
+        margin-top: 8px;
+    }
+
+    .normalText {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+</style>
+<script>
+    Vue.filter('types', function (value) {
+        if (value == 0) {
+            return '收-'
+        } else if (value == 1) {
+            return '付-'
+        } else if (value == 2) {
+            return '转-'
+        } else if (value == 3) {
+            return '记-'
+        }
+    })
+    Vue.filter('format', function (time, format) {
+        if (time == undefined) {
+            return '';
+        }
+        var finalTime;
+        if (typeof (time) == 'string') {
+            time = time.replace("T", " ");
+            time = time.replace("Z", " ");
+            var timeIOS = time.replace(/\-/g, "/");
+            finalTime = new Date(timeIOS);
+        } else {
+            finalTime = time;
+        }
+
+        var t = new Date(finalTime);
+        var tf = function (i) {
+            return (i < 10 ? '0' : '') + i
+        };
+        return format.replace(/yyyy|MM|dd|HH|mm|ss/g,
+            function (a) {
+                switch (a) {
+                    case 'yyyy':
+                        return tf(t.getFullYear());
+                        break;
+                    case 'MM':
+                        return tf(t.getMonth() + 1);
+                        break;
+                    case 'mm':
+                        return tf(t.getMinutes());
+                        break;
+                    case 'dd':
+                        return tf(t.getDate());
+                        break;
+                    case 'HH':
+                        return tf(t.getHours());
+                        break;
+                    case 'ss':
+                        return tf(t.getSeconds());
+                        break;
+                }
+            });
+    })
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil', 'laydate'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+            var laydate = layui.laydate;
+
+            GetQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    formList: [],
+                    where: {
+                        Code:'',
+                        BeginTime: '',
+                        EndTime: '',
+                        Stationproxy_ID: '',
+                        Valid:-1
+                    },
+                    visible: false
+                },
+                ready: function () {
+                    var self = this;
+                    self.where.Code = GetQueryString("Code");
+                    self.where.BeginTime = GetQueryString("BeginTime");
+                    self.where.EndTime = GetQueryString("EndTime");
+                    self.where.Stationproxy_ID = GetQueryString("Stationproxy_ID");
+                    console.log(self.where);
+                    self.tableDataFn();
+                },
+                methods: {
+                    DoubleClick: function (item) {
+                        console.log(item);
+                        fnr.openDialog({
+                            title: '修改',
+                            area: ['1100px', '700px'],
+                            content: ['/Html/Finance/Voucher/VoucherInfo.html?VoucherID=' + item.VoucherID],                            
+                        });
+                    },
+                    tableDataFn: function () {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetSubjectDetailByDate', self.where, function (res) {
+                            if (res.SuccessResponse) {
+
+                                self.formList = res.Data;
+                                self.visible = true;
+                            } else {
+                                layer.msg(res.Message)
+                            }
+                        })
+                    }
+                }
+            });
+
+        });
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.parent.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+</script>

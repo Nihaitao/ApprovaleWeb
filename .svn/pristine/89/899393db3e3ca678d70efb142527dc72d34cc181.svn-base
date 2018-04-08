@@ -1,0 +1,1166 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="/Resources/css/voucher.css" />
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+
+        .dropdown {
+            position: absolute;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            min-width: 160px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            -webkit-background-clip: padding-box;
+            background-clip: padding-box;
+            border: 1px solid #dee5e7;
+            border-radius: 2px;
+            -webkit-box-shadow: 0 2px 6px rgba(0,0,0,.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+            top: auto;
+            bottom: 100%;
+            margin-bottom: 2px;
+        }
+
+        .open.dropdown {
+            display: block;
+        }
+
+        .dropdown > li > a {
+            display: block;
+            clear: both;
+            font-weight: 400;
+            color: #333;
+            padding: 5px 15px;
+            line-height: 1.42857143;
+            white-space: nowrap;
+        }
+
+            .dropdown > li > a:hover {
+                color: #58666e;
+                background-color: #edf1f2 !important;
+                background-image: none;
+                filter: none;
+                text-decoration: none;
+            }
+
+        .layui-layer-btn1 {
+            border: 1px solid #dedede !important;
+            background-color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper-md" id="root" v-cloak>
+        <div class="w1020" style="position:relative;">
+            <div class="mainContainer voucherContainer" style="padding:0 35px;">
+                <div class="layui-row" style="padding-top:50px;">
+                    <div class="layui-col-xs1">
+                        <remote-sel v-bind:setting="VoucherSetting" v-bind:value.sync="VoucherDetailInfo.Type" v-bind:class="{'layui-disabled':VoucherID}" v-bind:disabled="VoucherID"></remote-sel>
+                    </div>
+                    <div class="layui-col-xs2">
+                        <div class="voucherNoContainer">
+                            字
+                            <input type="text" name="name" value=" " v-model="VoucherDetailInfo.No" disabled />
+                        </div>
+                    </div>
+                    <div class="layui-col-xs1">制单日期</div>
+                    <div class="layui-col-xs2">
+                        <div class="datepicker">
+                            <lay-date v-bind:value.sync="VoucherDetailInfo.Time |formatTime 'YYYY-MM-DD HH:mm:ss'" type='datetime' initial="off" v-bind:class="{'layui-disabled':VoucherID}" v-bind:disabled="VoucherID"></lay-date>
+                        </div>
+                    </div>
+                    <div class="passPeject" style="position:absolute;right:290px;top:0;z-index:4">
+                        <img v-if="VoucherDetailInfo.Valid==3" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/finance/img/audit-pass3.png" alt="作废" />
+                        <img v-if="VoucherDetailInfo.Valid==2" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/finance/img/audit-reject.png" alt="未通过" />
+                        <img v-if="VoucherDetailInfo.Valid==1" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/finance/img/audit-resolve.png" alt="通过" />
+                    </div>
+                    <div class="layui-col-xs1">审核日期</div>
+                    <div class="layui-col-xs2">
+                        <div class="datepicker">
+                            <lay-date v-bind:value.sync="VoucherDetailInfo.Valid ==1 ?VoucherDetailInfo.ValidTime:''" type='datetime' initial="off" disabled></lay-date>
+                        </div>
+                    </div>
+                    <div class="layui-col-xs3">
+                        <div class="voucherNoContainer">
+                            附单据
+                            <input type="number" v-model="VoucherDetailInfo.ReceiptNum" />
+                            张
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="voucher">
+                <table class="table voucherMaking" style="background-color:#fff;width: 1000px">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>摘要</th>
+                            <th>会计科目</th>
+                            <th class="listNumberHide">数量</th>
+                            <th>
+                                <p>借方金额</p>
+                                <ul class="moneyList">
+                                    <li>亿</li>
+                                    <li>千</li>
+                                    <li>百</li>
+                                    <li class="lineBlue">十</li>
+                                    <li>万</li>
+                                    <li>千</li>
+                                    <li class="lineBlue">百</li>
+                                    <li>十</li>
+                                    <li>元</li>
+                                    <li class="lineRed">角</li>
+                                    <li>分</li>
+                                </ul>
+                            </th>
+                            <th>
+                                <p>贷方金额</p>
+                                <ul class="moneyList">
+                                    <li>亿</li>
+                                    <li>千</li>
+                                    <li>百</li>
+                                    <li class="lineBlue">十</li>
+                                    <li>万</li>
+                                    <li>千</li>
+                                    <li class="lineBlue">百</li>
+                                    <li>十</li>
+                                    <li>元</li>
+                                    <li class="lineRed">角</li>
+                                    <li>分</li>
+                                </ul>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="tbodyList">
+                    <table class="table voucherMaking" id="voucherMaking" style="width: 1000px;">
+                        <tbody>
+                            <tr v-for="item in VoucherDetailInfo.VoucherDetails" id="98470441ADD">
+                                <th>
+                                    <span class="addDataLine" tabindex="-1" role="button" @click="addDataLine($event,$index)">+</span>
+                                </th>
+                                <th style="overflow: hidden">
+                                    <!--摘要-->
+                                    <div class="displayDiv" id="voucher{{item.VoucherDetailsID}}">{{item.Title}}</div>
+                                    <textarea type="text" id="voucher{{item.VoucherDetailsID}}" v-model="item.Title" class="displayInput" @focus="setFocus($index,item),abstractObjFocus(item,$index,$event)" @keyup="filterAbstractShowData(item)"></textarea>
+                                </th>
+                                <th>
+                                    <!--科目-->
+                                    <div class="subjectDiv">
+                                        <div class="displayDiv" id="subject{{item.VoucherDetailsID}}">{{item.CodePath}}</div>
+                                        <textarea class="subjectInput" id="subject{{item.VoucherDetailsID}}" @focus="setFocus($index,item),SubjectFocus(item,$index,$event)" @blur="SubjectBlur(item,$event)" @keyup="filterShowData(item)" v-model="item.CodeName"></textarea>
+                                    </div>
+                                </th>
+                                <th class="listNumberHide"></th>
+                                <th>
+                                    <ul class="moneyList addList" v-bind:class="{'redFont':item.LeftMoney<0}">
+                                        <li v-for="l in item.LeftMoneyArr">{{l.num}}</li>
+                                    </ul>
+                                    <input type="text" v-bind:disabled="item.MoneyLeft == 0" class="debitText" id="focus0" v-model="item.LeftMoney" @keydown="LeftDown($event);DownData($event)" @keyup="LeftKeyUp($event,item)" @focus="setFocus($index,item),selectValue($event)" @blur="InitLeftValue(item)">
+                                </th>
+                                <th>
+                                    <ul class="moneyList addList" v-bind:class="{'redFont':item.RightMoney<0}">
+                                        <li v-for="r in item.RightMoneyArr">{{r.num}}</li>
+                                    </ul>
+                                    <input type="text" v-bind:disabled="item.MoneyRight == 0" class="creditText" v-model="item.RightMoney" @keydown="RightDown($event);DownData($event)" @keyup="RightKeyUp($event,item)" @focus="setFocus($index,item),selectValue($event)" @blur="InitRightValue(item)">
+                                </th>
+                                <th>
+                                    <span class="removeDataLine" @click="removeDataLine($index)" tabindex="-1" role="button">-</span>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tfoot" style="width: 1020px;overflow: hidden;padding: 0 35px;">
+                    <table class="table tablefoot" style="background-color:#fff;">
+                        <tbody>
+                            <tr>
+                                <th width="51">票号</th>
+                                <th colspan="3" width="382" @dblclick="modifyData(ui.index)">{{ShowVoucher.TicketNumber}}</th>
+                                <th rowspan="2" width="145">合计</th>
+                                <th rowspan="2" width="176">
+                                    <ul class="moneyList addList" v-bind:class="{'redFont':VoucherDetailInfo.LeftMoney<0}">
+                                        <li v-for="l in VoucherDetailInfo.LeftMoneyArr">{{l.num}}</li>
+                                    </ul>
+                                </th>
+                                <th rowspan="2" width="176">
+                                    <ul class="moneyList addList" v-bind:class="{'redFont':VoucherDetailInfo.RightMoney<0}">
+                                        <li v-for="r in VoucherDetailInfo.RightMoneyArr">{{r.num}}</li>
+                                    </ul>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th width="51">日期</th>
+                                <th colspan="3" @dblclick="modifyData(ui.index)">{{ShowVoucher.Date | formatTime 'YYYY-MM-DD HH:mm:ss'}}</th>
+                            </tr>
+                            <tr>
+                                <th width="51">项目</th>
+                                <th width="128" @dblclick="modifyData(ui.index)">{{ShowVoucher.ProjectName}}</th>
+                                <th width="120">部门</th>
+                                <th width="134" @dblclick="modifyData(ui.index)">{{ShowVoucher.DepartmentName}}</th>
+                                <th width="145">制单</th>
+                                <th colspan="2">{{VoucherDetailInfo.HandlerName}}</th>
+                            </tr>
+                            <tr>
+                                <th width="51">客户</th>
+                                <th width="128" @dblclick="modifyData(ui.index)">{{ShowVoucher.ClientName}}</th>
+                                <th width="120">个人</th>
+                                <th width="134" @dblclick="modifyData(ui.index)">{{ShowVoucher.PersonName}}</th>
+                                <th width="145">审核</th>
+                                <th colspan="2">{{VoucherDetailInfo.ValiderName}}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="subjectUl" style="border-bottom:1px solid #ccc;">
+                    <ul>
+                        <li v-for="item in ui.subjectListShow" @click.stop="SubjectChoice(item)">{{item.Code}}&nbsp;&nbsp;{{item.Name}}</li>
+                    </ul>
+                </div>
+                <!--<div class="foot" style="text-align:right;margin:20px 0;padding:0 35px;">
+                    <div v-if="VoucherDetailInfo.VoucherType==2">
+                        <button v-if="VoucherDetailInfo.IsCheckout==0" class="layui-btn layui-btn-primary" @click="UpdateVoucherIsCheckout(1)">结账</button>
+                        <button v-if="VoucherDetailInfo.IsCheckout==1" class="layui-btn layui-btn-primary" @click="UpdateVoucherIsCheckout(0)">取消结账</button>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+    </div>
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet">
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script src="../../../Resources/js/moment.min.js"></script>
+    <script>
+        Vue.filter('formatTime', function (value, format) {
+            if (!value) {
+                return;
+            }
+            return moment(value).format(format);
+        });
+        //递归查找父级科目
+        function GetParentsCodeName(showName,val,item){
+            var len=val.length;
+            if(len<=4){
+                return showName;
+            }else{
+                var sub=val.substring(0,len-2)
+                var pipei=item.filter(function(item){
+                    return item.Code==sub
+                })
+                showName.push(pipei[0].Name)
+                GetParentsCodeName(showName,pipei[0].Code,item);
+            }
+        };
+        require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+            function (fnr) {
+                var $ = layui.$;
+                var form = layui.form;
+                var vm = new Vue({
+                    el: "#root",
+                    data: {
+                        VoucherID: fnr.getQueryString('VoucherID'),
+                        Stationproxy_ID: '',
+                        ShowVoucher: {
+                            "ReceiptNum":'',
+                            "Handler": "",
+                            "HandlerName": "",
+                            "AddPerson": "",
+                            "AddTime": '',
+                            "ClientName": "",
+                            "Client_ID": "",
+                            "Code": "",
+                            "CodeName": "",
+                            "Date": "",
+                            "DepartmentName": "",
+                            "Department_ID": "",
+                            "IsDeleted": "",
+                            "LeftMoney": '',
+                            "LeftMoneyArr": "",
+                            "OrderIndex": "",
+                            "PersonName": "",
+                            "Person_ID": "",
+                            "ProjectName": "",
+                            "Project_ID": "",
+                            "RightMoney": '',
+                            "RightMoneyArr": "",
+                            "TicketNumber": "",
+                            "Title": "",
+                            "VoucherDetailsCID": "",
+                            "VoucherDetailsID": "",
+                            "VoucherID": "",
+                            "MoneyLeft": 0,
+                            "MoneyRight": 0
+                        },
+                        VoucherSetting: {
+                            options: [
+                                { key: 0, value: '收款凭证' },
+                                { key: 1, value: '付款凭证' },
+                                { key: 2, value: '转账凭证' },
+                                { key: 3, value: '记账凭证' },
+                            ],
+                        },
+                        VoucherDetailInfo: '',
+                        ui: {
+                            index: '',
+                            fixedsubject: '',
+                            subjectList: [],//用于前端下拉菜单,
+                            subjectListAll:'',
+                            subjectListShow: [],
+                            ababstractObjList: [], //模板数据
+                            ababstractObjListShow: [],
+                        },
+                        visible: false
+                    },
+                    directives: {
+                        'clickoutside': {
+                            bind: function () {
+                                var that = this;
+                                this.documentHandler = function (e) {
+                                    if (that.el.contains(e.target)) {
+                                        return false;
+                                    }
+                                    if (that.expression) {
+                                        that.vm[that.expression]();
+                                    }
+                                };
+                                document.removeEventListener('click', this.documentHandler);
+                                document.addEventListener('click', this.documentHandler);
+                            },
+                            unbind: function () {
+                                document.removeEventListener('click', this.documentHandler);
+                            }
+                        }
+                    },
+                    watch: {
+                        'ui.index': function (val) {
+                            //if(val !== ''){
+                            //    this.ShowVoucher = this.VoucherDetailInfo.VoucherDetails[val];
+                            //}
+                        },
+                        'VoucherDetailInfo.Time': function (oval, nval) {
+                            if(oval!=nval){
+                                this.GetCurrentNo(this.DateYearMonth, this.VoucherDetailInfo.Type);
+                            }
+                        }
+                    },
+                    ready: function () {
+                        var that = this;
+                        this.Stationproxy_ID = this.getParentQueryString('ID');
+                        $(document).on("click", function (event) {
+                            var tarId = event.target.id.substring(6, 0);
+                            var subjec = "subjec";
+                            if (tarId == subjec) {
+
+                            } else {
+                                $(".subjectUl").css("display", "none")
+                                //$(".abstractObj").css("display", "none")
+                                that.ui.subjectListShow = that.ui.subjectList;
+                                that.ui.ababstractObjListShow = that.ui.ababstractObjList;
+                            }
+                            var vouche = "vouche";
+                            if (tarId == vouche) {
+
+                            } else {
+                                //$(".subjectUl").css("display", "none")
+                                $(".abstractObj").css("display", "none")
+                                that.ui.subjectListShow = that.ui.subjectList;
+                                that.ui.ababstractObjListShow = that.ui.ababstractObjList;
+                            }
+                        });
+                        $(document).on("paste", 'input', function (event) {
+                            return false
+                        });
+                        if (fnr.getQueryString('VoucherID')) {
+                            //如果存在'voucherid',是查询凭证
+                            var VoucherID = fnr.getQueryString('VoucherID');
+                            this.GetVoucherDetail(VoucherID,this.Stationproxy_ID)
+                        }
+                    },
+                    computed: {
+                        DateYearMonth: function () {
+                            return moment(this.VoucherDetailInfo.Time).format('YYYY-MM');
+                        }
+                    },
+                    methods: {
+                        handlerclose: function () {
+                            this.visible = false;
+                        },
+                        openDropdown: function () {
+                            this.visible = !this.visible;
+                        },
+                        getParentQueryString: function (name) {
+                            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                            var r = window.parent.parent.location.search.substr(1).match(reg);
+                            if (r != null) return decodeURIComponent(r[2]);
+                            return undefined;
+                        },
+                        loadInitAmount: function () {
+                            return [
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" }
+                            ];
+                        },
+                        //初始化voucher数据
+                        initVoucherData: function () {
+                            this.VoucherDetailInfo = {
+                                "ReceiptNum":'',
+                                "AddPerson": '',
+                                "AddTime": '',
+                                "Stationproxy_ID": '',
+                                "Handler": "",
+                                "HandlerName": "",
+                                "IsDeleted": "",
+                                "LeftMoney": "",
+                                "LeftMoneyArr": this.loadInitAmount(),
+                                "No": "",
+                                "OrderId": '',
+                                "ReviewPerson": '',
+                                "ReviewStatus": '',
+                                "ReviewTime": "",
+                                "RightMoney": '',
+                                "RightMoneyArr": this.loadInitAmount(),
+                                "Time": moment().format('YYYY-MM-DD HH:mm:ss'),
+                                "Title": '',
+                                "Type": 0,
+                                "Valid": 0,
+                                "ValidTime": '',
+                                "Valider": '',
+                                "ValiderName": '',
+                                "VoucherDetails": [this.buildInitVoucherRow(), this.buildInitVoucherRow(), this.buildInitVoucherRow(), this.buildInitVoucherRow()],
+                                "VoucherID": '',
+                            }
+                        },
+                        //初始化金额显示数组
+                        loadInitAmount: function () {
+                            return [
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" },
+                                    { num: "" }
+                            ];
+                        },
+                        /**
+                        * 添加一个新的row
+                        */
+                        buildInitVoucherRow: function () {
+                            var list = {
+                                "AddPerson": "",
+                                "AddTime": moment().format('YYYY-MM-DD HH:mm:ss'),
+                                "ClientName": "",
+                                "Client_ID": "",
+                                "Code": "",
+                                "CodeName": "",
+                                "Date": "",
+                                "DepartmentName": "",
+                                "Department_ID": "",
+                                "IsDeleted": "",
+                                "LeftMoney": '',
+                                "LeftMoneyArr": this.loadInitAmount(),
+                                "OrderIndex": "",
+                                "PersonName": "",
+                                "Person_ID": "",
+                                "ProjectName": "",
+                                "Project_ID": "",
+                                "RightMoney": '',
+                                "RightMoneyArr": this.loadInitAmount(),
+                                "TicketNumber": "",
+                                "Title": "",
+                                "VoucherDetailsCID": "",
+                                "VoucherDetailsID": "",
+                                "VoucherID": "",
+                                "MoneyLeft": 0,
+                                "MoneyRight": 0
+                            }
+                            return list;
+                        },
+                        uiMoneyCalculation: function (m) {
+                            var list = [
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" },
+                                { num: "" }
+                            ]
+                            var n = m + "";
+                            var spot = n.indexOf('.');
+                            if (spot > -1) {
+                                n = n.split('.');
+                                if (n[1].length == 0) {
+                                    n[1] = '00'
+                                }
+                                if (n[1].length == 1) {
+                                    n[1] = n[1] + '0'
+                                }
+                                n = n[0].concat(n[1])
+                                n = Number(n) + ''
+
+                            } else {
+                                n = Number(n * 100) + ''
+                            }
+                            if (n == "NaN" || n == "0") {
+                                return list
+                            } else {
+                                var index = n.indexOf("-")
+                                if (index > -1) {
+                                    n = n.substr(index + 1, n.length)
+                                }
+                                if (n > 99999999999) {
+                                    n = '99999999999';
+                                } else if (n < -99999999999) {
+                                    n = '99999999999';
+                                }
+                                var index = 11 - n.length;
+                                var j = 0;
+                                for (var i = index; i < 11; i++) {
+                                    list[i].num = n[j++]
+                                }
+                            }
+                            return list
+                        },
+                        //过滤
+                        filterShowData: function (item) {
+                            var str = item.CodeName;
+                            var result = [];
+                            var subjectList = this.ui.subjectList;
+                            for (var i in subjectList) {
+                                if (subjectList[i].Name.indexOf(str) > -1) {
+                                    result.push(subjectList[i])
+                                } else if (subjectList[i].Code.indexOf(str) > -1) {
+                                    result.push(subjectList[i])
+                                }
+                            }
+                            this.ui.subjectListShow = result;
+
+                            //self.ui.subjectListShow=JSON.parse(JSON.stringify(self.ui.subjectList))
+                        },
+                        //过滤摘要
+                        filterAbstractShowData: function (item) {
+                            var that = this;
+                            var result = [];
+                            var ababstractObjList = this.ui.ababstractObjList;
+                            var str = item.Title;
+                            for (var i in ababstractObjList) {
+                                if (ababstractObjList[i].Title.indexOf(str) > -1) {
+                                    result.push(ababstractObjList[i])
+                                }
+                            }
+                            this.ui.ababstractObjListShow = result;
+
+                            //self.ui.subjectListShow=JSON.parse(JSON.stringify(self.ui.subjectList))
+                        },
+                        //获取凭证编号
+                        GetCurrentNo: function (a, b) {
+                            var that = this;
+                            if (that.VoucherID && that.VoucherID != '') {
+                                return;
+                            }
+                            $.get('/service/finance/Finance/GetCurrentNo', { BeginTime: a, Other: b, Stationproxy_ID: this.Stationproxy_ID }, function (res) {
+                                if (res.SuccessResponse) {
+                                    that.VoucherDetailInfo.No = res.Data;
+                                }
+                            })
+                        },
+                        //切换凭证类型
+                        TypeChange: function () {
+                            this.GetCurrentNo(this.DateYearMonth, this.VoucherDetailInfo.Type);
+                        },
+                        formatRows: function (row) {
+                            this.VoucherDetailInfo.VoucherDetails = [];
+                            if (row.length < 4) {
+                                for (var i = 0; i < row.length; i++) {
+
+                                }
+                            }
+                        },
+                        //获取单个凭证的详细内容
+                        GetVoucherDetail: function (VoucherID,Stationproxy_ID) {
+                            var that = this;
+                            $.get('/service/finance/Finance/GetVoucherDetail', { VoucherID: VoucherID,Stationproxy_ID:Stationproxy_ID }, function (res) {
+                                if (res.SuccessResponse) {
+                                    if (res.Data && res.Data.VoucherDetails.length < 4) {
+                                        var index = 4 - res.Data.VoucherDetails.length;
+                                        for (var i = 1; i <= index; i++) {
+                                            res.Data.VoucherDetails.push(that.buildInitVoucherRow());
+                                        }
+                                    }
+                                    $.each(res.Data.VoucherDetails, function (idx, obj) {
+                                        //var CodePath=[];
+                                        //GetParentsCodeName(CodePath,obj.Code,that.ui.subjectListAll);
+                                        //CodePath.unshift(obj.CodeName);
+                                        //Vue.set(obj,'CodePath',CodePath.reverse().join('/'))
+                                        obj.LeftMoneyArr = that.uiMoneyCalculation(obj.LeftMoney);
+                                        obj.RightMoneyArr = that.uiMoneyCalculation(obj.RightMoney);
+                                        obj.MoneyLeft = 0;
+                                        obj.MoneyRight = 0;
+                                        res.Data.LeftMoney = that.add(res.Data.LeftMoney, obj.LeftMoney);
+                                        res.Data.RightMoney = that.add(res.Data.RightMoney, obj.RightMoney);
+                                        res.Data.LeftMoneyArr = that.uiMoneyCalculation(res.Data.LeftMoney)
+                                        res.Data.RightMoneyArr = that.uiMoneyCalculation(res.Data.RightMoney)
+                                    });
+                                    res.Data.ValidTime = moment(res.Data.ValidTime).format('YYYY-MM-DD HH:mm:ss');
+                                    that.VoucherDetailInfo = res.Data;
+                                    that.$nextTick(function () {
+                                        that.VoucherSetting.change = that.TypeChange;
+                                    });
+                                }
+                            })
+                        },
+                        //点击添加一组数据
+                        addDataLine: function ($event, index) {
+                            //this.VoucherDetailInfo.VoucherDetails.splice(index, 0, this.buildInitVoucherRow())
+                            this.VoucherDetailInfo.VoucherDetails.push(this.buildInitVoucherRow())
+                        },
+                        //点击删除当前这组数据
+                        removeDataLine: function (index) {
+                            this.VoucherDetailInfo.VoucherDetails.splice(index, 1);
+                            if (this.VoucherDetailInfo.VoucherDetails.length < 4) {
+                                this.VoucherDetailInfo.VoucherDetails.push(this.buildInitVoucherRow());
+                            }
+                            this.LeftMoneyAmount();
+                            this.RightMoneyAmount();
+                        },
+                        //摘要获取焦点
+                        abstractObjFocus: function (item, index, $event) {
+                            $event.currentTarget.select();
+                            var s = $(".tbodyList")[0].scrollTop;
+                            var l = $event.target.parentNode.offsetLeft;
+                            var t = $event.target.parentNode.offsetTop;
+                            var h = $event.target.parentNode.offsetHeight;
+                            var w = $event.target.parentNode.offsetWidth;
+                            $(".abstractObj").css({
+                                display: "block",
+                                width: w + "px",
+                                left: l + "px",
+                                top: t + h - s + "px"
+                            });
+                            var row = this.VoucherDetailInfo.VoucherDetails;
+                            if (index == 0) {
+                                return;
+                            } else {
+                                if (row[index - 1].Title && this.isEmpty(row[index].Title)) {
+                                    item.Title = this.VoucherDetailInfo.VoucherDetails[index - 1].Title;
+                                }
+                            }
+                        },
+                        //所有获取焦点
+                        setFocus: function (index, item) {
+                            this.ui.index = index;
+                            this.ShowVoucher = this.VoucherDetailInfo.VoucherDetails[this.ui.index];
+                        },
+                        //科目获得焦点
+                        SubjectFocus: function (item, index, $event) {
+                            $event.currentTarget.select();
+                            var s = $(".tbodyList")[0].scrollTop;
+                            var l = $event.target.parentNode.parentNode.offsetLeft;
+                            var t = $event.target.parentNode.parentNode.offsetTop;
+                            var h = $event.target.parentNode.parentNode.offsetHeight;
+                            var w = $event.target.parentNode.parentNode.offsetWidth;
+                            $(".subjectUl").css({
+                                display: "block",
+                                width: w + "px",
+                                left: l + "px",
+                                top: t + h - s + "px"
+                            });
+                        },
+                        //转化金额
+                        IntegerNumber: function (num) {
+                            var n = num + '';
+                            var s = n.indexOf('.');
+                            if (s > -1) {
+                                n = n.split('.');
+                                if (n[1].length == 0) {
+                                    n[1] = '00'
+                                }
+                                if (n[1].length == 1) {
+                                    n[1] = n[1] + '0'
+                                }
+                                n = n[0].concat(n[1]);
+                                n = parseInt(n) + '';
+                            } else {
+                                n = parseInt(n * 100) + ''
+                            }
+                            return n
+                        },
+                        //input,textarea聚焦全选
+                        selectValue: function ($event) {
+                            $event.target.select();
+                        },
+                        //借方金额失去焦点赋值
+                        InitLeftValue: function (item) {
+                            this.LeftMoneyAmount();
+                            this.RightMoneyAmount();
+                            for (var i = 0; i < item.LeftMoneyArr.length; i++) {
+                                item.LeftMoneyArr[i].num = '';
+                            }
+                            var n = Number(this.IntegerNumber(item.LeftMoney)) + '';
+                            var index = n.indexOf('-');
+                            if (index > -1) {
+                                n = n.substr(index + 1, n.length)
+                            }
+                            if (n == "NaN") {
+                                item.LeftMoney = '';
+                                return
+                            } else if (n == 0) {
+                                return
+                            } else {
+                                if (n > 99999999999) {
+                                    n = '99999999999';
+                                    item.LeftMoney = 99999999999;
+                                } else if (n < -99999999999) {
+                                    n = '99999999999';
+                                    item.LeftMoney = -99999999999;
+                                }
+                                this.LeftMoneyAmount();
+                                this.RightMoneyAmount();
+                                var index = 11 - n.length;
+                                var j = 0;
+                                for (var i = index; i < 11; i++) {
+                                    item.LeftMoneyArr[i].num = n[j++];
+                                }
+                            }
+                        },
+                        //贷方金额失去焦点赋值
+                        InitRightValue: function (item) {
+                            this.LeftMoneyAmount();
+                            this.RightMoneyAmount();
+                            for (var i = 0; i < item.RightMoneyArr.length; i++) {
+                                item.RightMoneyArr[i].num = '';
+                            }
+                            var n = Number(this.IntegerNumber(item.RightMoney)) + '';
+                            var index = n.indexOf('-');
+                            if (index > -1) {
+                                n = n.substr(index + 1, n.length)
+                            }
+                            if (n == "NaN") {
+                                item.RightMoney = '';
+                                return
+                            } else if (n == 0) {
+                                return
+                            } else {
+                                if (n > 99999999999) {
+                                    n = '99999999999';
+                                    item.RightMoney = 99999999999;
+                                } else if (n < -99999999999) {
+                                    n = '99999999999';
+                                    item.RightMoney = -99999999999;
+                                }
+                                this.LeftMoneyAmount();
+                                this.RightMoneyAmount();
+                                var index = 11 - n.length;
+                                var j = 0;
+                                for (var i = index; i < 11; i++) {
+                                    item.RightMoneyArr[i].num = n[j++];
+                                }
+                            }
+                        },
+                        //借方金额键盘事件
+                        LeftDown: function ($event) {
+                            if ($event.keyCode == 40) {
+                                $($event.target).parent().parent().next().find('.debitText').focus()
+                            }
+                            if ($event.keyCode == 38) {
+                                $($event.target).parent().parent().prev().find('.debitText').focus()
+                            }
+                            if ($event.keyCode == 13) {
+                                $($event.target).parent().next().find('input:eq(0)').focus()
+                            } else {
+                                this.OnlyNumber($event);
+                            }
+                        },
+                        //贷方金额键盘事件
+                        RightDown: function ($event) {
+                            if ($event.keyCode == 40) {
+                                $($event.target).parent().parent().next().find('.creditText').focus()
+                            }
+                            if ($event.keyCode == 38) {
+                                $($event.target).parent().parent().prev().find('.creditText').focus()
+                            }
+                            if ($event.keyCode == 13) {
+                                $event.preventDefault()
+                                $($event.target).parent().parent().next().find('textarea:eq(0)').focus()
+                            } else {
+                                this.OnlyNumber($event);
+                            }
+                        },
+                        //解决浮点数加法Bug
+                        add: function (arg1, arg2) {
+                            var r1, r2, m, c;
+                            try {
+                                r1 = arg1.toString().split(".")[1].length;
+                            }
+                            catch (e) {
+                                r1 = 0;
+                            }
+                            try {
+                                r2 = arg2.toString().split(".")[1].length;
+                            }
+                            catch (e) {
+                                r2 = 0;
+                            }
+                            c = Math.abs(r1 - r2);
+                            m = Math.pow(10, Math.max(r1, r2));
+                            if (c > 0) {
+                                var cm = Math.pow(10, c);
+                                if (r1 > r2) {
+                                    arg1 = Number(arg1.toString().replace(".", ""));
+                                    arg2 = Number(arg2.toString().replace(".", "")) * cm;
+                                } else {
+                                    arg1 = Number(arg1.toString().replace(".", "")) * cm;
+                                    arg2 = Number(arg2.toString().replace(".", ""));
+                                }
+                            } else {
+                                arg1 = Number(arg1.toString().replace(".", ""));
+                                arg2 = Number(arg2.toString().replace(".", ""));
+                            }
+                            return (arg1 + arg2) / m;
+                        },
+                        //解决浮点数减法Bug
+                        /**
+                        ** 减法函数，用来得到精确的减法结果
+                        ** 说明：javascript的减法结果会有误差，在两个浮点数相减的时候会比较明显。这个函数返回较为精确的减法结果。
+                        ** 调用：accSub(arg1,arg2)
+                        ** 返回值：arg1减去arg2的精确结果
+                        **/
+                        Sub: function (arg1, arg2) {
+                            var r1, r2, m, n;
+                            try {
+                                r1 = arg1.toString().split(".")[1].length;
+                            }
+                            catch (e) {
+                                r1 = 0;
+                            }
+                            try {
+                                r2 = arg2.toString().split(".")[1].length;
+                            }
+                            catch (e) {
+                                r2 = 0;
+                            }
+                            m = Math.pow(10, Math.max(r1, r2)); //last modify by deeka //动态控制精度长度
+                            n = (r1 >= r2) ? r1 : r2;
+                            return ((arg1 * m - arg2 * m) / m).toFixed(n);
+                        },
+                        //获取借方总金额
+                        LeftMoneyAmount: function () {
+                            var sum = 0;
+                            var that = this;
+                            this.VoucherDetailInfo.VoucherDetails.forEach(function (item, index, arr) {
+                                if (item.LeftMoney == '') {
+                                    item.LeftMoney = 0;
+                                }
+                                sum = that.add(sum, Number(item.LeftMoney));
+                            })
+                            this.VoucherDetailInfo.LeftMoney = sum;
+                            this.VoucherDetailInfo.LeftMoneyArr = this.uiMoneyCalculation(this.VoucherDetailInfo.LeftMoney)
+                        },
+                        //获取贷方总金额
+                        RightMoneyAmount: function () {
+                            var sum = 0;
+                            var that = this;
+                            this.VoucherDetailInfo.VoucherDetails.forEach(function (item, index, arr) {
+                                if (item.RightMoney == '') {
+                                    item.RightMoney = 0;
+                                }
+                                sum = that.add(sum, Number(item.RightMoney));
+                            })
+                            this.VoucherDetailInfo.RightMoney = sum;
+                            this.VoucherDetailInfo.RightMoneyArr = this.uiMoneyCalculation(this.VoucherDetailInfo.RightMoney)
+                        },
+                        //借方金额 keyUp 事件
+                        LeftKeyUp: function ($event, item) {
+                            var count = item.LeftMoney;
+                            var index = count.indexOf('=');
+                            if (index > -1) {
+                                if (this.VoucherDetailInfo.LeftMoney != 0 || this.VoucherDetailInfo.RightMoney != 0 || item.RightMoney != 0) {
+                                    item.LeftMoney = 0;
+                                    item.RightMoney = 0;
+                                    this.LeftMoneyAmount();
+                                    this.RightMoneyAmount();
+                                    item.LeftMoney = this.Sub(this.VoucherDetailInfo.RightMoney,this.VoucherDetailInfo.LeftMoney);
+                                    item.LeftMoney = item.LeftMoney == 0 ? '' : item.LeftMoney;
+                                    item.RightMoney = '';
+                                    for (var i = 0; i < item.RightMoneyArr.length; i++) {
+                                        item.RightMoneyArr[i].num = "";
+                                    };
+                                }
+                            }
+                            item.LeftMoney = this.RemovedInvalid(item.LeftMoney, $event);
+                            if (item.LeftMoney > 0) {
+                                if (item.RightMoney || item.RightMoney != 0) {
+                                    item.RightMoney = '';
+                                    item.RightMoneyArr = this.loadInitAmount();
+                                }
+                            }
+                            this.LeftMoneyAmount();
+                            this.RightMoneyAmount();
+                        },
+                        //借方金额 keyUp 事件
+                        RightKeyUp: function ($event, item) {
+                            var count = item.RightMoney;
+                            var index = count.indexOf('=');
+                            if (index > -1) {
+                                if (this.VoucherDetailInfo.LeftMoney != 0 || this.VoucherDetailInfo.RightMoney != 0 || item.LeftMoney != 0) {
+                                    item.LeftMoney = 0;
+                                    item.RightMoney = 0;
+                                    this.LeftMoneyAmount();
+                                    this.RightMoneyAmount();
+                                    item.RightMoney = this.Sub(this.VoucherDetailInfo.LeftMoney , this.VoucherDetailInfo.RightMoney);
+                                    item.RightMoney = item.RightMoney == 0 ? '' : item.RightMoney;
+                                    item.LeftMoney = '';
+                                    for (var i = 0; i < item.LeftMoneyArr.length; i++) {
+                                        item.LeftMoneyArr[i].num = "";
+                                    };
+                                }
+                            }
+                            item.RightMoney = this.RemovedInvalid(item.RightMoney, $event)
+                            if (item.RightMoney > 0) {
+                                if (item.LeftMoney || item.LeftMoney != 0) {
+                                    item.LeftMoney = '';
+                                    item.LeftMoneyArr = this.loadInitAmount();
+                                }
+                            }
+                            this.LeftMoneyAmount();
+                            this.RightMoneyAmount();
+                        },
+                        //判断非法字符以及 “ . ” 和 “ - ” 符号
+                        RemovedInvalid: function (amount, $event) {
+                            if (!this.inputAmount(amount)) {
+                                amount = amount + "";
+                                var index = amount.indexOf("-")
+                                var num = this.countChar(amount, "-")
+                                if (index > -1 && num == 1) {
+                                    if (amount[amount.length - 1] == "-" && num < 2) {
+                                        amount = amount[amount.length - 1] + amount.substr(0, amount.length - 1);
+                                    } else {
+                                        amount = amount.substr(0, amount.length - 1);
+                                    }
+                                } else if (amount[amount.length - 1] == "-" && num > 1 && index > -1) {
+                                    amount = amount.substr(1, amount.length - 2);
+                                }
+                                else {
+                                    amount = amount.substr(0, amount.length - 1);
+                                }
+                            } else {
+                                amount = amount + ""
+                                var index = amount.indexOf("-")
+                                var dian = amount.indexOf(".")
+                                if (index > -1 && dian > -1) {
+                                    if (amount.length > 13) {
+                                        amount = amount.substr(0, amount.length - 1)
+                                    }
+                                }
+                                if (index > -1 || dian > -1) {
+                                    if (amount.length > 13) {
+                                        amount = amount.substr(0, amount.length - 1)
+                                    }
+                                }
+                                if (index == -1 && dian == -1) {
+                                    if (amount.length > 9) {
+                                        amount = amount.substr(0, amount.length - 1)
+                                    }
+                                }
+                            }
+                            return amount;
+                        },
+
+                        // 用于查找字符在字符串的个数
+                        countChar: function (string, char) {
+                            var num = 0;
+                            for (var i = 0; i < string.length; i++) {
+                                if (string[i] == char) {
+                                    num++;
+                                }
+                            }
+                            return num;
+                        },
+                        //匹配金额,小数点前最多九位，小数点后最多两位
+                        inputAmount: function (data) {
+                            data = $.trim(data);
+                            var reg = /(^-{0,1}[0-9](\d+)?(\.\d{0,2})?$)|(^(0){1}$)|(^\d\.\d{0,2}?$)/;
+                            return data == '' || reg.test(data);
+                        },
+                        //借方金额和贷方金额只能输入数字
+                        DownData: function ($event) {
+                            this.OnlyNumber($event)
+                        },
+                        //屏蔽除数字外的按键
+                        OnlyNumber: function ($event) {
+                            var k = $event.keyCode;
+                            if ((k <= 57 && k >= 48) || (k <= 105 && k >= 96) || k == 8 || k == 13 || k == 229 || k == 187
+                                || k == 110 || k == 109 || k == 37 || k == 39 || k == 9 || k == 190 || k == 189) {
+                                return true
+                            } else {
+                                $event.preventDefault()
+                                return false;
+                            }
+                        },
+                        modifyData: function (index) {
+                            var that = this;
+                            var item = this.VoucherDetailInfo.VoucherDetails[index];
+                            if (this.isEmpty(item.Code) || item.Code == 0) {
+                                return;
+                            }
+                            ClientCheck = Number(!!item.Client_ID);
+                            DepartmentCheck = Number(!!item.Department_ID);
+                            PersonCheck = Number(!!item.Person_ID);
+                            ProjectCheck = Number(!!item.Project_ID);
+                            fnr.openDialog({
+                                title: '选择节点',
+                                area: ['500px', '500px'],
+                                content: ['/Html/Finance/Voucher/ChoiceNode.html?ClientCheck=' + ClientCheck + '&DepartmentCheck=' + DepartmentCheck + '&PersonCheck=' + PersonCheck + '&ProjectCheck=' + ProjectCheck],
+                                events: {
+                                    refresh: function (data) {
+                                        item.Client_ID = data.ClientID;
+                                        item.Date = data.Date;
+                                        item.Department_ID = data.Department_ID;
+                                        item.PersonalID = data.PersonalID;
+                                        item.ProjectID = data.ProjectID;
+                                        item.TicketNumber = data.TicketNumber;
+                                        item.Date = data.Date;
+                                    }
+                                }
+                            });
+                        },
+                        //判断是否为空
+                        isEmpty: function (v) {
+                            switch (typeof v) {
+                                case 'undefined':
+                                    return true;
+                                case 'string':
+                                    if (v.replace(/(^[ \t\n\r]*)|([ \t\n\r]*$)/g, '').length == 0) return true;
+                                    break;
+                                case 'boolean':
+                                    if (!v) return true;
+                                    break;
+                                case 'number':
+                                    if (0 === v || isNaN(v)) return true;
+                                    break;
+                                case 'object':
+                                    if (null === v || v.length === 0) return true;
+                                    for (var i in v) {
+                                        return false;
+                                    }
+                                    return true;
+                            }
+                            return false;
+                        },
+                        //删除空行
+                        DelEmptyItem: function () {
+                            var row = this.VoucherDetailInfo.VoucherDetails;
+                            for (var i = 0; i <= row.length; i++) {
+                                if (this.isEmpty(row[i].Title) && this.isEmpty(row[i].CodeName) && this.isEmpty(row[i].LeftMoney) && this.isEmpty(row[i].RightMoney)) {
+                                    row.splice(i, 1)
+                                } else {
+                                }
+                            }
+                            return row;
+                        },
+                        filterData: function () {
+                            var data = {
+                                No: this.VoucherDetailInfo.No,
+                                VoucherID: this.VoucherDetailInfo.VoucherID,
+                                Handler: this.VoucherDetailInfo.Handler,
+                                HandlerName: this.VoucherDetailInfo.HandlerName,
+                                Time: this.VoucherDetailInfo.Time,
+                                Type: this.VoucherDetailInfo.Type,
+                                Stationproxy_ID: this.Stationproxy_ID,
+                                LeftMoney: this.VoucherDetailInfo.LeftMoney,
+                                RightMoney: this.VoucherDetailInfo.RightMoney,
+                                ReceiptNum: this.VoucherDetailInfo.ReceiptNum,
+                                Handler: this.VoucherDetailInfo.Handler || this.ShowVoucher.Account_ID,
+                                VoucherDetails: []
+                            };
+                            //删除空行
+                            var row = this.VoucherDetailInfo.VoucherDetails;
+                            for (var i = 0; i < row.length; i++) {
+                                if (this.isEmpty(row[i].Title) && this.isEmpty(row[i].CodeName) && this.isEmpty(row[i].LeftMoney) && this.isEmpty(row[i].RightMoney)) {
+
+                                } else {
+                                    var item = JSON.parse(JSON.stringify(row[i]));
+                                    delete item.LeftMoneyArr;
+                                    delete item.RightMoneyArr;
+                                    data.VoucherDetails.push(item)
+                                }
+                            }
+                            return data
+                        },
+                        //模板数据
+                        filterTempData: function (ID) {
+                            var data = {
+                                ID: ID || '',
+                                Title: '',
+                                Type: this.VoucherDetailInfo.Type,
+                                Stationproxy_ID: this.Stationproxy_ID,
+                                VoucherTemplateDetails: [],
+                            };
+                            //删除空行
+                            var row = this.VoucherDetailInfo.VoucherDetails;
+                            for (var i = 0; i < row.length; i++) {
+                                if (this.isEmpty(row[i].Title) && this.isEmpty(row[i].CodeName) && this.isEmpty(row[i].LeftMoney) && this.isEmpty(row[i].RightMoney)) {
+
+                                } else {
+                                    var item = JSON.parse(JSON.stringify(row[i]));
+                                    var Obj = {
+                                        Title: item.Title || '0',
+                                        Code: item.Code || '0',
+                                        Project_ID: item.Project_ID || '0',
+                                        Department_ID: item.Department_ID || '0',
+                                        Person_ID: item.Person_ID || '0',
+                                        Client_ID: item.Client_ID || '0',
+                                        Sort: i,
+                                    }
+                                    data.VoucherTemplateDetails.push(Obj)
+                                }
+                            }
+                            return data
+                        },
+                        UpdateVoucherIsCheckout: function (Valid) {
+                            var self=this;
+                            $.post('/service/finance/Finance/UpdateVoucherIsCheckout', { Time: this.VoucherDetailInfo.Time, Valid: Valid, Stationproxy_ID: self.Stationproxy_ID }, function (res) {
+                                layer.msg(res.Message)
+                                if (res.SuccessResponse) {
+                                    fnr.callDialog('refresh', res);
+                                    fnr.closeDialog();
+                                } 
+                            })
+                        }
+                    },
+                });
+            });
+    </script>
+</body>
+</html>

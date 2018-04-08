@@ -1,0 +1,851 @@
+﻿<style>
+    a.add {
+        font-size: 16px;
+        border: 1px dashed #999;
+        display: inline-block;
+        width: 190px;
+        line-height: 1.5em;
+        text-align: center;
+    }
+
+    .fl {
+        position: absolute;
+        right: -24px;
+        font-size: 19px;
+        top: 10px;
+    }
+
+    .layui-input-inline.p40 + .layui-input-inline.p40 {
+        margin-left: 40px;
+    }
+
+    .layui-input-inline:nth-child(2n+1).p40 {
+        margin-left: 0 !important;
+    }
+
+    .layui-input {
+        margin-bottom: 10px;
+    }
+
+    .clearFix::after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+
+    .clearFix {
+        position: relative;
+    }
+
+    .fl.half {
+        right: 20px;
+    }
+
+    .fl.full {
+        right: 60px;
+        top: 9px;
+    }
+
+    .fl.null {
+        right: 50px;
+    }
+
+    .shadowBox {
+        padding: 15px 0 15px 40px;
+        position: relative;
+        vertical-align: middle;
+        -webkit-box-shadow: 0 0 5px #c6d5e2;
+        box-shadow: 0 0 5px #c6d5e2;
+        border-radius: 2px;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .ww_icon_AddFileBtnPreview {
+        background-position: -733px -300px;
+    }
+
+    .ww_icon_AddBtnGray, .ww_icon_AddFileBtnPreview {
+        background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png);
+        width: 40px;
+        height: 40px;
+    }
+
+    .approval_custom_template_preview {
+        position: relative;
+        overflow: hidden;
+        float: left;
+        width: 300px;
+        padding-left: 100px;
+        padding-top: 90px;
+        margin-right: -30px;
+    }
+
+    .approval_custom_template_preview_content {
+        background: #f0f1f5;
+        border: 1px solid #d6d6d6;
+    }
+
+    .approval_custom_template_preview_content_scroll {
+        position: relative;
+        height: 447px;
+        overflow: hidden;
+        overflow-y: auto;
+        font-size: 12px !important;
+    }
+
+    .approval_custom_template_preview_content_foot {
+        padding-bottom: 40px;
+        font-size: 12px !important;
+    }
+
+    .approval_template_top_bar_wrap {
+        position: relative;
+    }
+
+    .approval_template_top_bar_title {
+        font-size: 14px;
+        color: #fff;
+        position: absolute;
+        top: 22px;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+    }
+
+    .panel {
+        font-size: 16px;
+        background-color: #FFF;
+        margin-top: 20px;
+        position: relative;
+        display: block;
+        color: inherit;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .panel-wrap {
+        padding: 10px 15px;
+        line-height: 24px;
+        position: relative;
+    }
+
+    .panel-title {
+        float: left;
+        width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .panel-validate {
+        color: #E55140;
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        margin-right: 5px;
+        margin-left: 5px;
+        font-size: 12px;
+    }
+
+    .panel-input {
+        line-height: 24px;
+        font-size: 16px;
+        color: #333;
+        float: right;
+        padding: 0;
+        margin: 0;
+        outline: 0;
+        width: 166px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: 0;
+    }
+
+    .panel-detail {
+        color: #9B9B9B;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        padding-left: 10px;
+        overflow: hidden;
+    }
+
+    .panel-detail, .panel-input {
+        text-align: right;
+        height: 24px;
+    }
+
+    .panel-list {
+        background-color: #f0f1f5;
+        overflow: hidden;
+        margin-top: 0;
+    }
+
+    .panel-list-wrap {
+        position: relative;
+        display: block;
+        margin-top: 25px;
+    }
+
+    .panel-list-title-wrap {
+        position: absolute;
+        top: -20px;
+        left: 15px;
+        width: 100%;
+    }
+
+    .panel-list-title {
+        color: #777E8A;
+        float: left;
+        width: 170px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .panel-list .panel {
+        margin-top: 0;
+    }
+
+    .panel-title-width {
+        max-width: 126px;
+    }
+
+    .panel-content {
+        display: block;
+        clear: both;
+        padding-top: 8px;
+        padding-bottom: 5px;
+    }
+
+    .approval_setting_cnt_item {
+        float: left;
+        margin-left: -10px;
+        margin-right: 0;
+        padding-bottom: 15px;
+    }
+
+    .approval_setting_cnt_AddBtn {
+        display: inline-block;
+        margin-left: 10px;
+        border-radius: 4px;
+        text-align: center;
+        width: 40px;
+        height: 40px;
+        border: none;
+    }
+
+    .ww_icon {
+        display: inline-block;
+        overflow: hidden;
+        font-size: 0;
+        line-height: 0;
+    }
+
+    .ww_icon_AddBtnGray {
+        background-position: -733px -350px;
+        background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png);
+        width: 40px;
+        height: 40px;
+    }
+
+    .approval_custom_template_preview_content .approval_custom_template_preview_content_scroll .panel,
+    .approval_custom_template_preview_content .approval_custom_template_preview_content_scroll .panel-wrap,
+    .approval_custom_template_preview_content .approval_custom_template_preview_content_scroll input {
+        font-size: 12px !important;
+    }
+
+    .approval_custom_template_preview_content .panel {
+        margin-top: 12px;
+    }
+
+    .panel-wrap:after {
+        content: " ";
+        display: block;
+        clear: both;
+        height: 0;
+        overflow: hidden;
+    }
+
+    .panel__arrow .panel-wrap:before {
+        content: " ";
+        display: inline-block;
+        height: 6px;
+        width: 6px;
+        border-width: 2px 2px 0 0;
+        border-color: #C8C8CD;
+        border-style: solid;
+        -webkit-transform: matrix(.71,.71,-.71,.71,0,0);
+        -ms-transform: matrix(.71,.71,-.71,.71,0,0);
+        transform: matrix(.71,.71,-.71,.71,0,0);
+        position: absolute;
+        top: 50%;
+        margin-top: -4px;
+        right: 13px;
+    }
+
+    .panel:before {
+        content: " ";
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 1px;
+        color: #D9D9D9;
+        -webkit-transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        transform-origin: 0 0;
+        -webkit-transform: scaleY(.5);
+        -ms-transform: scaleY(.5);
+        transform: scaleY(.5);
+        left: 0;
+    }
+
+    .panel:after {
+        content: " ";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: 1px;
+        border-bottom: 1px solid #D9D9D9;
+        color: #D9D9D9;
+        -webkit-transform-origin: 0 100%;
+        -ms-transform-origin: 0 100%;
+        transform-origin: 0 100%;
+        -webkit-transform: scaleY(.5);
+        -ms-transform: scaleY(.5);
+        transform: scaleY(.5);
+    }
+
+    .approval_content .app_cardItems .app_cardInner,
+    .approval_content .app_cardItems .app_cardInner:hover,
+    .approval_content .app_cardItems .app_cardInner:link,
+    .approval_content .app_cardItems .app_cardInner:visited,
+    .approval_general_link, .approval_general_link:hover,
+    .panel {
+        text-decoration: none;
+    }
+
+    .panel__arrow .panel-wrap {
+        padding-right: 30px;
+    }
+</style>
+<div id="root" class="OpenContainer" v-cloak>
+    <div class="layui-tab layui-tab-brief" lay-filter="tabcard">
+        <ul class="layui-tab-title">
+            <li class="layui-this" lay-id="1">模板内容</li>
+            <li lay-id="2"><a v-bind:href="'UserModify.html?Approval_ID='+queryFormData.ID">审批流程</a></li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-row layui-form">
+                <div class="layui-col-xs5" style="width:600px">
+                    <div class="layui-row layui-form">
+                        <label class="layui-form-label">审批名称<span style="color: red">*</span>：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" lay-verify="required" placeholder="审批名称" autocomplete="off" class="layui-input" v-model="queryFormData.Name" size="50">
+                        </div>
+                    </div>
+                    <div class="layui-row layui-form">
+                        <label style="line-height:40px">审批模板字段：</label>
+                        <div class="layui-form-item shadowBox" v-for="(index,item) in queryFormData.Field">
+                            <div class="clearFix">
+                                <i class="layui-icon" style="position:relative; right: 430px;">&#xe671;</i>
+                                <div class="layui-input-inline">
+                                    <input type="text" placeholder="字段名" lay-verify="required" autocomplete="off" class="layui-input" v-model="item.fieldName">
+                                </div>
+                                <div class="layui-input-inline">
+                                    <remote-sel v-bind:setting="item.fieldType" layverify="required" v-bind:value.sync="item.fieldValue"></remote-sel>
+                                </div>
+                                <div style="height:30px;display:inline-block">
+                                    <remote-chb v-bind:setting="chbSet" v-bind:value.sync="item.Required">
+                                    </remote-chb>
+                                </div>
+                                <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="fl full" @click="DeleteObj(queryFormData.Field,index)">&#xe640;</a></span>
+                            </div>
+                            <div v-if="item.fieldValue == 103 || item.fieldValue == 110">
+                                <div class="layui-form-item">
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-inline p40" v-for="(opIndex,op) in item.Option">
+                                            <input type="text" placeholder="选项名" autocomplete="off" class="layui-input" v-model="op.value">
+                                            <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="fl" @click="DeleteObj(item.Option,opIndex)">&#xe640;</a></span>
+                                        </div>
+                                        <div style="line-height:50px;" class="layui-input-inline p40">
+                                            <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="add" @click="AddOption(item)">&#xe654;</a></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="item.fieldValue == 0" style="padding:20px;">
+                                <div class="layui-form-item" v-for="(detailIndex,detail) in item.DetailField">
+                                    <div class="layui-form-item">
+                                        <div class="clearFix">
+                                            <i class="layui-icon" style="position:relative; top: -3px; right: 430px;">&#xe671;</i>
+                                            <div class="layui-input-inline">
+                                                <input type="text" placeholder="明细字段名" autocomplete="off" class="layui-input" v-model="detail.fieldName">
+                                            </div>
+                                            <div class="layui-input-inline">
+                                                <remote-sel v-bind:setting="detail.fieldType" v-bind:value.sync="detail.fieldValue">
+                                                </remote-sel>
+                                            </div>
+                                            <div style="height:30px;display:inline-block">
+                                                <remote-chb v-bind:setting="chbSet" v-bind:value.sync="detail.Required"
+                                                            initial="off"></remote-chb>
+                                            </div>
+                                            <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="fl half" @click="DeleteObj(item.DetailField,detailIndex)">&#xe640;</a></span>
+                                        </div>
+
+                                        <div v-if="detail.fieldValue == 103 || detail.fieldValue == 110">
+                                            <div class="layui-form-item">
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-inline p40" v-for="(opDetailIndex,opDetail) in detail.Option">
+                                                        <input type="text" placeholder="明细选项名" autocomplete="off" class="layui-input" v-model="opDetail.value">
+                                                        <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="fl" @click="DeleteObj(detail.Option,opDetailIndex)">&#xe640;</a></span>
+                                                    </div>
+                                                    <div style="line-height:50px;" class="p40 layui-input-inline">
+                                                        <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="add" @click="AddDetailOption(detail)">&#xe654;</a></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="line-height:50px;">
+                                    <span style="cursor:pointer;"><a @click="AddDetailField(item)" style="color:#177ded">添加明细</a></span>
+                                </div>
+                            </div>
+                            <!--报销明细-->
+                            <div v-if="item.fieldValue == 112" style="padding:20px;">
+                                <div class="layui-form-item" v-for="reimbursement in item.Reimbursement">
+                                    <div class="layui-form-item">
+                                        <div class="clearFix">
+                                            <i class="layui-icon" style="position:relative; top: -3px; right: 430px;">&#xe671;</i>
+                                            <div class="layui-input-inline">
+                                                <input type="text" placeholder="{{reimbursement.name}}" autocomplete="off" class="layui-input" v-model="reimbursement.fieldName">
+                                            </div>
+                                            <div class="layui-input-inline">
+                                                <remote-sel v-bind:setting="reimbursement.fieldType" v-bind:value.sync="reimbursement.fieldValue">
+                                                </remote-sel>
+                                            </div>
+                                            <div style="height:30px;display:inline-block">
+                                                <remote-chb v-bind:setting="reimbursement.fieldValue == '100' || reimbursement.fieldValue == '111' ? chbSet : disablechbSet" v-bind:value.sync="reimbursement.Required"
+                                                            initial="off"></remote-chb>
+                                            </div>
+                                        </div>
+                                        <div v-if="reimbursement.fieldValue == 103">
+                                            <div class="layui-form-item">
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-inline p40" v-for="(opDetailIndex,opDetail) in reimbursement.Option">
+                                                        <input type="text" placeholder="财务科目" autocomplete="off" class="layui-input" v-model="opDetail.name" readonly="readonly">
+                                                        <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="fl" @click="DeleteObj(reimbursement.Option,opDetailIndex)">&#xe640;</a></span>
+                                                    </div>
+                                                    <div class="layui-form-item">
+                                                        <div style="line-height:50px;" class="p40 layui-input-inline">
+                                                            <span class="layui-icon" style="cursor:pointer;font-size: 30px; color: #1E9FFF;"><a class="add" @click="AddOptionResource(reimbursement)" style="color:#9B9B9B">添加数据源</a></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="line-height:50px;">
+                            <span style="cursor:pointer"><a @click="AddField" style="color: #177ded">添加字段</a></span>
+                        </div>
+                    </div>
+                    <div class="layui-row layui-form" style="margin-top:30px">
+                        <div class="layui-input-inline" style="height:50px;display:inline-block">
+                            <remote-chb v-bind:setting="chbEditApprover" v-bind:value.sync="queryFormData.EditApprover">
+                            </remote-chb>
+                        </div>
+                    </div>
+                    <hr style="width:600px">
+                    <button class="layui-btn" @click="Next">下一步</button>
+                </div>
+
+                <div class="approval_custom_template_preview">
+                    <div class="approval_custom_template_preview_content">
+                        <div class="approval_template_top_bar_wrap">
+                            <img width="300" src="http://p.qlogo.cn/bizmail/K8cocoFm2JV9icCKq4WouIA1ATy5HAJceXKGDMstbzqKXydAsQEsfWw/0" alt="">
+                            <span class="approval_template_top_bar_title">{{queryFormData.Name}}</span>
+                        </div>
+                        <div class="approval_custom_template_preview_content_scroll">
+                            <div v-for="item in queryFormData.Field">
+                                <div class="panel panel__arrow" v-if="item.fieldValue != 0 && item.fieldValue != 111">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">{{item.fieldName || "字段名"}}<span class="panel-validate" v-if="item.Required == 1">*</span></label>
+                                        <span class="panel-detail">{{(item.fieldValue == 103 || item.fieldValue == 110 || item.fieldValue == 108) ? "请选择" : "请输入"}}</span>
+                                    </div>
+                                </div>
+                                <!--附件-->
+                                <div class="panel" v-if="item.fieldValue == 111">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">{{item.fieldName || "字段名"}}<span class="panel-validate" v-if="item.Required == 1">*</span></label>
+                                        <div class="panel-content"><div class="upload-image"><span class="upload-image-button js-add-image ww_icon ww_icon_AddFileBtnPreview"></span></div></div>
+                                    </div>
+                                </div>
+                                <div class="panel-list panel" v-if="item.fieldValue == 0">
+                                    <div class="panel-list-wrap">
+                                        <div class="panel-list-title-wrap">
+                                            <span class="panel-list-title">{{item.fieldName || "字段名"}}</span>
+                                        </div>
+                                        <div class="panel" v-for="detail in item.DetailField" style="margin-top:0">
+                                            <div class="panel panel__arrow">
+                                                <div class="panel-wrap" v-if="detail.fieldValue!=111">
+                                                    <label class=" panel-title panel-title-width">
+                                                        {{detail.fieldName || "明细字段名"}}<span class="panel-validate" v-if="detail.Required == 1">*</span>
+                                                    </label>
+                                                    <span class="panel-detail">{{(detail.fieldValue == 103 || detail.fieldValue == 110 || detail.fieldValue == 108) ? "请选择" : "请输入"}}</span>
+                                                </div>
+                                            </div>
+                                            <div class="panel-wrap" v-if="detail.fieldValue==111">
+                                                <label class=" panel-title panel-title-width">
+                                                    {{detail.fieldName || "明细字段名"}}<span class="panel-validate" v-if="detail.Required == 1">*</span>
+                                                </label>
+                                                <div class="panel-content"><div class="upload-image"><span class="upload-image-button js-add-image ww_icon ww_icon_AddFileBtnPreview"></span></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--报销-->
+                                <div class="panel-list panel" v-if="item.fieldValue == 112">
+                                    <div class="panel-list-wrap">
+                                        <div class="panel-list-title-wrap">
+                                            <span class="panel-list-title">{{item.fieldName || "字段名"}}</span>
+                                        </div>
+                                        <div class="panel" v-for="reimbursement in item.Reimbursement" style="margin-top:0">
+                                            <div class="panel panel__arrow">
+                                                <div class="panel-wrap" v-if="reimbursement.fieldValue!=111">
+                                                    <label class=" panel-title panel-title-width">
+                                                        {{reimbursement.fieldName || "明细字段名"}}<span class="panel-validate" v-if="reimbursement.Required == 1">*</span>
+                                                    </label>
+                                                    <span class="panel-detail">{{(reimbursement.fieldValue == 103 || reimbursement.fieldValue == 110 || reimbursement.fieldValue == 108) ? "请选择" : "请输入"}}</span>
+                                                </div>
+                                            </div>
+                                            <div class="panel-wrap" v-if="reimbursement.fieldValue==111">
+                                                <label class=" panel-title panel-title-width">
+                                                    {{reimbursement.fieldName || "明细字段名"}}<span class="panel-validate" v-if="reimbursement.Required == 1">*</span>
+                                                </label>
+                                                <div class="panel-content"><div class="upload-image"><span class="upload-image-button js-add-image ww_icon ww_icon_AddFileBtnPreview"></span></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="approval_custom_template_preview_content_foot">
+                                <div class="panel">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">审批人:<strong class="panel-validate">*</strong></label>
+                                        <div class="panel-content">
+                                            <div class="approval_setting_cnt_item">
+                                                <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn ">
+                                                    <span class="ww_icon ww_icon_AddBtnGray"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel" v-if="HasReimbursement">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">会计:<strong class="panel-validate">*</strong></label>
+                                        <div class="panel-content">
+                                            <div class="approval_setting_cnt_item">
+                                                <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn ">
+                                                    <span class="ww_icon ww_icon_AddBtnGray"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel" v-if="HasReimbursement">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">出纳:<strong class="panel-validate">*</strong></label>
+                                        <div class="panel-content">
+                                            <div class="approval_setting_cnt_item">
+                                                <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn ">
+                                                    <span class="ww_icon ww_icon_AddBtnGray"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel approval_custom_template_preview_copy_someone">
+                                    <div class="panel-wrap">
+                                        <label class="panel-title">抄送人:<strong class="panel-validate" style="display:none">*</strong></label>
+                                        <div class="panel-content">
+                                            <div class="approval_setting_cnt_item">
+                                                <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn "><span class="ww_icon ww_icon_AddBtnGray"></span></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="/Resources/js/Controls/Common.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    chbSet: {
+                        options: [{
+                            key: "1",
+                            value: "必填"
+                        }],
+                        fields: { key: 'key', value: 'value' },
+                    },
+                    disablechbSet: {
+                        options: [{
+                            key: "1",
+                            value: "必填",
+                            disabled: true,
+                        }],
+                        fields: { key: 'key', value: 'value' },
+                    },
+                    chbEditApprover: {
+                        options: [{
+                            key: "1",
+                            value: "提交申请时，员工不可修改审批人"
+                        }],
+                        fields: { key: 'key', value: 'value' },
+                    },
+                    //字段模板
+                    FieldTemplate: {
+                        fieldName: '',//字段名称
+                        fieldType: {//字段类型
+                            options: [
+                                { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '104', value: '数值' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '0', value: '明细' }, { key: '111', value: '附件' }, { key: '112', value: '报销明细' }
+                            ]
+                        },
+                        fieldValue: '-1',//字段类型值
+                        Required: [],//是否必填
+                        Option: [{ value: "" }, { value: "" }],//选项
+                        DetailField: [{//明细字段
+                            fieldName: '',//字段名称
+                            fieldType: {//字段类型
+                                options: [
+                                     { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '104', value: '数值' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '111', value: '附件' }, { key: '112', value: '报销明细' }
+                                ]
+                            },
+                            fieldValue: '0',
+                            Required: [],//是否必填
+                            Option: [{ value: "" }, { value: "" }],//明细选项
+                        }],
+                        //报销明细
+                        Reimbursement: [{
+                            name: '报销类型', fieldName: '报销类型', fieldType: { options: [{ key: '103', value: '单选框' }] }, fieldValue: '103', Required: ['1'], Option: [],
+                        }, {
+                            name: '金额', fieldName: '金额', fieldType: { options: [{ key: '106', value: '金额' }] }, fieldValue: '106', Required: ['1']
+                        }, {
+                            name: '发生时间', fieldName: '发生时间', fieldType: { options: [{ key: '108', value: '时间' }] }, fieldValue: '108', Required: ['1'],
+                        }, {
+                            name: '费用说明', fieldName: '费用说明', fieldType: { options: [{ key: '100', value: '单行文本' }] }, fieldValue: '100', Required: []
+                        }, {
+                            name: '附件', fieldName: '附件', fieldType: { options: [{ key: '111', value: '附件' }] }, fieldValue: '111', Required: []
+                        }, ],
+                    },
+                    DetailFieldTemplate: {//明细字段
+                        fieldName: '',//字段名称
+                        fieldType: {//字段类型
+                            options: [
+                                 { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '104', value: '数值' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '111', value: '附件' }
+                            ]
+                        },
+                        fieldValue: '0',
+                        Required: [],//是否必填
+                        Option: [{ value: "" }, { value: "" }],//明细选项
+                    },
+                    //是否包含报销
+                    HasReimbursement: false,
+                    //提交的数据
+                    queryFormData: {
+                        ID: '',
+                        Name: '',
+                        EditApprover: [],
+                        Field: [],
+                    }
+                },
+                ready: function () {
+                    var self = this;
+                    self.queryFormData.ID = fnr.getQueryString("ID");
+                    $.get("/service/approval/Approval/GetApprovalInfo", { Approval_ID: fnr.getQueryString("ID") }, function (rsp) {
+                        if (rsp.SuccessResponse) {
+                            //模板内容
+                            self.queryFormData.ID = fnr.getQueryString("ID");
+                            self.queryFormData.Name = rsp.Data.ApprovalTemplet.Name;
+                            if (rsp.Data.ApprovalTemplet.EditApprover == 1)
+                                self.queryFormData.EditApprover.push(JSON.stringify(rsp.Data.ApprovalTemplet.EditApprover));
+                            $.each(rsp.Data.ApprovalTemplet.Field, function (i) {
+                                var Template = JSON.parse(JSON.stringify(self.FieldTemplate));
+                                Template.fieldId = this.fieldId;
+                                Template.fieldName = this.fieldName;
+                                Template.fieldValue = this.fieldValue;
+                                if (this.Required == 1)
+                                    Template.Required.push(JSON.stringify(this.Required));
+                                if (this.Option != null)
+                                    Template.Option = this.Option;
+                                $.each(this.DetailField, function (j) {
+                                    if (j == 0)
+                                        Template.DetailField = [];
+                                    var DetailTemplate = JSON.parse(JSON.stringify(self.DetailFieldTemplate));
+                                    DetailTemplate.fieldName = this.fieldName;
+                                    DetailTemplate.fieldValue = this.fieldValue;
+                                    if (this.Required == 1)
+                                        DetailTemplate.Required.push(JSON.stringify(this.Required));
+                                    if (this.Option != null)
+                                        DetailTemplate.Option = this.Option;
+                                    Template.DetailField.push(DetailTemplate)
+                                });
+                                //报销明细的字段类型
+                                Template.Reimbursement = [];
+                                $.each(this.Reimbursement, function (k, v) {
+                                    var required = v.Required;
+                                    v.Required = new Array();
+                                    if (required == 1)
+                                        v.Required.push("1");
+                                    if (v.fieldValue == 103)
+                                        v.fieldType = { options: [{ key: '103', value: '单选框' }] };
+                                    else if (v.fieldValue == 106)
+                                        v.fieldType = { options: [{ key: '106', value: '金额' }] };
+                                    else if (v.fieldValue == 108)
+                                        v.fieldType = { options: [{ key: '108', value: '时间' }] };
+                                    else if (v.fieldValue == 100)
+                                        v.fieldType = { options: [{ key: '100', value: '单行文本' }] };
+                                    else
+                                        v.fieldType = { options: [{ key: '111', value: '附件' }] };
+                                    Template.Reimbursement.push(v);
+                                });
+                                self.queryFormData.Field.push(Template)
+                            })
+                        }
+                    });
+                },
+                watch: {
+                    'queryFormData.Field': {
+                        handler: function (val) {
+                            var self = this;
+                            self.HasReimbursement = false;
+                            if (!!val) {
+                                val.map(function (v, k) {
+                                    if (v.fieldValue == "112") {
+                                        self.HasReimbursement = true;
+                                    }
+                                });
+                            }
+                        },
+                        deep: true
+                    }
+                },
+                methods: {
+                    //添加字段
+                    AddField: function () {
+                        this.FieldTemplate.fieldName = "";
+                        this.FieldTemplate.fieldValue = "-1";
+                        this.FieldTemplate.Required = [];
+                        this.FieldTemplate.Option = [{ value: "" }, { value: "" }];
+                        this.FieldTemplate.DetailField = [{//明细字段
+                            fieldName: '',//字段名称
+                            fieldType: {//字段类型
+                                options: [
+                                     { key: '100', value: '单行文本' }, { key: '102', value: '多行文本' }, { key: '103', value: '单选框' }, { key: '110', value: '多选框' }, { key: '104', value: '数值' }, { key: '106', value: '金额' }, { key: '108', value: '时间' }, { key: '111', value: '附件' }
+                                ]
+                            },
+                            fieldValue: '0',
+                            Required: [],//是否必填
+                            Option: [{ value: "" }, { value: "" }],//明细选项
+                        }]
+                        this.queryFormData.Field.push(JSON.parse(JSON.stringify(this.FieldTemplate)))
+                    },
+                    //添加选项
+                    AddOption: function (obj) {
+                        obj.Option.push({ value: "" });
+                    },
+                    //添加明细字段
+                    AddDetailField: function (obj) {
+                        this.DetailFieldTemplate.fieldName = "";
+                        this.DetailFieldTemplate.fieldValue = "-1";
+                        this.DetailFieldTemplate.Required = [];
+                        this.DetailFieldTemplate.Option = [{ value: "" }, { value: "" }];
+                        obj.DetailField.push(JSON.parse(JSON.stringify(this.DetailFieldTemplate)))
+                    },
+                    //添加明细选项
+                    AddDetailOption: function (obj) {
+                        obj.Option.push({ value: "" });
+                    },
+                    //删除
+                    DeleteObj: function (obj, index) {
+                        obj.splice(index, 1);
+                    },
+                    //添加数据源
+                    AddOptionResource: function (obj) {
+                        var Json = "";
+                        $.each(obj.Option, function () {
+                            Json += this.value + "|" + this.name + ",";
+                        });
+                        Json = Json.substring(0, Json.length - 1);
+                        fnr.openDialog({
+                            title: '选择科目',
+                            offset: '100px',
+                            area: ['650px', '480px'],
+                            content: ['/Html/Auditing/ChooseFinanceCode.html?json=' + Json],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    obj.Option = [];
+                                    data.map(function (v, k) {
+                                        obj.Option.push({ name: v.name, value: v.code })
+                                    });
+                                }
+                            }
+                        });
+                    },
+                    Next: function (e) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        if (this.queryFormData.Field.length == 0) {
+                            layer.msg("审批模板字段不能为空");
+                            return false;
+                        }
+                        console.log(this.queryFormData);
+                        $.post("/service/approval/Approval/EditApprovalTemplet", this.queryFormData, function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                if (rsp.Data)
+                                    location.href = "../Auditing/UserModify.html?Approval_ID=" + fnr.getQueryString("ID");
+                                else
+                                    layer.msg("操作失败，请重试")
+                            } else {
+                                parent.layer.msg(rsp.Message);
+                            }
+                        })
+
+                    }
+                }
+            });
+
+        });
+</script>

@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>请假表填写</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+        require_js_file(["jquery"], function (fnr) {
+            var $ = layui.$;
+            new Vue({
+                el: "#root",
+                data: {
+                    operateName: "添加",
+                    queryFormData: {
+                        ID: '',
+                        Field: [],
+                        Approvers: [],
+                        ApproverCC: [],
+                    },
+                    EditApprover: '',//是否可编辑审核人
+                    Field: [],//字段
+                    FieldTemplete: [],//明细字段模板
+                    Condition: [],//审批条件
+                    DataSource: [],//数据源数组
+                    PriorityArr: [],//之前优先级（惟一值）
+                    ApproversArr: [],//之前审批人
+                    ApproverCCArr: [],//之前抄送人
+                    isEdit: false,
+                    first: 1,//控制上传控件
+                },
+                ready: function () {
+                    var self = this;
+                    var approvalTypeID = fnr.getQueryString("ID");
+                    $.get("/service/approval/Approval/GetApplication", { approvalTypeID: approvalTypeID }, function (rsp) {
+                        if (rsp.SuccessResponse) {
+                            self.Field = rsp.Data.Field;//绑定字段
+                            self.EditApprover = rsp.Data.EditApprover;
+                            if (rsp.Data.Field) {
+                                for (var i = 0; i < rsp.Data.Field.length; i++) {
+                                    if ((rsp.Data.Field[i].FieldType == 103 || rsp.Data.Field[i].FieldType == 110) && rsp.Data.Field[i].DataSource != null) {//单选，多选
+                                        var arr = rsp.Data.Field[i].DataSource.split('|');
+                                        self.DataSource.push(arr);
+                                    } else if (rsp.Data.Field[i].FieldType == 0 && rsp.Data.Field[i].Detail != null) {
+                                        //debugger
+                                        var that = rsp.Data.Field[i].Detail;
+                                        var arr = new Array();
+                                        for (var j = 0; j < that.length; j++) {
+                                            if ((that[j].FieldType == 103 || that[j].FieldType == 110) && that[j].DataSource != null) {//单选，多选
+                                                arr.push(that[j].DataSource.split('|'));
+                                            }
+                                            else
+                                                arr.push("");
+                                        }
+                                      
+                                        self.DataSource.push(arr);
+                                        self.FieldTemplete.push(JSON.parse(JSON.stringify(rsp.Data.Field[i])));
+                                    }
+                                    else {
+                                        self.DataSource.push("");
+                                    }                                    
+                                }                                
+                            }
+                        }
+                        else {
+                            location.href = "/login.html"
+                        }
+
+                    })
+                },
+                methods: {
+                    getQueryString: function (name) {
+                        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                        var r = window.location.search.substr(1).match(reg);
+                        if (r != null) return unescape(r[2]);
+                        return null;
+                    }
+                }
+            })
+        })
+    </script>
+</head>
+<body id="root">    
+    <div class="appContainer" id="appContainer" >      
+        <div class="leaveTypeList" v-for="(index,item) in Field">
+            <ul class="leaveTitle">
+                <li class="item">
+                    <span class="title">{{item.Name}}
+                        <i class="xing">{{item.Required == 1 ? '*' : '&nbsp;'}}</i>
+                    </span>
+                    <!--单行文本-->
+                    <span class="titleBtn"  v-if="item.FieldType==100">
+                        <input type="text"  lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </span>
+                    <!--多行文本-->
+                    <span class="titleBtn" v-if="item.FieldType==102">
+                        <textarea placeholder="请输入{{item.Name}}"></textarea>
+                    </span>               
+                    <!--下拉（单选框）-->
+                    <span class="titleBtn" v-if="item.FieldType==103">
+                        <select>
+                            <option>请选择</option>
+                            <option v-for="(opteionindex,optionitem) in DataSource[index]">{{optionitem}}</option>
+                        </select>
+                    </span>
+                    <!--多选-->
+                    <span class="titleBtn" v-if="item.FieldType==110">
+                        <label v-for="(ckindex,ckitem) in DataSource[index]"><input id="Checkbox1" type="checkbox"  />{{ckitem}}</label>
+                    </span>
+                    <!--数值-->
+                    <span class="titleBtn" v-if="item.FieldType==104">
+                        <input type="number" lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </span>                    
+                    <!--金额-->
+                    <span class="titleBtn" v-if="item.FieldType==106">
+                        <input type="number" lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <!--请假类型-->
+        <div class="leaveTypeList">
+            <ul class="leaveTitle">
+                <li class="item">
+                    <span class="title">请假类型</span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <!--分割线-->
+        <div class="line"></div>
+        <div class="leaveMain">
+            <ul class="mainItems">
+                <li class="item">
+                    <span class="title">
+                        开始时间
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+                <li class="item">
+                    <span class="title">
+                        结束时间
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        请选择
+                        <i class="iconfont icon-jiantou"></i>
+                    </span>
+                </li>
+                <li class="item">
+                    <span class="title">
+                        请假时长
+                        <i class="xing">*</i>
+                    </span>
+                    <span class="titleBtn">
+                        <b style="font-style: normal; font-weight: normal; margin-right: 0.5rem;">0天</b><b style="font-style: normal; font-weight: normal;">0小时</b>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="line"></div>
+
+        <!--请假事由-->
+        <div class="leaveReason">
+            <p class="reasonText">
+                请假事由
+                <i class="xing">*</i>
+            </p>
+            <textarea placeholder="请输入请假事由"></textarea>
+        </div>
+        <div class="line"></div>
+
+        <!--说明附件-->
+        <div class="annex">
+            <p class="annexText">
+                说明附件
+            </p>
+            <div class="addAnnex">
+                <i class="iconfont icon-jia"></i>
+            </div>
+        </div>
+        <div class="line"></div>
+
+        <!--审批人-->
+        <div class="approver">
+            <p class="approverText">
+                审批人
+                <i class="xing">*</i>
+            </p>
+            <div class="addApprover">
+                <div class="approveImgBox">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/leaveHead.png" height="88" width="88" />
+                        <span>王小明</span>
+                        <i class="iconfont icon-cha"></i>
+                    </div>
+                    <img class="dian" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/dian.png" height="88" width="30" />
+                </div>
+                <div class="addAnnex" style="vertical-align: top; margin: 0;">
+                    <i class="iconfont icon-jia"></i>
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+
+        <!--抄送人-->
+        <div class="makeCopy">
+            <p class="annexText">
+                抄送人
+            </p>
+            <div class="addAnnex">
+                <i class="iconfont icon-jia"></i>
+            </div>
+        </div>
+
+        <!--提交-->
+        <div class="submitTemp">
+            <p class="submitBtn">提交</p>
+        </div>
+    </div>
+</body>
+</html>

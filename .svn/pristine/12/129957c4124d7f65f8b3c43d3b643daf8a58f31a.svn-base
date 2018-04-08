@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>明细账</title>
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        .isDisplay { display: none; }
+        .toggleNext { height: 39px; background: #fff; line-height: 39px; border: 1px solid #e2e2e2; border-top-color: transparent; }
+        .toggleNext.active {
+                background-color: #d1d1d1;
+            }
+        .padding20 { padding-left: 20px; }
+        .padding40 { padding-left: 40px; }
+        #listTable .layui-table-view { margin: 0; }
+        .layui-icon.open{
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+        i.layui-icon{
+            display: inline-block;
+            transition: transform 0.4s;
+        }
+        .layui-tab-content .layui-col-xs1,
+        .layui-tab-content .layui-col-xs3{
+            text-align: center;
+            border-right: 1px solid #e2e2e2;
+        }
+        .custom-title {
+            line-height: 38px;
+            background-color: #f2f2f2;
+            border: 1px solid #e2e2e2;
+            border-right: none;
+        }
+        .custom-field {
+            border-left:1px solid #e2e2e2;
+        }
+
+        .custom-block {
+            line-height: 45px;
+            height: 45px;
+            background: #e0e0e0;
+            padding-left: 10px;
+        }
+
+        .custom-ele, .custom-empty {
+            line-height: 40px;
+            height: 40px;
+        }
+
+        .custom-ele:hover {
+            background: #f5f5f5;
+        }
+        [v-cloak] { display: none; }
+        .normalText{
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body id="root" style="background: #ddd;" v-cloak>
+    <div class="OpenContainer">
+        <div class="layui-row" style="height: 80px;">
+            <div class="layui-col-xs12" style="height: 100%; background: #F6F8F8;">
+                <p style="line-height: 80px;text-align: center; font-size: 24px; border-radius: 3px;">明细账</p>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs12" style="height: 50px; margin-top: 10px;">
+                <div class="layui-form">
+                    <div class="layui-inline">
+                        <lay-date v-bind:value.sync="submitForm.startTime" type='date' initial="off" placeholder="开始时间"></lay-date>
+                    </div>
+                    <div class="layui-inline">
+                        <span> - </span>
+                    </div>
+                    <div class="layui-inline">
+                        <lay-date v-bind:value.sync="submitForm.endTime" type='date' initial="off" placeholder="结束时间"></lay-date>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-primary" @click="DetailedExport"><i class="layui-icon"></i> 明细导出</button>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-xs3" style="margin-top: 10px;">
+                <div class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="margin-left: 0;">
+                            <input type="text" placeholder="请选择科目或搜索科目编码和名称" class="layui-input searchInput" @keyup="doSearch($event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="treeData" style="height: 100%;">
+                    <ul class="listBox isDisplay">
+                        <tree v-bind:list="FirstListData"></tree>
+                    </ul>
+                </div>
+            </div>
+            <div class="layui-col-xs9" style="padding-left:15px;">
+                <div id="listTable" lay-filter="listTable">
+                    <div class="layui-tab-content">
+                        <div class="layui-form" style="margin-bottom:30px;">
+                            <div class="layui-row custom-title">
+                                <div class="layui-col-xs1">制单日期</div>
+                                <div class="layui-col-xs1">发生日期</div>
+                                <div class="layui-col-xs1">凭证号</div>
+                                <div class="layui-col-xs1">科目</div>
+                                <!--<div class="layui-col-md1">对方科目</div>-->
+                                <div class="layui-col-xs3">摘要</div>
+                                <div class="layui-col-xs1">借方</div>
+                                <div class="layui-col-xs1">贷方</div>
+                                <div class="layui-col-xs1">方向</div>
+                                <div class="layui-col-xs1">余额</div>
+                                <div class="layui-col-xs1">状态</div>
+                            </div>
+                            <div class="custom-field">
+                                <div class="tree" v-for="(index,item) in DetailData" v-cloak>
+                                    <div class="tree-content" v-if="item.VoucherDetail && item.VoucherDetail.length>0" v-for="child in item.VoucherDetail" style="border-bottom: 1px solid #e2e2e2; background-color: #fff;">
+                                        <div class="layui-row custom-ele" v-on:dblclick="DoubleClick(child)">
+                                            <div class="layui-col-xs1">{{child.Time | format 'yyyy-MM-dd'}}</div>
+                                            <div class="layui-col-xs1">{{child.Date | format 'yyyy-MM-dd'}}</div>
+                                            <div class="layui-col-xs1">{{child.Type | types}}{{child.No}}</div>
+                                            <div class="layui-col-xs1 normalText" v-bind:title="child.CodeName">{{child.CodeName}}</div>
+                                            <div class="layui-col-xs3 normalText" v-bind:title="child.Title">{{child.Title}}</div>
+                                            <div class="layui-col-xs1">{{child.LeftMoney | ' '}}</div>
+                                            <div class="layui-col-xs1">{{child.RightMoney}}</div>
+                                            <div class="layui-col-xs1">{{child.BalanceType == 0?"借":"贷"}}</div>
+                                            <div class="layui-col-xs1">{{child.Money | ' '}}</div>
+                                            <div class="layui-col-xs1">{{child.Valid == 0 ? "未审核" : (child.Valid == 1 ? "审核通过":"审核拒绝")}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="tree-content" v-if="item.Total" style="background:#f8f8f8;border-bottom: 1px solid #e2e2e2;">
+                                        <div class="layui-row custom-ele" v-cloak>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <!--<div class="layui-col-md1">&nbsp;</div>-->
+                                            <div class="layui-col-xs3">{{item.Total.Describe}}</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                            <div class="layui-col-xs1">{{item.Total.Direction}}</div>
+                                            <div class="layui-col-xs1">{{item.Total.Value3}}</div>
+                                            <div class="layui-col-xs1">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="../../../Resources/js/jquery.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="../../../Resources/js/Controls/SortTable.js"></script>
+<!--<script src="../../../Resources/js/Excel.js"></script>-->
+
+<script>
+    Vue.filter('format', function (time, format) {
+        if (time == undefined) {
+            return '';
+        }
+        var finalTime;
+        if (typeof (time) == 'string') {
+            time = time.replace("T", " ");
+            time = time.replace("Z", " ");
+            var timeIOS = time.replace(/\-/g, "/");
+            finalTime = new Date(timeIOS);
+        } else {
+            finalTime = time;
+        }
+
+        var t = new Date(finalTime);
+        var tf = function (i) {
+            return (i < 10 ? '0' : '') + i
+        };
+        return format.replace(/yyyy|MM|dd|HH|mm|ss/g,
+            function (a) {
+                switch (a) {
+                    case 'yyyy':
+                        return tf(t.getFullYear());
+                        break;
+                    case 'MM':
+                        return tf(t.getMonth() + 1);
+                        break;
+                    case 'mm':
+                        return tf(t.getMinutes());
+                        break;
+                    case 'dd':
+                        return tf(t.getDate());
+                        break;
+                    case 'HH':
+                        return tf(t.getHours());
+                        break;
+                    case 'ss':
+                        return tf(t.getSeconds());
+                        break;
+                }
+            });
+    })
+    Vue.filter('types', function (value) {
+        if (value == 0) {
+            return '收-'
+        } else if (value == 1) {
+            return '付-'
+        } else if (value == 2) {
+            return '转-'
+        } else if (value == 3) {
+            return '记-'
+        }
+    })
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            Vue.component('tree', {
+                name: 'tree',
+                props: ['list'],
+                template: '<template  v-for="(index, item) in list">' +
+                '   <li v-bind:class="{toggleNext: true}"  v-if="isEmpty(item.ChildList)" style="padding-left:{{item.Code.length/2*10 +20}}' + 'px' + ';">\n' +
+                '       <a href="javascript:;" @click="TotalBuyPrice(item.Code, $event)">{{item.Code}} - {{item.Name}}</a>\n' +
+                '   </li>\n' +
+                '   <li v-bind:class="{toggleNext: true, active: index == 0 && item.Code.length <= 4}" v-else style="padding-left:{{item.Code.length == 1 ? item.Code.length*10 : item.Code.length/2*10}}' + 'px' + '">\n' +
+                '       <i class="layui-icon" @click="toggleThis($event)"  style="cursor: pointer;">&#xe602;</i>\n' +
+                '       <a href="javascript:;" @click="TotalBuyPrice(item.Code, $event)">{{item.Code}} - {{item.Name}}</a>\n' +
+                '   </li>\n' +
+                '   <li><ul class="listBox isDisplay">\n' +
+                '       <tree v-bind:list="item.ChildList"></tree>\n' +
+                '   </ul></li>\n' +
+                '</template>',
+                ready: function () {
+                    $('.listBox:first').css('display', 'block');
+                },
+                methods: {
+                    isEmpty: function (v) {
+                        return $.isEmptyObject(v);
+                    },
+                    toggleThis: function (e) {
+                        var ev = e.srcElement || e.target || e.toElement;
+                        if (!$(ev).hasClass('open')) {
+                            $(ev).addClass('open');
+                        } else {
+                            $(ev).removeClass('open');
+                        }
+                        $(ev).parent('li').next().children('ul').slideToggle();
+                    },
+                    TotalBuyPrice: function (code, e) {
+                        var ev = e.srcElement || e.target || e.toElement;
+                        var $t = $(ev).parent('li');
+                        if (!$t.hasClass('active')) {
+                            $t.parents('.treeData').find('li').removeClass('active');
+                            $t.addClass('active');
+                        }
+                        var st = window.rootApp.submitForm.startTime;
+                        var et = window.rootApp.submitForm.endTime;
+                        var cid = window.rootApp.submitForm.Stationproxy_ID;
+                        window.rootApp.detailFn(code, st, et, cid);
+
+                        
+                    }
+                }
+            });
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+
+                    submitForm: {
+                        startTime: fnr.format(Date.now(), 'yyyy-MM'+'-01'),
+                        endTime: fnr.format(Date.now(), 'yyyy-MM-dd'),
+                        Stationproxy_ID: GetParentQueryString('ID'),
+                    },
+                    FirstListData: [],
+                    DetailData: [],
+                   
+                },
+                ready: function () {
+                    this.GetFinanceCodeFn();
+
+                },
+                methods: {
+                    DoubleClick: function (item) {
+                        console.log(item);
+                        fnr.openDialog({
+                            title: '修改',
+                            area: ['1200px', '800px'],
+                            content: ['/Html/Finance/Voucher/create.html?VoucherID=' + item.VoucherID],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+                            },
+                            events: {
+                                refresh: function (data) {
+
+                                }
+                            }
+                        });
+                    },
+                   
+                    DetailedExport: function () {
+                        var Code = $('.treeData li.toggleNext.active a').text().split('-')[0];
+                        var BeginTime = window.rootApp.submitForm.startTime;
+                        var EndTime = window.rootApp.submitForm.endTime;
+                        var Stationproxy_ID = window.rootApp.submitForm.Stationproxy_ID;
+                        var data = { Code: $.trim(Code), BeginTime: BeginTime, EndTime: EndTime, Stationproxy_ID: Stationproxy_ID };
+                        var str = jQuery.param(data);
+                        console.log($.trim(Code))
+                        fnr.download("/service/finance/Finance/DetailedExport?" + str);
+                    },
+                    doSearch: function (e) {
+                        var ev = e.target || e.srcElement || e.toElement;
+                    },
+                    HandleData: function (data) {
+                        var obj = {};
+                        data = data.sort(function (a, b) {
+                            return a.Code.length - b.Code.length;
+                        });
+                        var depthFind = function (code) {
+                            if (code.length === 4) {
+                                return obj;
+                            } else {
+                                var startNode = depthFind(code.substr(0, 4));
+                                for (var i = 4; i < code.length; i += 2) {
+                                    var tempNode = startNode["_" + code.substr(0, i)];
+                                    if (tempNode) {
+                                        startNode = tempNode._ChildList;
+                                    }
+                                }
+                                return startNode;
+                            }
+                        }
+                        data.map(function (v, k) {
+                            v._ChildList = {};
+                            depthFind(v.Code)["_" + v.Code] = v;
+                        });
+                        return obj;
+                    },
+                    toArray: function (data, deep) {
+                        var self = this;
+                        var retArray = [];
+                        var sortFunc = function (a, b) {
+                            return parseInt(a.Code) - parseInt(b.Code);
+                        }
+                        var loopSelf = function (obj) {
+                            if (obj && obj._ChildList && !$.isEmptyObject(obj._ChildList)) {
+                                obj.ChildList = [];
+                                for (var k in obj._ChildList) {
+                                    var val = obj._ChildList[k];
+                                    obj.ChildList.push(val);
+                                    loopSelf(val);
+                                }
+                                obj.ChildList.sort(sortFunc);
+                            }
+                        }
+                        for (var k in data) {
+                            var rootValue = data[k];
+                            loopSelf(rootValue);
+                            retArray.push(rootValue);
+                        }
+                        retArray.sort(sortFunc);
+                        return retArray;
+                    },
+                    GetFinanceCodeFn: function () {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetFinanceCodeValid', { Stationproxy_ID: GetParentQueryString('ID'), FinanceCodeType: 0, Valid: -1 }, function (res) {
+                            if (res.SuccessResponse) {
+                                if (res.Data) {
+                                    var data = self.HandleData(res.Data);
+                                    data = self.toArray(data);
+                                    self.FirstListData = data;
+                                    var newArr = res.Data;
+                                    self.detailFn(self.FirstListData[0].Code, self.submitForm.startTime, self.submitForm.endTime, self.submitForm.Stationproxy_ID);
+                                } else {
+                                    layer.msg('返回值为空');
+                                    listTable = '';
+                                }
+                            } else {
+                                layer.msg(res.Message)
+                            }
+                        });
+                    },
+
+                    detailFn: function (code, st, et, cid) {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetSubjectDetailByDate', { Code: code, BeginTime: st, EndTime: et, Stationproxy_ID: cid }, function (res) {
+                            console.log(res);
+                            if (res.SuccessResponse) {
+                                var Datas = res.Data;
+                                if (Datas) {
+                                    self.DetailData = Datas;
+                                } else {
+                                    layer.msg('返回值为空');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+        });
+</script>

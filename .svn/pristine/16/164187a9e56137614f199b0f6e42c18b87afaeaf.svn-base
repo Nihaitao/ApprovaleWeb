@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        textarea { resize: none; }
+
+        .ww_groupSelBtn_item { float: left; max-width: 231px; line-height: 1.5; margin: 3px 10px 3px 0; padding: 3px 11px 3px 7px; background-color: #fff; border: 1px solid #E4E6E9; border-radius: 2px; }
+
+        .ww_groupSelBtn_item_text { max-width: 174px; padding-right: 11px; overflow: hidden; line-height: 18px; }
+
+        .approval_setting_cnt_AddBtn { display: inline-block; margin-left: 10px; border-radius: 4px; text-align: center; width: 40px; height: 40px; border: none; }
+
+        .ww_icon { display: inline-block; overflow: hidden; font-size: 0; line-height: 0; }
+
+        .ww_icon_AddBtnGray { background-position: -733px -350px; background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); width: 40px; height: 40px; }
+
+        .approval_setting_cnt_avatar { width: 40px; height: 40px; vertical-align: top; border-radius: 4px; cursor: move; }
+
+        .approval_setting_cnt_avatarWrap { position: relative; float: left; z-index: auto; border-radius: 4px; text-align: center; width: 60px; }
+
+        .ww_icon_IconCloseBlack { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -886px -630px; width: 14px; height: 14px; margin-left: -15px; }
+
+        .app_approval .app_approval_custom_template .ww_icon_IconCloseBlack, .app_approval .app_approval_custom_template .ww_icon_IconEditBlue { position: absolute; right: 4px; top: -6px; }
+
+        .approval_setting_cnt_name { margin-top: 5px; text-align: center; font-size: 12px; color: #9C9C9C; }
+
+        .app_approval .app_approval_custom_template .approval_setting_cnt_arrowWithLink { margin-left: -12px; }
+
+        .approval_custom_setting .approval_setting_cnt_arrowWithLink { margin-top: 20px; }
+
+        .approval_setting_cnt_arrowWithLink { position: relative; float: left; margin-left: -4px; margin-top: 24px; margin-bottom: 22px; font-size: 0; line-height: 0; width: 28px; height: 5px; z-index: 10; }
+
+        .ww_icon_approvalWithLink { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -621px -590px; width: 15px; height: 3px; }
+
+        .layui-form-label { width: 120px !important; }
+
+        .layui-input-block { margin-left: 180px !important; margin-right: 180px !important; }
+
+        .layui-form-label_ex { color: #9C9C9C; }
+        [v-cloak] { display: none; }
+        .shadowBox { padding: 15px 0 15px 40px; position: relative; vertical-align: middle; -webkit-box-shadow: 0 0 5px #c6d5e2; box-shadow: 0 0 5px #c6d5e2; border-radius: 2px; }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+            <div v-for="(index,item) in Field">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">{{item.Name}}<span style="color: red;margin-right: 5px;">{{item.Required == 1 ? '*' : '&nbsp;'}}</span></label>
+                    <!--单行文本框-->
+                    <div class="layui-input-block" v-if="item.FieldType==100">
+                        <input type="text" class="layui-input" lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </div>
+                    <!--多行文本框-->
+                    <div class="layui-input-block" v-if="item.FieldType==102">
+                        <textarea lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value" class="layui-textarea"></textarea>
+                    </div>
+                    <!--数字-->
+                    <div class="layui-input-block" v-if="item.FieldType==104">
+                        <input type="number" class="layui-input" lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </div>
+                    <!--金额-->
+                    <div class="layui-input-block" v-if="item.FieldType==106">
+                        <input type="number" class="layui-input" lay-verify="{{item.Required == 1 ? 'required' : ''}}" v-model="item.Value">
+                    </div>
+                    <!--下拉（单选框）-->
+                    <div class="layui-input-block" v-if="item.FieldType==103">
+                        <custom-sel v-bind:setting="DataSource[index]" v-bind:value.sync="item.Value" v-bind:layverify="{{item.Required == 1 ? 'required' : ''}}" initial="off"></custom-sel>
+                    </div>
+                    <!--时间-->
+                    <div class="layui-input-block" v-if="item.FieldType==108">
+                        <lay-date v-bind:value.sync="item.Value" lay-verify="{{item.Required == 1 ? 'required' : ''}}" initial="off"></lay-date>
+                    </div>
+                    <!--多选框-->
+                    <div class="layui-input-block" v-if="item.FieldType==110">
+                        <custom-chb v-bind:setting="DataSource[index]" layverify="{{item.Required == 1 ? 'required' : ''}}" v-bind:value.sync="item.Value" v-bind:data-item="item.ID"></custom-chb>
+                    </div>
+                    <!--附件-->
+                    <div class="layui-input-block" v-if="item.FieldType==111">
+                        <button type="button" class="layui-btn layui-btn-normal uploadBtn" v-bind:id="item.PID" v-bind:data-id="0">
+                            <i class="layui-icon">&#xe67c;</i>选择文件
+                        </button>
+                    </div>
+                    <!--明细-->
+                    <div class="layui-input-block shadowBox" v-if="item.FieldType==0">
+                        <div style="margin-top:15px;" v-for="(Detailindex,Detailitem) in item.Detail">
+                            <label class="layui-form-label">{{Detailitem.Name}}<span style="color: red;margin-right: 5px;">{{Detailitem.Required == 1 ? '*' : '&nbsp;'}}</span></label>
+                            <!--数字,金额-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==100 ||Detailitem.FieldType==104||Detailitem.FieldType==105||Detailitem.FieldType==106">
+                                <input type="{{Detailitem.FieldType==104||Detailitem.FieldType==105||Detailitem.FieldType==106? 'number' : 'text'}}" class="layui-input" lay-verify="{{Detailitem.Required == 1 ? 'required' : ''}}">
+                            </div>
+                            <!--多行文本框-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==102">
+                                <textarea lay-verify="{{Detailitem.Required == 1 ? 'required' : ''}}" v-model="Detailitem.Value" class="layui-textarea"></textarea>
+                            </div>
+                            <!--下拉（单选框）-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==103">
+                                <custom-sel v-bind:setting="DataSource[index][Detailindex]" layverify="{{Detailitem.Required == 1 ? 'required' : ''}}" v-bind:value.sync="Detailitem.Value" initial="off"></custom-sel>
+                            </div>
+                            <!--时间-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==108">
+                                <lay-date v-bind:value.sync="Detailitem.Value" initial="off"></lay-date>
+                            </div>
+                            <!--多选框-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==110">
+                                <custom-chb v-bind:setting="DataSource[index][Detailindex]" v-bind:value.sync="Detailitem.Value"></custom-chb>
+                            </div>
+                            <!--附件-->
+                            <div class="layui-input-block" v-if="Detailitem.FieldType==111">
+                                <button type="button" class="layui-btn layui-btn-normal uploadBtn" v-bind:id="item.PID" v-bind:data-id="0">
+                                    <i class="layui-icon">&#xe67c;</i>选择文件
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:40px;">
+                <div class="layui-form-item">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">对应审批流程</label>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-label_ex">审批人:</label>
+                <div v-for="(index,item) in queryFormData.Approvers">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditing/img/account_32px.png">
+                        <a v-if="EditApprover==0" href="javascript:;" @click="deleteApprover(queryFormData.Approvers,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">{{item.AccName}}</div>
+                        <div class="approval_setting_cnt_name" v-if="item.Type == 0 && item.AccId == 0">（{{item.CounterSign == 0 ? "会签" : "或签"}}）</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" v-if="EditApprover==0 || queryFormData.Approvers.length > index + 1"><span class="ww_icon ww_icon_approvalWithLink"></span></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap" v-if="EditApprover==0">
+                    <a href="javascript:;" class="approval_setting_cnt_AddBtn" @click="addApprover">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-label_ex">抄送人:</label>
+                <div v-for="(index,item) in queryFormData.ApproverCC">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditing/img/account_32px.png">
+                        <a href="javascript:;" @click="deleteApproverCC(queryFormData.ApproverCC,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">{{item.AccName}}</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" style=""><span class="ww_icon ww_icon_approvalWithLink"></span></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap">
+                    <a href="javascript:;" class="approval_setting_cnt_AddBtn" @click="addApproverCC">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+
+    require_js_file(["table", "form", "jquery", "tableExt", "customUtil", "upload"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var upload = layui.upload;
+
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    operateName: "添加",
+                    queryFormData: {
+                        ID: '',
+                        Field: [],
+                        Approvers: [],
+                        ApproverCC: [],
+                    },
+                    EditApprover: '',//是否可编辑审核人
+                    Field: [],//字段
+                    FieldTemplete: [],//明细字段模板
+                    Condition: [],//审批条件
+                    DataSource: [],//数据源数组
+                    PriorityArr: [],//之前优先级（惟一值）
+                    ApproversArr: [],//之前审批人
+                    ApproverCCArr: [],//之前抄送人
+                    isEdit: false,
+                    first: 1,
+                },
+                watch: {
+
+                },
+                ready: function () {
+                    var self = this;
+                    var approvalTypeID = fnr.getQueryString("ID");
+                    $.get("/service/approval/Approval/GetApplication", { approvalTypeID: approvalTypeID }, function (rsp) {
+                        self.Field = rsp.Data.Field;//绑定字段
+                        self.EditApprover = rsp.Data.EditApprover;
+                        if (rsp.Data.Field) {
+                            for (var i = 0; i < rsp.Data.Field.length; i++) {
+                                if ((rsp.Data.Field[i].FieldType == 103 || rsp.Data.Field[i].FieldType == 110) && rsp.Data.Field[i].DataSource != null) {//单选，多选
+                                    var arr = rsp.Data.Field[i].DataSource.split('|');
+                                    self.DataSource.push(arr);
+                                } else if (rsp.Data.Field[i].FieldType == 0 && rsp.Data.Field[i].Detail != null) {
+                                    //debugger
+                                    var that = rsp.Data.Field[i].Detail;
+                                    var arr = new Array();
+                                    for (var j = 0; j < that.length; j++) {
+                                        if ((that[j].FieldType == 103 || that[j].FieldType == 110) && that[j].DataSource != null) {//单选，多选
+                                            arr.push(that[j].DataSource.split('|'));
+                                        }
+                                        else
+                                            arr.push("");
+                                    }
+                                    self.DataSource.push(arr);
+                                    self.FieldTemplete.push(JSON.parse(JSON.stringify(rsp.Data.Field[i])));
+                                }
+                                else {
+                                    self.DataSource.push("");
+                                }
+                            }
+                        }
+                        //绑定审批人与抄送人
+                        self.Condition = rsp.Data.Condition;
+                        if (rsp.Data.Condition) {
+                            $.each(rsp.Data.Condition, function (i) {
+                                if (this.Priority == 10000) {//默认审批条件
+                                    self.queryFormData.Approvers = this.ApprovalConditionObject;
+                                    self.queryFormData.ApproverCC = this.ApprovalConditionCC;
+                                    self.PriorityArr.push(10000);
+                                    self.ApproversArr.push(this.ApprovalConditionObject);
+                                    self.ApproverCCArr.push(this.ApprovalConditionCC);
+                                }
+                            })
+                        }
+
+                        self.Field.map(function (v, k) {
+                            if (v.FieldType == 103 || v.FieldType == 104 || v.FieldType == 105 || v.FieldType == 106 || v.FieldType == 110) {
+                                self.$watch("Field[" + k + "]", function (val, oldVal) {
+                                    console.log(v)
+                                    if (self.Condition) {
+                                        $.each(self.Condition, function (i) {
+                                            if (this.ConditionType == 2 && this.FieldId == v.ID) {//自定义审批条件
+                                                if (self.ConditionMatching(this, v)) {//满足审批条件
+                                                    if (self.PriorityArr.indexOf(this.Priority) < 0) {
+                                                        self.ApproversArr.push(this.ApprovalConditionObject);
+                                                        self.ApproverCCArr.push(this.ApprovalConditionCC);
+                                                        self.PriorityArr.push(this.Priority);
+                                                    }
+                                                }
+                                                else {
+                                                    var index = self.PriorityArr.indexOf(this.Priority);
+                                                    if (index >= 0) {
+                                                        self.ApproversArr.splice(index, 1);
+                                                        self.ApproverCCArr.splice(index, 1);
+                                                        self.PriorityArr.splice(index, 1);
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                    self.GetMaxPriority();
+                                }, { deep: true });
+                            }
+                        });
+                        self.$nextTick(function () {
+                            self.uploadRender();
+                            self.first++;
+                        });
+                    })
+                },
+                methods: {
+                    //添加明细
+                    AddDetailField: function (obj, index) {
+                        var self = this;
+                        for (var i = 0; i < self.FieldTemplete.length; i++) {
+                            if (self.FieldTemplete[i].ID == obj.ID) {
+                                self.Field.splice(index + 1, 0, JSON.parse(JSON.stringify(self.FieldTemplete[i])));
+                                self.DataSource.splice(index + 1, 0, JSON.parse(JSON.stringify(self.DataSource[index])));
+                                obj.PID = -1;//控制添加明细显示
+                            }
+                        }
+                        self.$nextTick(function () {
+                            self.uploadRender();
+                        });
+
+                    },
+                    //条件匹配
+                    ConditionMatching: function (Condition, FieldModel) {
+                        var self = this;
+                        if (FieldModel.FieldType == 104 || FieldModel.FieldType == 105 || FieldModel.FieldType == 106) {//数字，金额
+                            return self.CompareTheValue(Condition.ConditionOp, Condition.ContrastValue, FieldModel.Value);
+                        } else if (FieldModel.FieldType == 103) {//单选下拉
+                            return ("," + Condition.ContrastValue + ",").indexOf("," + FieldModel.Value + ",") >= 0;
+                        } else if (FieldModel.FieldType == 110) {//多选
+                            if (typeof FieldModel.Value == "object") {
+                                var flag = false;
+                                for (var i in FieldModel.Value) {
+                                    if (("," + Condition.ContrastValue + ",").indexOf("," + FieldModel.Value[i] + ",") >= 0) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                return flag;
+                            } else {
+                                return ("," + Condition.ContrastValue + ",").indexOf("," + FieldModel.Value + ",") >= 0;
+                            }
+                        } else
+                            return false;
+                    },
+                    //比较函数
+                    CompareTheValue: function (operator, num1, num2) {
+                        switch (operator) {
+                            case "大于":
+                                return num2 > num1;
+                            case "大于等于":
+                                return num2 >= num1;
+                            case "等于":
+                                return num2 = num1;
+                            case "小于等于":
+                                return num2 <= num1;
+                            case "小于":
+                                return num2 < num1;
+                            default:
+                                return false;
+                        }
+                    },
+                    //获取最优先级审批条件
+                    GetMaxPriority: function () {
+                        var minIndex = this.PriorityArr.indexOf(Math.min.apply(null, this.PriorityArr));
+                        this.queryFormData.Approvers = this.ApproversArr[minIndex];
+                        this.queryFormData.ApproverCC = this.ApproverCCArr[minIndex];
+                    },
+                    //添加审批人
+                    addApprover: function () {
+                        fnr.openDialog({
+                            title: '选择审批人',
+                            area: ['500px', '520px'],
+                            content: ['/Html/Auditing/ChooseApproval.html?OnlyPerson=true'],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    console.log(data)
+                                    rootApp.queryFormData.Approvers.push(data);
+                                }
+                            }
+                        });
+                    },
+                    //删除审批人
+                    deleteApprover: function (obj, index) {
+                        obj.splice(index, 1);
+                    },
+                    //添加抄送人
+                    addApproverCC: function () {
+                        fnr.openDialog({
+                            title: '选择抄送人',
+                            area: ['500px', '520px'],
+                            content: ['/Html/Auditing/ChooseApproval.html?CC=true&OnlyPerson=true'],
+                            btn: ['确定'],
+                            events: {
+                                refresh: function (data) {
+                                    rootApp.queryFormData.ApproverCC.push(data);
+                                }
+                            }
+                        });
+                    },
+                    //删除抄送人
+                    deleteApproverCC: function (obj, index) {
+                        obj.splice(index, 1);
+                    },
+                    //保存数据关闭弹窗
+                    formDemo: function (e) {
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+                        var self = this;
+                        self.queryFormData.ID = fnr.getQueryString("ID");
+                        self.queryFormData.Field = self.Field;
+                        $.post("/service/approvalProcess/SaveApprovalList", self.queryFormData, function (rsp) {
+                            parent.layer.msg(rsp.Message);
+                            if (rsp.Message == "操作成功")
+                                fnr.closeDialog();
+                        });
+                    },
+                    //上传控件
+                    uploadRender: function () {
+                        var self = this;
+                        layui.$(".uploadBtn").each(function (k, v) {
+                            if ((v.id == 0 && $(v).data("id") == 0) || self.first == 1) {
+                                var value = "";
+                                var UploadInst = upload.render({
+                                    elem: v
+                                , url: '/service/public/Upload/File'
+                                , accept: 'file'
+                                , before: function (obj) {
+                                    //预读本地文件示例，不支持ie8
+                                    obj.preview(function (index, file, result) {
+                                        value = file.name;
+                                        $(v).prev().html(file.name);
+                                    });
+                                }
+                                , done: function (res) {
+                                    //如果上传失败
+                                    if (res.code > 0) {
+                                        value = "";
+                                        return layer.msg('上传失败');
+                                    }
+                                    //上传成功
+                                    $(v).prev().prev().val(res.Message + "|" + value).show().focus().hide();//使v-model响应，超级变态
+                                    layer.msg('上传成功')
+                                }
+                                , error: function () {
+                                    //演示失败状态，并实现重传
+                                    $(v).next().html('<span style="color: #FF5722;">上传失败</span> <a class=" favicon-reload" style="cursor:pointer;">重试</a>');
+                                    $(v).next().find('.favicon-reload').on('click', function () {
+                                        UploadInst.upload();
+                                    });
+                                }
+                                });
+                            }
+                        });
+                    },
+                }
+            });
+        });
+</script>

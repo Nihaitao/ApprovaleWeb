@@ -1,0 +1,504 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>利润表</title>
+    <style>
+        table tbody tr td { position: relative; }
+
+        table tbody tr td i { /*cursor:pointer;*/ display: none; position: absolute; left: 10px; top: 10px; }
+        .tooltip { position: absolute; display: none; /*margin: 10px 20px;*/ opacity: 1; z-index: 1070; font-size: 14px; line-height: 1.42857143; font-size: 12px; /*white-space: normal;*/ }
+        .tooltip.right { padding: 0 5px; margin-left: 3px; top: 3px; left: 22px; }
+        .tooltip-arrow { position: absolute; width: 0; height: 0; border-color: transparent; border-style: solid; top: 50%; left: 0; margin-top: -5px; border-width: 5px 5px 5px 0; border-right-color: #58666E; }
+        .tooltip-inner { /*min-height: 50px;*/ height: 35px; white-space: nowrap; padding: 10px 10px; color: #58666E; text-align: left; background-color: #fff; border: 1px solid #C7C7C7; border-radius: 4px; box-shadow: 1px 1px 10px #C7C7C7; box-sizing: border-box; }
+        .finalBalance {
+            display: inline-block;
+            margin-left: 30px;
+            float: right;
+        }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="mainContainer">
+        <blockquote class="layui-elem-quote" style="height:70px; padding: 0;">
+            <div class="layui-form" style="line-height: 70px;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时间</label>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="BeginTime" type="month" placeholder="开始时间" initial="off"></lay-date>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                    </div>
+                </div>
+            </div>
+        </blockquote>
+        <!--操作模板-->
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>资产</th>
+                    <th>行次</th>
+                    <th>本月金额</th>
+                    <th>本年累计金额</th>
+                </tr>
+            </thead>
+            <tbody v-cloak>
+                <tr>
+                    <td><span style=" font-weight:bold; ">一、营业收入</span></td>
+                    <td><span>1</span></td>
+                    <td data-code="5001+5051" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">主营业务收入+其他业务收入</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>减：营业成本</span></td>
+                    <td><span>2</span></td>
+                    <td data-code="5401+5402" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">主营业务成本+其他业务成本</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>税金及附加</span></td>
+                    <td><span>3</span></td>
+                    <td data-code="5403" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">税金及附加</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：消费税</span></td>
+                    <td><span>4</span></td>
+                    <td data-code="222113" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交消费税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>营业税</span></td>
+                    <td><span>5</span></td>
+                    <td data-code="222112" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交营业税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>城市维护建设税</span></td>
+                    <td><span>6</span></td>
+                    <td data-code="222117" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交城市维护建设税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>资源税</span></td>
+                    <td><span>7</span></td>
+                    <td data-code="222114" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交资源税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>土地增值税</span></td>
+                    <td><span>8</span></td>
+                    <td data-code="222116" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交土地增值税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>城镇土地使用税、房产税、车船税、印花税</span></td>
+                    <td><span>9</span></td>
+                    <td data-code="222119+222118+222120+222125" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：应交城镇土地使用税+应交房产税+应交车船使用税+应交印花税</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>教育费附加、矿产资源补偿费、排污费</span></td>
+                    <td><span>10</span></td>
+                    <td data-code="222126+222122+222123+222124" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">科目：地方教育费附加+教育费附加+矿产资源补偿费+排污费</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>销售费用</span></td>
+                    <td><span>11</span></td>
+                    <td data-code="5601" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">销售费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：商品维修费</span></td>
+                    <td><span>12</span></td>
+                    <td data-code="560102" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">商品维修费</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>广告费和业务宣传费</span></td>
+                    <td><span>13</span></td>
+                    <td data-code="560104+560105" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">广告费+业务宣传费</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>管理费用</span></td>
+                    <td><span>14</span></td>
+                    <td data-code="5602" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">管理费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：开办费</span></td>
+                    <td><span>15</span></td>
+                    <td data-code="560204" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">开办费</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>业务招待费</span></td>
+                    <td><span>16</span></td>
+                    <td data-code="560203" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">业务招待费</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>研究费用</span></td>
+                    <td><span>17</span></td>
+                    <td data-code="560209" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">研究费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>财务费用</span></td>
+                    <td><span>18</span></td>
+                    <td data-code="5603" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">财务费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：利息费用（收入以“-”号填列）</span></td>
+                    <td><span>19</span></td>
+                    <td data-code="560301" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">利息费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>加：投资收益（损失以“-”号填列）</span></td>
+                    <td><span>20</span></td>
+                    <td data-code="5111" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">投资收益</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span style="font-weight:bold;">二、营业利润（亏损以“-”号填列）</span></td>
+                    <td><span>21</span></td>
+                    <td data-code="5001+5051+5111|5403+5601+5602+5603+5401+5402" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">行次：行1-行2-行3-行11-行14-行18+行20</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>加：营业外收入</span></td>
+                    <td><span>22</span></td>
+                    <td data-code="5301" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">营业外收入</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：政府补助</span></td>
+                    <td><span>23</span></td>
+                    <td data-code="530102" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">政府补助</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>减：营业外支出</span></td>
+                    <td><span>24</span></td>
+                    <td data-code="5711" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">营业外支出</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>其中：坏账损失</span></td>
+                    <td><span>25</span></td>
+                    <td data-code="571105" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">坏账损失</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>无法收回的长期债券投资损失</span></td>
+                    <td><span>26</span></td>
+                    <td data-code="571107" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">无法收回的长期债券投资损失</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>无法收回的长期股权投资损失</span></td>
+                    <td><span>27</span></td>
+                    <td data-code="571108" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">无法收回的长期股权投资损失</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>自然灾害等不可抗力因素造成的损失</span></td>
+                    <td><span>28</span></td>
+                    <td data-code="571109" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">自然灾害等不可抗力因素造成的损失</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>税收滞纳金</span></td>
+                    <td><span>29</span></td>
+                    <td>
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">税收滞纳金</div>
+                        </div><span style="display: inline-block; margin-left: 30px; float: right"></span>
+                    </td>
+                    <td><span></span></td>
+                </tr>
+                <tr>
+                    <td><span style="font-weight:bold;">三、利润总额（亏损总额以“-”号填列）</span></td>
+                    <td><span>30</span></td>
+                    <td data-code="5001+5051+5301+5111|5401+5402+5403+5601+5602+5603+5711" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">行次：行21+行22-行24</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span>减：所得税费用</span></td>
+                    <td><span>31</span></td>
+                    <td data-code="5801" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">所得税费用</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+                <tr>
+                    <td><span style="font-weight:bold;">四、净利润（净亏损以“-”号填列）</span></td>
+                    <td><span>32</span></td>
+                    <td data-code="5001+5051+5301+5111|5601+5602+5603+5711+5801+5401+5402+5403" class="codeListData">
+                        <i class="layui-icon">&#xe63c;</i><div class="tooltip right">
+                            <div class="tooltip-arrow"></div>
+                            <div class="tooltip-inner">行次：行30-行31</div>
+                        </div><span class="finalBalance"></span>
+                    </td>
+                    <td><span class="beginBalance"></span></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="/Resources/js/Controls/Common.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "laydate", "linq"],
+        function (fnr) {
+            var laydate = layui.laydate;
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var linq = layui.linq;
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            var html = '<div class="tooltip right"><div class="tooltip-arrow"></div><div class="tooltip-inner">测试弹框测试弹框测试弹框测试弹框测试弹框</div></div>';
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    Stationproxy_ID: '',
+                    BeginTime: fnr.format(Date.now(), 'yyyy-MM')
+                },
+                ready: function () {
+                    $('table').on('mouseenter', 'tbody tr td', function () {
+                        $(this).find('i').show();
+                    });
+                    $('table').on('mouseleave', 'tbody tr td', function () {
+                        $(this).find('i').hide();
+                    });
+
+                    $('table').on('mouseenter', 'tbody tr td i', function () {
+                        //$(this).after(html);
+                        $(this).next().show();
+                    });
+                    $('table').on('mouseleave', 'tbody tr td i', function () {
+                        $(this).next().hide();
+                        //$(this).parent().children('div').remove();
+                    });
+                    this.Stationproxy_ID = GetParentQueryString('ID');
+                    this.GetIncomeStatement(this.BeginTime, this.Stationproxy_ID);
+                },
+                methods: {
+                    doSearch: function(){
+                        this.GetIncomeStatement(this.BeginTime, this.Stationproxy_ID);
+                    },
+
+                    GetIncomeStatement: function (bt, id) {
+                        var self = this;
+                        $.get('/service/finance/Finance/GetIncomeStatement', { BeginTime: bt, Stationproxy_ID: id }, function (res) {
+                            if (res.SuccessResponse) {
+                                self.formList = res.Data;
+                                var s = linq.from($('.codeListData')).select( x => $(x).data('code')).toArray();  //code集合
+                                linq.from(s).forEach(function(k, v){
+                                    var finalBalance = 0; //本月金额
+                                    var beginBalance = 0; //本年累计金额
+                                    if((k + '').indexOf('+') != -1 && (k + '').indexOf('|') == -1){  //code大于一个且全是加
+                                        linq.from(k.split('+')).forEach(function(_k, _v){
+                                            finalBalance += linq.from(self.formList).where( y => y.Date == _k).toArray()[0].Value1;
+                                            beginBalance += linq.from(self.formList).where( y => y.Date == _k).toArray()[0].Value2;
+                                        });
+                                    }else if((k + '').indexOf('+') != -1 && (k + '').indexOf('|') != -1){  //code大于一个且有减
+                                        var n1 = 0, n2 = 0, n3 = 0, n4 = 0;
+                                        linq.from(k.split("|")[0].split('+')).forEach(function(_k, _v){
+                                            n1 += linq.from(self.formList).where( y => y.Date == _k).toArray()[0].Value1;
+                                            n2 += linq.from(self.formList).where( y => y.Date == _k).toArray()[0].Value2;
+                                        });
+                                        linq.from(k.split("|")[1].split('+')).forEach(function(__k, __v){
+                                            n3 += linq.from(self.formList).where( y => y.Date == __k).toArray()[0].Value1;
+                                            n4 += linq.from(self.formList).where( y => y.Date == __k).toArray()[0].Value2;
+                                        });
+
+                                        finalBalance = n1 - n3;
+                                        console.log(finalBalance)
+                                        beginBalance = n2 - n4;
+                                        console.log(beginBalance)
+                                    }else{  //code只有一个
+                                        finalBalance = linq.from(self.formList).where( y => y.Date == k).toArray()[0].Value1;
+                                        beginBalance = linq.from(self.formList).where( y => y.Date == k).toArray()[0].Value2;
+                                    }
+                                    $($('.finalBalance')[v]).text(finalBalance == 0 ? finalBalance : finalBalance.toFixed(2));
+                                    $($('.beginBalance')[v]).text(beginBalance == 0 ? beginBalance : beginBalance.toFixed(2));
+                                });
+                            } else {
+                                layer.msg(res.Message)
+                            }
+                        })
+                    }
+
+                }
+            });
+        });
+</script>

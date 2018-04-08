@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>申请列表</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+
+        require_js_file(["jquery"], function (fnr) {
+            var $ = layui.$;
+            new Vue({
+                el: "#approvalList",
+                data: {
+                    Approval: ''
+                },
+                created: function () {
+                    var self = this;
+                    load = layer.load();
+                    $.get("/service/approval/Process/GetApprovalTemplet", function (data) {
+                        self.Approval = data.Data;
+                        layer.close(load);
+                    })
+                },
+                methods: {
+                    newCondition(id) {
+                        location.href = './addcondition.html?id=' + id;
+                    }
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+    <div class="appContainer">
+        <div class="approvalList" id="approvalList">
+            <div class="layui-row" v-cloak>
+                <div class="layui-col-xs4 item" v-for="(index,item) in Approval" @click="newCondition(item.ID)">
+                    <div class="itemBox">
+                        <i class="iconfont icon-jiaban iconItem"></i>
+                        <span class="itemTitle">{{item.Name}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="approvalFooter">
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot hover">
+                        <a href="javascript:;">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/xinzengshenqinghover.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>新增申请</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot">
+                        <a href="/Html/Auditing/myprocessed.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenpi.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的审批</span>
+                            <span class="tipNum">5</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot">
+                        <a href="/Html/Auditing/myapplication.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenqing.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的申请</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

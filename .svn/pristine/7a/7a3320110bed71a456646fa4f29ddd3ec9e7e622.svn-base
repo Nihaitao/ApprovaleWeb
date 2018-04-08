@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>审批详情</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+        Vue.filter('format', function (val) {
+            if (val == 0) {
+                return "待审核";
+            }else if (val == 1) {
+                return '已通过'
+            } else if (val == 2) {
+                return '已驳回'
+            } else if (val == 3) {
+                return '已转审'
+            }else {
+                return ''
+            }
+        })
+        require_js_file(["jquery"], function (fnr) {
+            var $ = layui.$;
+            new Vue({
+                el: "#root",
+                data: {
+                    queryFormData: {
+                        ApprovalListID: "",
+                    },
+                    Filed: '',
+                    FieldShow: [],
+                    ProcessList: [],
+                    Isshow: "",
+                    IsShowState: '',
+                    CCPerson: ''
+                },
+                ready: function () {
+                    var self = this;
+                    this.queryFormData.ApprovalListID = fnr.getQueryString("ID");
+                    $.get("/service/approval/Process/GetSelectApproval", { ApprovalListID: this.queryFormData.ApprovalListID }, function (rsp) {
+                        if (rsp.SuccessResponse) {
+                            self.Filed = rsp.Data.ApModel;
+                            self.FieldShow = rsp.Data.FieldShow;
+                            self.ProcessList = rsp.Data.ProcessList;
+                            self.CCPerson = rsp.Data.CCPerson;
+                        }
+                        else {
+                            location.href = "/login.html"
+                        }
+                    });
+                }
+            })
+        })
+    </script>
+</head>
+<body id="root">
+    <div class="appContainer">
+        <div class="detailTemp">
+            <div class="itemLeft">
+                <p class="itemInfo">{{Filed.Title}}</p>
+            </div>
+            <div class="itemRight">
+                <p class="rejectIcon" v-if="Filed.ApprovalStatus==0">未审核</p>
+                <p class="rejectIcon" v-if="Filed.ApprovalStatus==1">审核中</p>
+                <p class="rejectIcon" v-if="Filed.ApprovalStatus==2">审核通过</p>
+                <p class="rejectIcon" v-if="Filed.ApprovalStatus==3">审核未通过</p>
+            </div>
+        </div>
+        <div class="detailMain">
+            <ul>
+                <li class="item" v-for="item in FieldShow">
+                    <div>
+                        {{item.ShowName}}:
+                        <span class="info">{{item.ShowValue}}</span>
+                    </div>
+                </li>
+                <!--<li class="item">
+                    <div>
+                        开始时间:
+                        <span class="info">2017-12-26</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        结束时间:
+                        <span class="info">2017-12-27</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        请假时长:
+                        <span class="info">1天</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        请假事由:
+                        <span class="info">办证</span>
+                    </div>
+                </li>
+                <li class="item">
+                    <div>
+                        说明附件:
+                        <div class="uploadInfo">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/detailImg.png" height="120" width="100" />
+                            <div style="margin-left: 0.06rem;display: inline-block;vertical-align: middle;">
+                                <p style="color: #000; margin-bottom: 0.2rem;">123456.jpg</p>
+                                <p style="color: #999;">1.02M</p>
+                            </div>
+                        </div>
+                    </div>
+                </li>-->
+            </ul>
+        </div>
+        <div class="processBox">
+            <div class="title">审批流程</div>
+            <div class="detailProcess">
+                <div class="item" v-for="(index,item) in ProcessList">
+                    <div class="hDiv">
+                        <i class="iconfont icon-gou" v-if="item.OperationStatus==1||item.OperationStatus==3"></i>
+                        <i class="iconfont icon-cha1" v-if="item.OperationStatus==2"></i>
+                        <i class="iconfont icon-quan" v-if="item.OperationStatus==0"></i>
+                        <div v-for="Accountitem in item.AccountList">
+                            <span style="font-size: 0.26rem; color: #333;">{{Accountitem.AccountName}}</span>
+                            <span class="whD"></span>
+                            <span style="font-size: 0.26rem; color: #02c056;">{{Accountitem.Transfer_AccountID > 0 ? "已转审": (Accountitem.State==0 ? "未审核" : (Accountitem.State==1 ? "已通过" : "已驳回")) }}</span>
+                            <span style="float: right;color: #999; font-size: 0.2rem; margin-top: 0.03rem; display: inline-block">{{Accountitem.OperationTime}}</span>
+                        <div v-if="Accountitem.Transfer_AccountName!=null">
+                                <span style="font-size: 0.26rem; color: #333;">{{Accountitem.Transfer_AccountName}}</span>
+                                <span class="whD"></span>
+                                <span style="font-size: 0.26rem; color: #02c056;">{{Accountitem.State==0 ? "未审核" : (Accountitem.State==1 ? "已通过" : "已驳回")}}</span>
+                                <span style="float: right;color: #999; font-size: 0.2rem; margin-top: 0.03rem; display: inline-block">{{Accountitem.Transfer_OperationTime}}</span>
+                                <div class="mDiv tg">
+                                    {{Accountitem.Transfer_Remark}}
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>  
+                    <div class="mDiv tg" v-if="index<ProcessList.length-1">
+                        {{item.Remark}}
+                    </div>
+                    <div class="mDiv" v-if="index==ProcessList.length-1">
+                        {{item.Remark}}
+                    </div>
+                </div>
+
+                <!--<div class="item">
+                    <div class="hDiv">
+                        <i class="iconfont icon-cha1"></i>
+                        <div>
+                            <span style="font-size: 0.26rem; color: #333;">赵小龙</span>
+                            <span class="whD"></span>
+                            <span style="font-size: 0.26rem; color: #df1813;">已驳回</span>
+                            <span style="float: right;color: #999; font-size: 0.2rem; margin-top: 0.03rem; display: inline-block">2017-08-11-14:22</span>
+                        </div>
+                    </div>
+                    <div class="mDiv bh">
+                        该员工要回老家办理身份证需要两天该员工要回老家办理身份证需要两天该员工要回老家办理身份证需要两天。
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="hDiv">
+                        <i class="iconfont icon-quan"></i>
+                        <div>
+                            <span style="font-size: 0.26rem; color: #333;">管京民</span>
+                        </div>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+        <div class="copyBox">
+            抄送人:
+            <span>王小明</span>
+        </div>
+        <div class="processFoot">
+            <div class="layui-row" style="height: 100%;">
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/tongyi.png" />
+                        <span class="processIcon">同意</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/bohui.png" />
+                        <span class="processIcon">驳回</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 fItem">
+                    <div>
+                        <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/zhuanshen.png" />
+                        <span class="processIcon">转审</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>申请列表</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+    </script>
+</head>
+<body>
+    <div class="appContainer">
+        <div class="approvalList">
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-qingjia iconItem"></i>
+                        <span class="itemTitle">请假</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-baoxiao iconItem"></i>
+                        <span class="itemTitle">报销</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-chucha iconItem"></i>
+                        <span class="itemTitle">出差</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-jiaban iconItem"></i>
+                        <span class="itemTitle">加班</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-yongzhang iconItem"></i>
+                        <span class="itemTitle">用章</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-waichu iconItem"></i>
+                        <span class="itemTitle">外出</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-hetongshenpi iconItem"></i>
+                        <span class="itemTitle">合同审批</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-fukuan iconItem"></i>
+                        <span class="itemTitle">付款</span>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemBox">
+                        <i class="iconfont icon-daqiabuqia iconItem"></i>
+                        <span class="itemTitle">打卡补卡</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="approvalFooter">
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot hover">
+                        <a href="javascript:;">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/xinzengshenqinghover.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>新增申请</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot">
+                        <a href="/Html/Auditing/myprocessed.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenpi.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的审批</span>
+                            <span class="tipNum">5</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot">
+                        <a href="/Html/Auditing/myapplication.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenqing.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的申请</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

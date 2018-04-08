@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>资产负债表</title>
+</head>
+<body id="root" v-cloak>
+    <div class="mainContainer">
+        <blockquote class="layui-elem-quote" style="height:70px; padding: 0;">
+            <div class="layui-form" style="line-height: 70px;">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">时间</label>
+                        <div class="layui-input-inline">
+                            <lay-date v-bind:value.sync="searchConditon.BeginTime" placeholder="开始时间" initial="off"></lay-date>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                    </div>
+                </div>
+            </div>
+        </blockquote>
+        <!--操作模板-->
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>资产</th>
+                    <th>行次</th>
+                    <th>期末余额</th>
+                    <th>年初余额</th>
+                    <th>负债和所有者权益</th>
+                    <th>行次</th>
+                    <th>期末余额</th>
+                    <th>年初余额</th>
+                </tr>
+            </thead>
+            <tbody v-cloak>
+                <tr>
+                    <td>流动资产：</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>流动负债：</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>货币资金<i class="layui-icon" style="cursor:pointer">&#xe63c;</i></td>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                    <td>短期借款</td>
+                    <td>31</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>短期投资</td>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                    <td>应付票据</td>
+                    <td>32</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>应收票据</td>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                    <td>应付账款</td>
+                    <td>33</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>应收账款</td>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                    <td>预收账款</td>
+                    <td>34</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+

@@ -1,0 +1,22 @@
+﻿<div></div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-form-checkbox span { height: auto; }
+    .layui-form-label { width: 150px; }
+    .layui-input-block { margin-left: 180px; }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+                fnr.openDialog({
+                    title: '填制凭证',
+                    area: ['1057px', (parent.document.documentElement || parent.document.body).clientHeight - 140 + "px"],
+                    content: ['/Html/Finance/Voucher/create.html'],
+                });
+        });
+</script>

@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body id="root" v-cloak>
+    <div class="mainContainer">
+        <div class="layui-col-xs12">
+            <div class="layui-row layui-form">
+                <div v-if="queryFormData.Type == 0 && !OnlyPerson">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">选择审批对象</label>
+                    </div>
+                    <div class="layui-input-inline">
+                        <remote-rad layverify="required" v-bind:setting="ApprovalType" v-bind:value.sync="queryFormData.Type"
+                                    initial="off"></remote-rad>
+                    </div>
+                </div>
+                <div v-if="queryFormData.Type == 0 && !IsCC && !OnlyPerson">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">选择上级审批方式</label>
+                    </div>
+                    <div class="layui-input-inline">
+                        <remote-rad class="my_rad" layverify="required" v-bind:setting="ApprovalCounterSign" v-bind:value.sync="queryFormData.CounterSign"
+                                    initial="off"></remote-rad>
+
+                    </div>
+                </div>
+                <div style="margin-top:20px" v-if="queryFormData.Type == 1">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">{{IsCC ? "选择抄送人": "选择审批人"}}</label>
+                    </div>
+                    <div class="layui-input-inline">
+                        <remote-sel v-bind:setting="TransferSetting" layverify="required" v-bind:value.sync="queryFormData.AccId"
+                                    initial="off" v-bind:change="changed"></remote-sel>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit @click="formDemo">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    .layui-form-label {
+        float: left;
+        width: 120px !important;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+</style>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            var TransferOptions = [];
+            //搜索条件
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    TransferSetting: {
+                        search: true,
+                        options: TransferOptions,
+                        fields: { root: "Data", key: 'Account_ID', value: 'Name' },
+                        remote: { url: '/service/approval/Process/GetAllAcoount' }
+                    },
+                    ApprovalType: {
+                        tags: { name: "name" },
+                        options: [
+                            { key: "0", value: "上级" },
+                            { key: "1", value: "个人" }
+                        ]
+                    },
+
+                    ApprovalCounterSign: {
+                        tags: { name: "sing" },
+                        options: [
+                            { key: "0", value: "会签" },
+                            { key: "1", value: "或签" }
+                        ]
+                    },
+                    queryFormData: {
+                        CounterSign: "0",
+                        Type: "0",
+                        AccId: "0",
+                        AccName: ""
+                    },
+                    IsCC: false,
+                    OnlyPerson: false
+                },
+                ready: function () {
+                    this.IsCC = fnr.getQueryString("CC") || false;
+                    this.OnlyPerson = fnr.getQueryString("OnlyPerson") || false;
+                    if (this.OnlyPerson) {
+                        this.queryFormData.Type = 1;
+                    }
+                    //this.ceshiArr = window.parent.rootApp.queryFormData.Approvers;
+
+                },
+
+                methods: {
+                    formDemo: function () {
+                        var self = this;
+                        if (self.queryFormData.Type == 1 && self.queryFormData.AccId == 0) {
+                            layer.msg("请选择审批人");
+                            return;
+                        }
+                        var flg =true;
+                        if (self.IsCC) {
+                            var arrCC = window.parent.rootApp.queryFormData.ApproverCC;
+                            $.each(arrCC, function (k, v) {
+                                if (self.queryFormData.AccId == v.AccId) {
+                                    flg = false;
+                                    layer.msg("抄送人已存在，请重新选择")
+                                }
+                            });
+                        } else{
+                            var arr = window.parent.rootApp.queryFormData.Approvers;
+                            $.each(arr, function (k, v) {
+                                if (self.queryFormData.AccId == v.AccId) {
+                                    flg = false;
+                                    layer.msg("审批人已存在，请重新选择")
+                                }
+                            });
+                        }
+                        if(flg){
+                            fnr.callDialog('refresh', self.queryFormData); //回调打开窗口events中的refresh
+                            fnr.closeDialog(); //关闭当前的对话框
+                        }
+                    } ,
+                changed: function (o) {
+                    if (o.value > 0) {
+                        this.queryFormData.AccName = layui.$(o.$el).find("option[value=" + o.value + "]").text();
+                    }
+                }
+            }
+            });
+    });
+</script>

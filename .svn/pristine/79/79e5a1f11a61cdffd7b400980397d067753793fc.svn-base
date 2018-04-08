@@ -1,0 +1,262 @@
+﻿<style>
+    [v-cloak] { display: none; }
+</style>
+<div class="mainContainer" id="root" v-cloak>
+    <div class="layui-form" v-show="!visible">
+        <div class="layui-form-item">
+            <label class="layui-form-label">科目名称</label>
+            <div class="layui-input-inline">
+                <remote-sel v-bind:setting="CodeSetting" laytips="请选择科目名称" lay-verify="required" initial="off" v-bind:value.sync="searchConditon.Code"></remote-sel>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">客户名称</label>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="ClientSetting" laytips="请选择客户名称" lay-verify="required" initial="off" v-bind:value.sync="searchConditon.ClientID"></remote-sel>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">项目名称</label>
+                <div class="layui-input-inline">
+                    <input @dblclick="ChoiceProject()" class="layui-input" type="text" placeholder="请选择项目选择项" v-model="searchConditon.ProjectName" />
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">部门名称</label>
+                <div class="layui-input-inline">
+                    <input @dblclick="ChoiceDepart()" class=" layui-input" type="text" placeholder="请选择部门选择项" v-model="searchConditon.DepartmentName" />
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">个人名称</label>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="PersonSetting" laytips="请选择个人名称" lay-verify="required" v-bind:value.sync="searchConditon.PersonID"
+                                initial="off"></remote-sel>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">凭证状态</label>
+                <div class="layui-input-block">
+                    <remote-rad v-bind:setting="stateSetting" v-bind:value.sync="searchConditon.Valid"
+                                initial="off" layverify="required"></remote-rad>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">发生日期</label>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="searchConditon.BeginTime" initial="off"></lay-date>
+            </div>
+            <span style="float: left;width: 40px;margin-right: 10px;text-align:center;height:38px;line-height:38px;">—</span>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="searchConditon.EndTime" initial="off"></lay-date>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" @click="Handlesubmit">查询</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-form-checkbox span { height: auto; }
+
+    .layui-form-label { width: 150px; }
+
+    .layui-input-block { margin-left: 180px; }
+    .custom-title { line-height: 45px; background: #f5f5f5; padding-left: 10px; }
+
+    .custom-block { line-height: 45px; height: 45px; background: #e0e0e0; padding-left: 10px; }
+
+    .custom-ele, .custom-empty { line-height: 45px; height: 45px; border-bottom: 1px solid #ebebeb; padding-left: 10px; }
+
+    .custom-ele:hover { line-height: 45px; height: 45px; background: #f5f5f5; }
+
+    .sort-icon { cursor: move; }
+
+    [v-cloak] { display: none; }
+
+    .spical { color: #C9C9C9; font-size: 12px; position: relative; display: inline-block; vertical-align: middle; height: 22px; line-height: 22px; padding: 0 5px; margin-top: 8px; }
+</style>
+<script>
+    Vue.filter('format', function (time, format) {
+        if (time == undefined) {
+            return '';
+        }
+        var finalTime;
+        if (typeof (time) == 'string') {
+            time = time.replace("T", " ");
+            time = time.replace("Z", " ");
+            var timeIOS = time.replace(/\-/g, "/");
+            finalTime = new Date(timeIOS);
+        } else {
+            finalTime = time;
+        }
+
+        var t = new Date(finalTime);
+        var tf = function (i) {
+            return (i < 10 ? '0' : '') + i
+        };
+        return format.replace(/yyyy|MM|dd|HH|mm|ss/g,
+            function (a) {
+                switch (a) {
+                    case 'yyyy':
+                        return tf(t.getFullYear());
+                        break;
+                    case 'MM':
+                        return tf(t.getMonth() + 1);
+                        break;
+                    case 'mm':
+                        return tf(t.getMinutes());
+                        break;
+                    case 'dd':
+                        return tf(t.getDate());
+                        break;
+                    case 'HH':
+                        return tf(t.getHours());
+                        break;
+                    case 'ss':
+                        return tf(t.getSeconds());
+                        break;
+                }
+            });
+    })
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil', 'laydate'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+            var laydate = layui.laydate;
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    formList: [],
+                    stateSetting: {
+                        tags: { name: "Valid" },
+                        options: [
+                            { key: "-1", value: "全部凭证" },
+                            { key: "0", value: "未审凭证" },
+                            { key: "1", value: "审核通过" },
+                            { key: "2", value: "审核未通过" },
+                            { key: "3", value: "作废凭证" }
+                        ]
+                    },
+                    searchConditon:
+                        {
+                            Valid: '-1',
+                            Code: '',
+                            BeginTime: fnr.format(Date.now(), 'yyyy-MM' + '-01'),
+                            EndTime: fnr.format(Date.now(), 'yyyy-MM-dd'),
+                            ClientID: 0,
+                            PersonID: '',
+                            ProjectID: '',
+                            DepartmentID: '',
+                            DepartmentName: '',
+                            ProjectName: '',
+                            CompanyID: GetQueryString("ID")
+                        },
+                    CodeSetting: {
+                        search: true,
+                        fields: { key: 'Code', value: 'Name', root: "Data" },
+                        options: [],
+                        remote: {
+                            url: "/service/finance/Finance/GetFinanceCode", data: { Valid: 1, FinanceCodeType: 0, CompanyID: GetQueryString("ID") }, filter: function (resp) {
+                                var Arr = new Array();
+                                fnr.each(resp, function (k, v) {
+                                    if (v.IsEnd == 1) {
+                                        v["Name"] = v["Code"] + " " + v["Name"];
+                                        Arr.push(v)
+                                    }
+                                });
+                                return Arr;
+                            }
+                        }
+                    },
+                    ClientSetting: {
+                        search: true,
+                        fields: { key: 'ID', value: 'Name', root: "Data" },
+                        options: [],
+                        remote: { url: "/service/finance/Finance/GetFinanceClient", data: { Valid: 1, ClientType_ID: 0, Company_ID: GetQueryString("ID") } }
+                    },
+                    PersonSetting: {
+                        search: true,
+                        fields: { key: 'Account_ID', value: 'Name', root: 'Data' },
+                        options: [],
+                        remote: { url: "/service/hr/Station/GetListStationAccount" }
+                    },
+                },
+                ready: function () {
+                    var self = this;
+
+                },
+                methods: {
+                    ChoiceProject: function () {
+                        var self = this;
+                        fnr.openDialog({
+                            title: "选择项目",
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 1000) / 2],
+                            content: ["/Html/Finance/Set/Amount/ProjectSelect.html?Company_ID=" + self.searchConditon.CompanyID, "yes"],
+                            area: ["500px", "620px"],
+                            events: {
+                                new: function (data) {
+                                    console.log(data);
+                                    self.searchConditon.ProjectID = data.ID;
+                                    self.searchConditon.ProjectName = data.Name;
+                                }
+                            }
+                        });
+                    },
+                    ChoiceDepart: function () {
+                        var self = this;
+                        fnr.openDialog({
+                            title: "选择部门",
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 1000) / 2],
+                            content: ["/Html/Finance/Set/Amount/DepartSelect.html", "yes"],
+                            area: ["500px", "620px"],
+                            events: {
+                                new: function (data) {
+                                    self.searchConditon.DepartmentID = data.ID;
+                                    self.searchConditon.DepartmentName = data.Name;
+                                }
+                            }
+                        });
+                    },
+                    //提交
+                    Handlesubmit: function () {
+                        var self = this;
+                        window.parent['searchConditon'] = self.searchConditon;
+                        if (self.searchConditon.Code == '') {
+                            layer.msg('科目名称不能为空');
+                        } else if (self.searchConditon.StartTime == '') {
+                            layer.msg('开始时间不能为空');
+                        } else if (self.searchConditon.EndTime == '') {
+                            layer.msg('结束时间不能为空');
+                        } else {
+                            location.href = '/Html/Finance/CheckAccount/SubjectDetailTable.html';
+                        }
+                    },
+                }
+            });
+        });
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.parent.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+</script>

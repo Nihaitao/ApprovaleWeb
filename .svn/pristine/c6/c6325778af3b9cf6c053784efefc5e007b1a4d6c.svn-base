@@ -1,0 +1,323 @@
+﻿<div class="mainContainer" id="root" v-cloak>
+    <div style="margin-top: 13px;">
+        <button v-if="isExecute" class="layui-btn add" @click="Initialization()">初始化系统科目</button>
+    </div>
+    <div class="layui-tab layui-tab-brief" lay-filter="demo">
+        <ul class="layui-tab-title">
+            <li data-id="0"
+                v-for="(index,item) in query"
+                v-bind:class="{ 'layui-this': index === selected }"
+                @click="choose(index,item)">
+                {{item.query}}
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <table id="listTable" lay-filter="listTable"></table>
+
+        </div>
+    </div>
+    <div class="loading" v-if="isShow">
+        <div class="loading-inner">
+            <i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop" style="font-size:100px;">&#xe63d;</i>
+        </div>
+    </div>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-table-cell { 
+    height:30px;
+    line-height:30px;
+    }
+    .layui-tab-title { margin:0 10px;}
+    .mainContainer {
+        position:relative;
+    }
+    .loading {
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+        left:0;
+    }
+    .loading .loading-inner{
+        display:inline-block;
+        width:100px;
+        height:100px;
+        text-align: center;
+        line-height: 100px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-top: -50px;
+        margin-left: -50px;
+        z-index: 999;
+    }
+</style>
+
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'tableExt'],
+    function (fnr) {
+        var table = layui.table;
+        var $ = layui.$;
+        var tableExt = layui.tableExt;
+
+        var vm=new Vue({
+            el:'#root',
+            data:{
+                Company_ID: '',
+                selected: 0,
+                isShow:false,
+                isExecute:false,
+                query: [
+                    { 'query': '全部'},
+                    { 'query': '资产'},
+                    { 'query': '负债'},
+                    //{ 'query': '共同'},
+                    { 'query': '权益'},
+                    { 'query': '成本'},
+                    { 'query': '损益'},
+                ],
+            },
+            ready:function(){
+                var that=this;
+                this.Company_ID = this.getParentQueryString('ID');
+                $.get('/service/hr/Company/GetCompanyById', { ID: this.Company_ID }, function (res) {
+                    if (res.SuccessResponse) {
+                        if (res.Data.FinanceType == 1) {
+                            that.query.splice(3,0,{ 'query': '共同'})
+                        }
+                        else {
+                        }
+                    }
+                })
+            },
+            methods: {
+                Initialization: function () {
+                    var self = this;
+                    self.isShow = true
+                    if (this.isExecute) {
+                        $.get('/service/finance/Finance/InitializationSystemCodeList', { CompanyID: self.Company_ID }, function (res) {
+                            if (res.SuccessResponse) {
+                                layer.msg(res.Message);
+                                self.isShow = false;
+                                tableIns.reload()
+                            }
+                        })
+                    }
+                },
+                getParentQueryString: function (name) {
+                    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                    var r = window.parent.location.search.substr(1).match(reg);
+                    if (r != null) return decodeURIComponent(r[2]);
+                    return undefined;
+                },
+                //切换
+                choose: function (index, item) {
+                    this.selected = index;
+                    var key=index;
+                    var tbody=$('[lay-filter="LAY-table-1"] .layui-table-body');
+                    if(key==0){
+                        tbody.scrollTop(0)
+                    }else if(key==1 && $('#1001').length>0){
+                        tbody.scrollTop($('#1001').parents('tr')[0].offsetTop)
+                    }else if(key==2 && $('#2001').length>0){
+                        tbody.scrollTop($('#2001').parents('tr')[0].offsetTop)
+                    }else if(key==3 && $('#3001').length>0){
+                        tbody.scrollTop($('#3001').parents('tr')[0].offsetTop)
+                    }else if(key==4 && $('#4001').length>0){
+                        tbody.scrollTop($('#4001').parents('tr')[0].offsetTop)
+                    }else if(key==5 && $('#5001').length>0){
+                        tbody.scrollTop($('#5001').parents('tr')[0].offsetTop)
+                    }else if(key==6 && $('#6001').length>0){
+                        tbody.scrollTop($('#6001').parents('tr')[0].offsetTop)
+                    }
+                    else if(key==7 && $('#7001').length>0){
+                        tbody.scrollTop($('#7001').parents('tr')[0].offsetTop)
+                    }
+                    //for(var i =0 ;i<6;i++){
+                    //    if(i==0){
+                    //        tbody.scrollTop(0)
+                    //    }else{
+                    //        var id=$('#'+i+'001');
+                    //        console.log(id)
+                    //        tbody.scrollTop(id.parents('tr')[0].offsetTop)
+                    //    }
+                    //}
+                },
+            }
+        })
+        var tableIns = table.render({
+            elem: '#listTable',
+            id: 'listTable',
+            even: true, //开启隔行背景
+            height: 'full-111',
+            cols: [[
+                    {
+                        width: 80, title: '级次', templet: function () {
+                            if (this.Code.length == 1) {
+                                return 0;
+                            }
+                            else if (this.Code.length == 4) {
+                                return 1;
+                            } else if (this.Code.length == 6) {
+                                return 2;
+                            } else if (this.Code.length == 8) {
+                                return 3;
+                            } else if (this.Code.length == 10) {
+                                return 4;
+                            } else if (this.Code.length == 12) {
+                                return 5;
+                            }
+                        }
+                    },
+                    {  width: 180, title: '科目编码',templet:function(){
+                        return '<span id="'+this.Code+'">'+this.Code+'</span>'
+                    } },
+                    {
+                         width: 600, title: '科目名称', templet: function () {
+                            if (this.Code.length == 1) {
+                                em = 0;
+                            } else {
+                                em = this.Code.length - 4;
+                            }
+                            return '<div style="text-indent:' + em + 'em">' + this.Name + '</div>'
+                        }
+                    },
+                    {
+                         width: 300, title: '辅助核算', templet: function () {
+                            var Hesuan = new Array();
+                            if (!!this.ProjectCheck) {
+                                Hesuan.push("项目核算")
+                            } if (!!this.ClientCheck) {
+                                Hesuan.push("客户核算")
+                            } if (!!this.DepartmentCheck) {
+                                Hesuan.push("部门核算")
+                            } if (!!this.PersonCheck) {
+                                Hesuan.push("个人核算")
+                            }
+                            return '<div>' + Hesuan.join() + '</div>'
+                        }
+                    },
+                    {
+                        field: 'BalanceType', width: 100, title: '余额方向', templet: function () {
+                            if (this.BalanceType == '0') {
+                                return '借'
+                            } else {
+                                return '贷'
+                            }
+                        }
+                    },
+                    {
+                         width: 150, title: '状态', templet: function () {
+                            if (this.Valid == '1') {
+                                return '<span style="color:#009688;">启用</span>';
+                            } else {
+                                return '<span style="color:#FF5722;">禁用</span>'
+                            }
+                        }
+                    },
+                    {
+                        width: 300, title: '操作', templet: function () {
+                            var array = new Array();
+                            if (this.Code.length == 1) {
+                                return '';
+                            } else {
+                                array.push("<button href='javascript:;' class='layui-btn layui-btn-small layui-btn-normal' lay-event='add'>添加科目</button>");
+                                if(this.System_Station_ID ==0){
+                                    return "<div>" + array.join("") + "</div>";
+                                }else{
+                                    array.push("<button type='button' class='layui-btn layui-btn-small' lay-event='modify'>修改</button>");
+                                    if (this.Valid == '1') {
+                                        array.push("<button class='layui-btn layui-btn-small layui-btn-warm' lay-event='toggle'>禁用</button>");
+                                    }
+                                    else {
+                                        array.push("<button class='layui-btn layui-btn-small layui-btn-warm' lay-event='toggle'>启用</button>");
+                                    }
+                                    array.push("<button type='button' class='layui-btn layui-btn-danger layui-btn-small' lay-event='deleteClient'>删除</button>");
+                                    return "<div>" + array.join("") + "</div>";
+                                }
+                            }
+                        }
+                    },
+            ]],
+            url: '/service/finance/Finance/GetFinanceCode',
+            where: {
+                CompanyID: vm.$data.Company_ID, FinanceCodeType: 0,Valid:-1
+            },
+            response: {
+                dataName: 'Data'
+            },
+            done: function (res, curr, count) {
+                if (res.SuccessResponse) {
+                    if (res.Data.length > 0) {
+                        vm.isExecute = false;
+                        vm.choose(vm.selected, vm.query[vm.selected])
+                    }
+                    else{
+                        vm.isExecute = true;
+                    }
+                }
+            }
+        });
+        tableExt.addEvent("tool(listTable)",
+            {
+                "add": function (item) {
+                    fnr.openDialog({
+                        offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                        content: ["/html/Finance/Set/Subject/AddSubject.html?ParentCode=" + item.Code + "&BalanceType=" + item.BalanceType + "&Company_ID=" + vm.$data.Company_ID, "yes"],
+                        area: ["700px", "620px"],
+                        btn: ["保存"],
+                        events: {
+                            refresh: function (data) {
+                                tableIns.reload()
+                            }
+                        }
+                    });
+                },
+                "modify": function (item) {
+                    fnr.openDialog({
+                        title:'编辑科目',
+                        offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                        content: ["/html/Finance/Set/Subject/AddSubject.html?Code=" + item.Code + "&Company_ID=" + vm.$data.Company_ID + "&isnew=new", "yes"],
+                        area: ["700px", "620px"],
+                        btn: ["保存"],
+                        events: {
+                            refresh: function (data) {
+                                tableIns.reload()
+                            }
+                        }
+                    });
+                },
+                "toggle": function (item) {
+                    if (item.Valid == 1) {
+                        item.Valid = 0
+                    } else {
+                        item.Valid = 1
+                    }
+                    $.post('/service/finance/Finance/SwitchNodeValid', { CompanyID: vm.$data.Company_ID, 'CurrentCode': item.Code, 'Valid': Number(item.Valid) }, function (res) {
+                        if (res.SuccessResponse) {
+                            layer.msg(res.Message);
+                            tableIns.reload()
+                        }
+                    })
+                },
+                'deleteClient': function (item) {
+                    layer.confirm('确定删除吗？删除后不可恢复！', function () {
+                        $.post('/service/finance/Finance/DeleteFinanceNode', { CompanyID: vm.$data.Company_ID, 'Code': item.Code }, function (res) {
+                            if (res.SuccessResponse) {
+                                layer.msg('删除成功');
+                                tableIns.reload()
+                            }
+                            else {
+                                layer.msg(res.Message);
+                            }
+                        })
+                    });
+                },
+            });
+    })
+</script>

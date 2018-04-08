@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        .isDisplay {
+            display: none;
+        }
+    </style>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <div class="layui-form">
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:120px;">是否开启预算</label>
+                    <div class="layui-input-inline">
+                        <remote-rad name="IsBudget" v-bind:setting="radioBudget" v-bind:value.sync="submitForm.IsBudget"
+                                    initial="off"></remote-rad>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                    <div class="layui-inline">
+                    <label class="layui-form-label" style="width:120px;">当季是否可以共享</label>
+                    <div class="layui-input-inline">
+                        <remote-rad name="IsBudgetShared" v-bind:setting="radioBudgetShared" v-bind:value.sync="submitForm.IsBudgetShared"
+                                    initial="off"></remote-rad>
+                    </div>
+                </div>                
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit @click="submit">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script src="/Resources/js/Controls/Common.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "laydate"],
+    function (fnr) {
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        var form = layui.form;
+        function trim(str) {
+            return str.replace(/(^\s*)|(\s*$)/g, "");
+        }
+        window.rootApp = new Vue({
+            el: "#root",
+            data: {
+                submitForm: {
+                    IsBudget: 0,
+                    IsBudgetShared: 0,                  
+                },
+                radioBudget: {
+                    tags: { name: "IsBudget" },
+                    options: [
+                        { key: "1", value: "是" },
+                        { key: "0", value: "否" },
+                    ],
+                    fields: { key: 'key', value: 'value' }
+                },
+                radioBudgetShared: {
+                    tags: { name: "IsBudgetShared" },
+                    options: [
+                        { key: "1", value: "是" },
+                        { key: "0", value: "否" },
+                    ],
+                    fields: { key: 'key', value: 'value' }
+                }
+            },
+            ready: function () {
+                this.getBudgetSetting();
+            },
+            methods: {
+                getBudgetSetting: function () {
+                    var self = this;
+                    $.ajax({
+                        url: '/service/finance/Finance/getBudgetSetting',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { },
+                        success: function (resp) {
+                            if (resp.SuccessResponse) {
+                                self.submitForm = resp.Data;
+                            }
+                        }
+                    })
+                },
+                submit: function () {
+                    var self = this;
+                    $.ajax({
+                        url: '/service/finance/Finance/SetBudgetSetting',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: self.submitForm,
+                        success: function (data) {                           
+                            if (data.SuccessResponse) {
+                                layer.msg("保存成功！");
+                            }else {
+                                layer.msg('保存失败！' + data.Message);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>

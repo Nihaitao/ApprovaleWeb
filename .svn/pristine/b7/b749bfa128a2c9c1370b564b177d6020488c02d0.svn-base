@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        div.layui-table-cell {
+            height: 30px;
+        }
+    </style>
+
+</head>
+<body id="root">
+    <div class="mainContainer">
+        <div class="layui-tab layui-tab-brief" lay-filter="tabcard">
+            <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="1"><a v-bind:href="'processed.html?operationStatus='+0">未处理</a></li>
+                <li lay-id="2"><a v-bind:href="'pendprocessed.html?operationStatus='+1">已处理</a></li>
+            </ul>
+            <div class="layui-col-xs12">
+                <blockquote class="layui-elem-quote">
+                    <div class="layui-row layui-form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">时间范围：</label>
+                            <div class="layui-input-inline">
+                                <lay-date v-bind:value.sync="queryFormData.StartTime" placeholder="开始时间" initial="off"></lay-date>
+                            </div>
+                            <div class="layui-input-inline">
+                                <lay-date v-bind:value.sync="queryFormData.EndTime" placeholder="结束时间" initial="off"></lay-date>
+                            </div>
+                            <label class="layui-form-label">审批状态</label>
+                            <div class="layui-input-inline">
+                                <remote-sel v-bind:setting="TypeSetting" v-bind:value.sync="queryFormData.ApprovalStatus" laytips="审批状态" initial="off"></remote-sel>
+                            </div>
+                            <label class="layui-form-label">审批类型</label>
+                            <div class="layui-input-inline">
+                                <remote-sel v-bind:setting="ApprovalSetting" v-bind:value.sync="queryFormData.ApprovalType_ID" laytips="审批类型" initial="off"></remote-sel>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">部门</label>
+                            <div class="layui-input-inline" style="width:390px">
+                                <remote-sel v-bind:setting="DeptSetting" v-bind:value.sync="queryFormData.DeptermentID" laytips="部门" initial="off"></remote-sel>
+                            </div>
+                            <label class="layui-form-label">申请人</label>
+                            <div class="layui-input-inline">
+                                <remote-sel v-bind:setting="AccountSetting" v-bind:value.sync="queryFormData.AddPerson" laytips="申请人" initial="off"></remote-sel>
+                            </div>
+                            <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+                        </div>
+                    </div>
+                </blockquote>
+                <!--操作模板-->
+                <table id="listTable" lay-filter="listTable"></table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+            var DeptOptions = [];
+            var AccountOptions = [];
+
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {
+                    queryFormData: {
+                        StartTime: "",
+                        EndTime: "",
+                        ApprovalStatus: "",
+                        DeptermentID: "",
+                        AddPerson: "",
+                        operationStatus: "0",
+                    },
+                    operationStatus:"0",
+                    TypeSetting: {
+                        search: true,
+                        defaultValue: -1,
+                        options: [
+                            { key: '0', value: '未审核' },
+                            { key: '1', value: '审核中' }
+                        ]
+                    },
+                    ApprovalSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'ID', value: 'Name' },
+                        options: AccountOptions,
+                        remote: { url: "/service/approval/Process/GetApprovalTemplet" }
+                    },
+                    AccountSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'Account_ID', value: 'Name' },
+                        options: AccountOptions,
+
+                        remote: { url: "/service/hr/Station/GetListStationAccount", data: { Valid: 1 } }
+                    },
+                    DeptSetting: {
+                        search: true,
+                        fields: { root: 'Data', key: 'ID', value: 'Name' },
+                        options: DeptOptions,
+                        remote: { url: "/service/hr/Station/GetListDepartment" }
+                    },
+                },
+                ready: function () {
+                    var self = this;
+                    self.operationStatus = fnr.getQueryString("operationStatus");
+                },
+
+                methods: {
+                    doSearch: function () {
+                        tableIns.reload({
+                            where: this.queryFormData
+                        });
+                    },
+                }
+
+            });
+
+            table.on('checkbox(listTable)', function (obj) {
+                var checkStatus = table.checkStatus('listTable');
+                rootApp.deleteClients = [];
+                $.each(checkStatus.data, function (k, v) {
+                    rootApp.deleteClients.push(v.Account_ID);
+                });
+            });
+
+            function showall(data, CID) {
+                var array = new Array();
+                $.each(data, function (i, x) {
+                    if (x.ID == CID) {
+                        array.push("<a href='javascript:;'>" + data[i].Name + "</a> > ");
+                        array = array.concat(showall(data, x.CID));
+                    }
+                });
+                return array;
+            }
+
+
+            var tableIns = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: true, //页分
+                cols: [
+                    [
+                        { field: 'ID', title: 'ID', width: 60 },
+                        { field: 'AddPersonName', title: '申请人', width: 100 },
+                          {
+                              field: 'DepartData', title: '部门', width: 300, templet: function () {
+                                  var self = this;
+                                  var array = new Array();
+                                  $.each(self.DepartData.Departments, function () {
+                                      array.push("<a href='javascript:;'>" + this.StationName + "</a> > ");
+                                      array = array.concat(showall(self.DepartData.Data, this.CID).reverse());
+                                      array.push("<a href='javascript:;'>" + this.Name + "</a>");
+                                      array.push(" ； ");
+                                  });
+                                  return array.join("");
+                              }
+                          },
+                        { field: 'ApprovalTypeName', title: '审批类型', width: 200 },
+                        {
+                            field: 'AddTime', title: '提交时间', width: 150, templet: function () {
+                                var array = new Array();
+                                array.push("<span>" + fnr.format(this.AddTime, "yyyy-MM-dd HH:mm") + "</span>");
+                                return "<div>" + array.join("") + "</div>";
+                            }
+                        },
+                        {
+                            field: 'ApprovalStatus', title: '审核状态', width: 100, templet: function () {
+                                if (this.ApprovalStatus == 0)
+                                    return "未审核";
+                                else if (this.ApprovalStatus == 1)
+                                    return "审核中";
+                                else if (this.ApprovalStatus == 2) {
+                                    return "审核通过";
+                                }
+                                else if (this.ApprovalStatus == 3) {
+                                    return "审核未通过";
+                                }
+                            }
+                        },
+                        {
+                            field: 'FinishTime', title: '结束时间', width: 200, templet: function () {
+                                if (this.ApprovalStatus == 2 || this.ApprovalStatus == 3) {
+                                    var array = new Array();
+                                    array.push("<span>" + fnr.format(this.FinishTime, "yyyy-MM-dd HH:mm") + "</span>");
+                                    return "<div>" + array.join("") + "</div>";
+                                } else {
+                                    return "";
+                                }
+                            }
+                        },
+                        {
+                            field: 'operationStatus', title: '操作状态', width: 100, templet: function () {
+                                if (this.operationStatus == 0)
+                                    return "未审";
+                                else
+                                    return "已审";
+                            }
+                        },
+                        {
+                            fixed: 'right',
+                            field: '',
+                            title: '操作',
+                            width: 140,
+                            toolbar: function () {
+                                var array = new Array();
+                                array.push("<button class=\"layui-btn layui-btn-xs\" lay-event='select'>查看</button>");
+                                return "<div>" + array.join("") + "</div>";
+                            }
+                        }
+                    ]
+                ],
+                url: '/service/approval/Process/GetApprovalprocessforPhone',
+                where: {
+                    ApprovalStatus: -1,
+                    operationStatus: 0
+                },
+                response: {
+                    dataName: 'Data'
+                }
+            });
+            tableExt.addEvent("tool(listTable)",
+                {
+                    //工具栏编辑事件
+                    "edit": function (data, obj) {
+                        rootApp.modifyData(data)
+                    },
+                    //工具栏查看事件
+                    "select": function (data, obj) {
+                        fnr.openDialog({
+                            title: '查看记录',
+                            area: ['710px', (parent.document.documentElement || parent.document.body).clientHeight - 140 + "px"],
+                            content: ['/Html/Auditing/SelectApproval.html?ID=' + data.ID + "&Isshow=" + 1],
+                            events: {
+                                refresh: function (data) {
+                                    if (data) {
+                                        tableIns.reload();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+        });
+</script>

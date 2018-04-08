@@ -1,0 +1,135 @@
+﻿<div class="tempBlock" id="root" v-cloak>
+    <div class="interface">
+        <ul class="clear">
+            <li class="text-center">
+                <div class="pzContentXj">
+                    <i class="layui-icon icon-plus" title="添加" @click="addTemp">&#xe654;</i>
+                </div>
+                <button class="layui-btn" @click="addTemp">新增模板</button>
+            </li>
+            <li class="text-center" v-for="item in tempList">
+                <div class="pzContentXj">
+                    <div class="normalPanel">
+                        <div class="reflect">
+                            <i class="layui-icon">&#xe65e;</i>
+                            <span class="tixian">{{item.Title}}</span>
+                            <i class="layui-icon editIcon" title="编辑" @click="tempEdit(item)">&#xe642;</i>
+                            <i class="layui-icon deleteIcon" title="删除" @click="DeleteVoucherTemplate(item)">&#x1006;</i>
+                        </div>
+                        <table class="tbodyjd">
+                            <tbody>
+                                <tr v-for="sub in item.VoucherTemplateDetails">
+                                    <td>
+                                        <span>{{sub.BalanceType?'贷':'借'}}:&nbsp;&nbsp;</span>
+                                    </td>
+                                    <td class="ssba">
+                                        <span class="els_span">{{sub.CodeName}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button class="layui-btn" @click="userTemp(item)">使用模板</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    [v-cloak] { display: none; }
+    .tempBlock { padding: 15px; }
+    .pzContentXj i.icon-plus { color: #009f95; font-size: 143px; }
+    .clear, .text-ellipsis { display: block; overflow: hidden; }
+    .interface ul li { float: left; width: 230px; height: 200px; margin-bottom: 10px; margin-left: 16px; }
+    .text-center { text-align: center; }
+    .pzContentXj { width: 230px; height: 158px; border: 1px solid #009f95; box-sizing: border-box; text-align: center; position: relative; margin-bottom: 5px; }
+    .pzContentXj i { vertical-align: middle; display: inline-block; font-size: 24px; color: #fff; cursor: pointer; }
+    .normalPanel { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .reflect { width: 100%; height: 34px; background-color: #009f95; }
+    .tixian { display: inline-block; width: 130px; height: 34px; line-height: 34px; text-align: left; word-break: keep-all; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; max-width: 100%; color: #fff; }
+    .tbodyjd { margin-top: 22px; margin-left: 26px; color: #1c2b36; text-align: left; font-size: 14px;  }
+    .tbodyjd tbody {display: block;height: 80px;overflow-y:auto;overflow-x:hidden; width:180px;} 
+    .tbodyjd tr { margin-top: 6px; }
+    .tbodyjd tr td { cursor: pointer; }
+    .els_span { display: block; word-break: keep-all; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; max-width: 170px; }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    Stationproxy_ID: fnr.getQueryString('Stationproxy_ID'),
+                    tempList: '',
+                },
+                ready: function () {
+                    this.GetVoucherTemplateList(this.Stationproxy_ID);
+                },
+                methods: {
+                    GetVoucherTemplateList: function (Stationproxy_ID) {
+                        var that = this;
+                        $.get('/service/finance/Finance/GetVoucherTemplateList', { Stationproxy_ID: Stationproxy_ID }, function (res) {
+                            that.tempList = res.Data;
+                        })
+                    },
+                    //添加模板
+                    addTemp: function () {
+                        var that = this;                      
+                        fnr.openDialog({
+                            title: false,
+                            closeBtn: false,
+                            area: ['1057px', '700px'],
+                            content: ['/Html/Finance/Voucher/voucherTemplate.html?&Stationproxy_ID=' + that.Stationproxy_ID],
+                            events: {
+                                refresh: function (data) {
+                                    that.GetVoucherTemplateList(that.Stationproxy_ID);
+                                }
+                            }
+                        });
+                    },
+                    //使用模板
+                    userTemp: function (item) {
+                        fnr.callDialog('refresh', item);
+                        fnr.closeDialog()
+                    },
+                    //编辑模板
+                    tempEdit: function (item) {
+                        var that = this;
+                        fnr.openDialog({
+                            title: false,
+                            closeBtn: false,
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Finance/Voucher/voucherTemplate.html?ID=' + item.ID + "&Stationproxy_ID=" + this.Stationproxy_ID],
+                            events: {
+                                refresh: function (data) {
+                                    that.GetVoucherTemplateList(that.Stationproxy_ID);
+                                }
+                            }
+                        });
+                    },
+                    //删除模板
+                    DeleteVoucherTemplate: function (item) {
+                        var that = this;
+                        layer.confirm('确认删除', function (index) {
+                            $.post('/service/finance/Finance/DeleteVoucherTemplate', { ID: item.ID }, function (res) {
+                                if (res.SuccessResponse) {
+                                    layer.msg('删除成功');
+                                    that.GetVoucherTemplateList(that.Stationproxy_ID);
+                                }
+                            });
+                        });
+
+                    }
+                }
+            });
+        });
+</script>

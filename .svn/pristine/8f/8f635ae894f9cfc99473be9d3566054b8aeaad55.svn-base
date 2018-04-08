@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        textarea { resize: none; }
+
+        .ww_groupSelBtn_item { float: left; max-width: 231px; line-height: 1.5; margin: 3px 10px 3px 0; padding: 3px 11px 3px 7px; background-color: #fff; border: 1px solid #E4E6E9; border-radius: 2px; }
+
+        .ww_groupSelBtn_item_text { max-width: 174px; padding-right: 11px; overflow: hidden; line-height: 18px; }
+
+        .approval_setting_cnt_AddBtn { display: inline-block; margin-left: 10px; border-radius: 4px; text-align: center; width: 40px; height: 40px; border: none; }
+
+        .ww_icon { display: inline-block; overflow: hidden; font-size: 0; line-height: 0; }
+
+        .ww_icon_AddBtnGray { background-position: -733px -350px; background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); width: 40px; height: 40px; }
+
+        .approval_setting_cnt_avatar { width: 40px; height: 40px; vertical-align: top; border-radius: 4px; cursor: move; }
+
+        .approval_setting_cnt_avatarWrap { position: relative; float: left; z-index: auto; border-radius: 4px; text-align: center; width: 60px; }
+
+        .ww_icon_IconCloseBlack { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -886px -630px; width: 14px; height: 14px; margin-left: -15px; }
+
+        .app_approval .app_approval_custom_template .ww_icon_IconCloseBlack, .app_approval .app_approval_custom_template .ww_icon_IconEditBlue { position: absolute; right: 4px; top: -6px; }
+
+        .approval_setting_cnt_name { margin-top: 5px; text-align: center; font-size: 12px; color: #9C9C9C; }
+
+        .app_approval .app_approval_custom_template .approval_setting_cnt_arrowWithLink { margin-left: -12px; }
+
+        .approval_custom_setting .approval_setting_cnt_arrowWithLink { margin-top: 20px; }
+
+        .approval_setting_cnt_arrowWithLink { position: relative; float: left; margin-left: -4px; margin-top: 24px; margin-bottom: 22px; font-size: 0; line-height: 0; width: 28px; height: 5px; z-index: 10; }
+
+        .ww_icon_approvalWithLink { background-image: url(https://rescdn.qqmail.com/node/ww/wwmng/style/images/icons.feecc63ef5$cb21d26a.png); background-position: -621px -590px; width: 15px; height: 3px; }
+    </style>
+</head>
+<body id="root">
+    <div class="OpenContainer">
+        <form class="layui-form" action="" onsubmit="return false">
+
+            <div class="layui-input-inline">
+                <label class="layui-form-label">条件</label>
+            </div>
+
+            <hr>
+            <div class="layui-form-item">
+                <div class="layui-input-inline" style="width:120px">
+                    <label class="layui-form-label" style="width:100px">字段:</label>
+                </div>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="FieldSetting" v-bind:value.sync="searchForm.Field" v-bind:change="FieldChange" initial="off"></remote-sel>
+                </div>
+                <hr />
+
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <label class="layui-form-label">{{operateName}}</label>
+                </div>
+                <div class="layui-input-inline" v-for="(index,item) in queryFormData.Departs">
+                    <div class="ww_groupSelBtn_item">
+                        <i class="layui-icon" style="font-size: 15px; color: #808080; ">{{item.IsAccount == 1 ? "&#xe612;" : "&#xe613;"}}</i>
+                        <span class="ww_groupSelBtn_item_text">{{item.Name}}</span>
+                    </div>
+                </div>
+                <div class="layui-input-inline" style="margin-left:20px">
+                    <a href="javascript:;" style="float:left;color:#1E9FFF" @click="SelectPage">{{operateName}}</a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">默认审批人:</label>
+                <div v-for="(index,item) in queryFormData.Approvers">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="../../Img/Icon/accountIcon.png">
+                        <a href="javascript:;" @click="deleteApprover(queryFormData.Approvers,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">直接上级</div>
+                        <div class="approval_setting_cnt_name">（会签）</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" style=""><span class="ww_icon ww_icon_approvalWithLink"></span></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap">
+                    <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn " @click="addApprover">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">默认抄送人:</label>
+                <div v-for="(index,item) in queryFormData.ApproverCC">
+                    <div class="approval_setting_cnt_avatarWrap">
+                        <img class="approval_setting_cnt_avatar" src="../../Img/Icon/accountIcon.png">
+                        <a href="javascript:;" @click="deleteApprover(queryFormData.ApproverCC,index)" class="ww_icon ww_icon_IconCloseBlack"></a>
+                        <div class="approval_setting_cnt_name">直接上级</div>
+                        <div class="approval_setting_cnt_name">（会签）</div>
+                    </div>
+                    <div class="approval_setting_cnt_arrowWithLink" style=""><span class="ww_icon ww_icon_approvalWithLink"></span></div>
+                </div>
+                <div class="approval_setting_cnt_avatarWrap">
+                    <a href="javascript:;" node-type="addApproval" class="approval_setting_cnt_AddBtn " @click="addApproverCC">
+                        <span class="ww_icon ww_icon_AddBtnGray"></span>
+                    </a>
+                </div>
+
+                <hr />
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-inline" style="width:200px">
+                    <label class="layui-form-label">条件审批流程:</label>
+                </div>
+                <div class="layui-input-inline">
+                    <button class="layui-btn" lay-submit @click="AddCondition">添加</button>
+                </div>
+            </div>
+            <div class="layui-form-item layui-hide">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit @click="formDemo">立即提交</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
+
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt"],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+
+
+            function showall(data, CID) {
+                var array = new Array();
+                $.each(data, function (i, x) {
+                    if (x.ID == CID) {
+                        array.push("<a href='javascript:;'>" + this.Name + "</a>>");
+                        array = array.concat(showall(data, x.CID));
+                    }
+                });
+                return array;
+            }
+
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    operateName: "申请人",
+                    DepartHtml: [],
+                    queryFormData: {
+                        ID: 0,
+                        Name: '',
+                        Phone: '',
+                        DepartCount: 0,
+                        Departs: [],
+                        Approvers: [],
+                        ApproverCC: [],
+                        Field: ""
+                    },
+                    mainDeptId: 0,
+                    Manage: {
+                        tags: { name: "IsManager" },
+                        options: [
+                           { key: "0", value: "否" },
+                           { key: "1", value: "是" },
+                        ],
+                        fields: { key: 'key', value: 'value' },
+                    },
+                    IsMain: {
+                        tags: { name: "IsMain" },
+                        options: [
+                           { key: "0", value: "否" },
+                           { key: "1", value: "是" },
+                        ],
+                        fields: { key: 'key', value: 'value' },
+                    },
+                    FieldSetting: {
+                        search: true,
+                        defaultValue: -1,
+                        options: [
+                            { key: '1', value: '申请人' },
+                            { key: '0', value: '申请类型' }
+                        ]
+                    },
+                    _userId: '',
+                    //option: {
+                    //    search: true,
+                    //    options: []
+                    //}
+                    option: {
+                        search: true,
+                        options: [],
+                        fields: { root: 'ReturnData.Data', key: 'ID', value: 'Name' },
+                        remote: { url: "/service/Company/GetListDepartment", options: { method: 'get' } }
+                    },
+                    //字段模板
+                    FieldTemplate: {
+                        fieldName: '',//字段名称
+                    },
+                },
+                watch: {
+                    mainDeptId: function (val) {
+                        var _this = this;
+                        $.each(_this.queryFormData.Departs, function (k, v) {
+                            v.IsMain = v.DepartmentID == val ? 1 : 0;
+                        });
+                    }
+                },
+                ready: function () {
+                    _this = this;
+                    _this.queryFormData.ID = fnr.getQueryString("ID");
+                    //请求接口填充数据
+                    if (_this.queryFormData.ID) {
+                        $.get("/service/datastore/Organizational/GetListAccountNew", { ID: _this.queryFormData.ID }, function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                //fnr.mergeJson(rsp.ReturnData.Data, _this.queryFormData);//合并ajax值
+
+                                _this.queryFormData.Name = rsp.ReturnData.Data.Name;
+                                _this.queryFormData.Phone = rsp.ReturnData.Data.Phone;
+                                //_this.queryFormData.Departs = rsp.ReturnData.Data.DepartData.Departments;
+
+                                $.each(rsp.ReturnData.Data.DepartData.Departments, function (k, v) {
+                                    _this.queryFormData.Departs.push({ "DepartmentID": this.ID, "Name": this.Name, "IsAccount": this.IsAccount });
+                                    if (this.IsMain == 1) {
+                                        _this.mainDeptId = this.ID;
+                                    }
+                                });
+                            } else {
+                                layer.msg(ReturnData.Message)
+                            }
+
+                        })
+                    }
+                },
+                methods: {
+                    //添加审批人
+                    addApprover: function () {
+                        this.queryFormData.Approvers.push({ aa: "" });
+                    },
+                    //删除审批人
+                    deleteApprover: function (obj, index) {
+                        obj.splice(index, 1);
+                    },
+                    //添加审批人
+                    addApproverCC: function () {
+                        this.queryFormData.ApproverCC.push({ aa: "" });
+                    },
+                    //删除审批人
+                    deleteApprover: function (obj, index) {
+                        obj.splice(index, 1);
+                    },
+                    delDepartment: function (ID) {
+                        var self = this;
+                        $.each(this.DepartHtml, function (i, x) {
+                            if (this.ID == ID) {
+                                self.DepartHtml.splice(i, 1);
+                                return false;
+                            }
+                        });
+                    },
+                    FieldChange: function (obj) {
+                        var self = this;
+                        if (obj.value == '0') {
+                            self.operateName = "申请类型";
+                        }
+                        if (obj.value == '1') {
+                            self.operateName = "申请人";
+                        }
+                    },
+                    SelectPage: function () {
+                        var self = this;
+                        var Json = "";
+                        $.each(self.queryFormData.Departs, function () {
+                            Json += this.DepartmentID + "|" + this.Name + "|" + this.IsAccount + ",";
+                        });
+                        Json = Json.substring(0, Json.length - 1);
+                        fnr.openDialog({
+                            title: '选择用户所在部门',
+                            area: ['500px', '600px'],
+                            content: ['DepartmentSelect.html?json=' + Json],
+                            btn: ['确认'],
+                            events: {
+                                refresh: function (data) {
+                                    console.log(data)
+                                    console.log(self.queryFormData.Departs)
+                                    var jsondata = [];
+                                    $.each(self.queryFormData.Departs, function (i, x) {
+                                        var flg = false;
+                                        $.each(data, function (ii, xx) {
+                                            if (x.DepartmentID == xx.ID)
+                                                flg = true;
+                                        });
+                                        if (flg)
+                                            jsondata.push(x);
+                                    })
+                                    self.queryFormData.Departs = jsondata;
+
+                                    $.each(data, function (i, x) {
+                                        var flg = false;
+                                        $.each(self.queryFormData.Departs, function (ii, xx) {
+                                            if (xx.DepartmentID == x.ID) {
+                                                flg = true;
+                                            }
+                                        })
+                                        if (!flg) {
+                                            self.queryFormData.Departs.push({ "DepartmentID": x.ID, "Name": x.Name, "IsAccount": x.IsAccount });
+
+                                        }
+                                    })
+                                }
+                            }
+                        });
+                    },
+                    //保存数据关闭弹窗
+                    formDemo: function (e) {
+                        _this = this;
+                        if (!layui.form.checkInput(e)) {
+                            return false;
+                        }
+
+                        _this.queryFormData.DepartCount = _this.queryFormData.Departs.length;
+                        $.each(_this.queryFormData.Departs, function () {
+                            if (this.IsMain == true)
+                                this.IsMain = 1;
+                            else
+                                this.IsMain = 0;
+                            if (this.IsManager == true)
+                                this.IsManager = 1;
+                            else
+                                this.IsManager = 0;
+
+                        })
+
+                        if (_this.queryFormData.ID) {
+                            $.post("/service/Station/EditStationAccount", _this.queryFormData, function (rsp) {
+                                layer.msg(rsp.Message, { time: 1000 }, function () {
+                                    if (rsp.SuccessResponse) {
+                                        fnr.callDialog('refresh'); //回调打开窗口events中的refresh
+                                        fnr.closeDialog(); //关闭当前的对话框
+                                    }
+                                })
+                                /*if (rsp.SuccessResponse) {
+                                    layer.msg('修改成功', { time: 2000 },function(){
+                                        fnr.callDialog('refresh'); //回调打开窗口events中的refresh
+                                        fnr.closeDialog(); //关闭当前的对话框
+                                    })
+                                } else {
+                                    layer.msg('修改失败')
+                                }*/
+                            })
+                        } else {
+                            $.post("/service/Station/CreateStationAccount", _this.queryFormData, function (rsp) {
+                                layer.msg(rsp.Message, { time: 1000 }, function () {
+                                    if (rsp.SuccessResponse) {
+                                        fnr.callDialog('refresh'); //回调打开窗口events中的refresh
+                                        fnr.closeDialog(); //关闭当前的对话框
+                                    }
+                                })
+                            })
+                            return false;
+                        }
+
+                    },
+                }
+            });
+        });
+</script>

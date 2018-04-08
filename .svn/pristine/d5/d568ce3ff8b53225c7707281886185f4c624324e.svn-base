@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>预算明细</title>
+</head>
+<body id="root">
+    <div class="mainContainer">
+       
+        <div>
+            <button class="layui-btn layui-btn-primary layui-btn-small" @click="AuditPassed">审核通过</button>
+            <button class="layui-btn layui-btn-primary layui-btn-small" @click="AuditReject">审核拒绝</button>
+        </div>
+        <table id="listTable" lay-filter="listTable"></table>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'laydate', 'layer'],
+        function (fnr) {
+            var table = layui.table;
+            var form = layui.form;
+            var tableExt = layui.tableExt;
+            var $ = layui.$;
+            var layer = layui.layer;
+            var laydate = layui.laydate;
+
+            var tableColsConfig =
+                [
+                    { fixed: true, checkbox: true },
+                    { field: 'DeptName', title: '所属部门', width: 150, sort: false },
+                    {
+                        field: 'Quarter', title: '年季度', width: 180, sort: true, templet: function () {
+                            return this.Year + '年第' + this.Quarter + '季度'
+                        }
+                    },
+                    { field: 'CodeName', title: '科目', width: 120, sort: true },
+                    { field: 'Money', title: '预算金额', width: 120, sort: true },
+                    { field: 'AddPersonName', title: '添加人', width: 120, sort: true },
+                   
+                     {
+                         field: 'AddTime', title: '时间', sort: true, width: 200, templet: function () {
+                             return fnr.format(this.AddTime, "yyyy-MM-dd HH:mm:ss")
+                         }
+                     },
+                     {
+                         field: 'Valid', title: '状态', width: 120, templet: function () {
+                             var array = new Array();
+                             array.push("<a href='javascript:;'>" + (this.Valid == 0 ? "未审核" : "已审核") + "</a>");
+                             return "<div>" + array.join("") + "</div>";shen
+                         }
+                     },
+                    {
+                        fixed: 'right',
+                        title: '操作',
+                        width: 280,
+                        toolbar: function () {
+                            var array = new Array();
+                            array.push("<button href='javascript:;' class='layui-btn layui-btn-info layui-btn-small' lay-event='Delete'>删除</button>");
+                            if (this.Valid == 0)
+                            {
+                                array.push("<button href='javascript:;' class='layui-btn layui-btn-info layui-btn-small' lay-event='Update'>修改</button>");
+                            }
+                            return "<div>" + array.join("") + "</div>";
+                        }
+                    }
+                ];
+            window.rootApp = new Vue({
+                el: '#root',
+                data: {                    
+                    submitForm: {
+                        time: fnr.format(Date.now(), 'yyyy'),
+                        DeptName: "",
+                        Department_ID: 0,
+                        Quarter:0,
+                    },
+                    QuarterSetting: {
+                        search: true,
+                        options:
+                            [
+                                { ID: 1, Description: '第一季度' },
+                                { ID: 2, Description: '第二季度' },
+                                { ID: 3, Description: '第三季度' },
+                                { ID: 4, Description: '第四季度' },
+                            ],
+                        fields: { key: 'ID', value: 'Description' },
+                    },          
+                },
+                ready: function () {                  
+                    this.ID = fnr.getQueryString('ID');
+                },
+                methods: {
+                    GetDepartment: function () {
+                        var self = this;
+                        var Paras = '';
+                        if (self.submitForm.Department_ID > 0) {
+                            Paras = self.submitForm.Department_ID + '|' + self.submitForm.DeptName;
+                        }
+                        fnr.openDialog({
+                            title: '选择成员所在部门',
+                            area: ['500px', '500px'],
+                            content: ['DepartSelect.html'],
+                            events: {
+                                new: function (data) {
+                                    //self.submitForm.CompanyID = data.Company_ID;
+                                    self.submitForm.Department_ID = data.ID;
+                                    self.submitForm.DeptName = data.Name;
+                                }
+                            }
+                        });
+                    },
+                    //审核通过
+                    AuditPassed: function () {                        
+                        var releaseArr = this.Passed.join(',');
+                        layer.confirm('确认要审核通过', function (index) {
+                            $.ajax({
+                                url: "/service/finance/Finance/CheckBudget",
+                                data: { Other: releaseArr, Valid: 1 },
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.SuccessResponse) {
+                                        layer.msg(data.Message);
+                                        listTable.refresh();
+                                    } else {
+                                        layer.msg(data.Message);
+                                    }
+                                }
+                            });
+                        })
+                    },
+                    //拒绝审核
+                    AuditReject: function () {
+                        var releaseArr = this.Reject.join(',');
+                        layer.confirm('确认要审核拒绝', function (index) {
+                            $.ajax({
+                                url: "/service/finance/Finance/CheckBudget",
+                                data: { Other: releaseArr, Valid: 2 },
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.SuccessResponse) {
+                                        layer.msg(data.Message);
+                                        listTable.refresh();
+                                    } else {
+                                        layer.msg(data.Message);
+                                    }
+                                }
+                            })
+                        })
+                    },
+                    Add:function(){
+                        fnr.openDialog({
+                            title: '添加',
+                            area: ['650px', '600px'],
+                            content: ['AddBudget.html'],
+                            events: {
+                                refresh: function (data) {
+                                    if (data.Successresponse) {
+                                        listTable.refresh()
+                                    }
+                                    layer.msg(data.Message);
+                                }
+                            }
+                        });
+                    },
+                    UpdateSet: function (data) {
+                        fnr.openDialog({
+                            title: '修改',
+                            area: ['650px', '600px'],
+                            content: ['AddBudget.html?ID='+data.ID],
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg(data.msg);
+                                        listTable.refresh()
+                                    } else {
+                                        layer.msg(data.msg);
+                                    }
+                                }
+                            }
+                        });
+                    },
+                    Delete: function (data) {
+                        $.post("/service/finance/Finance/DeleteBudget", {Other:data.ID }, function (res) {
+                            if (res.SuccessResponse) {
+                                layer.msg(res.Message);
+                                listTable.refresh();
+                            }
+                        });
+                    }
+                }
+            })
+            
+            //绑定列表
+            var listTable = table.render({
+                elem: '#listTable',
+                even: true, //开启隔行背景
+                page: true, //页分,
+                id: 'listTable',
+                cols: [tableColsConfig],
+                url: "/service/finance/Finance/GetBudgetDetailList?Year=" + fnr.getQueryString('Year') + '&DepartmentID=' + fnr.getQueryString('DepartmentID') + '&Quarter=' + fnr.getQueryString('Quarter')
+            });
+            //获取选中的行相关数据
+            table.on('checkbox(listTable)', function (obj) {
+                var checkStatus = table.checkStatus('listTable');
+                rootApp.Reject = [];
+                rootApp.Passed = [];
+                $.each(checkStatus.data, function (k, v) {
+                    rootApp.Reject.push(v.ID);
+                    rootApp.Passed.push(v.ID);
+                });
+            });
+            tableExt.addEvent("tool(listTable)", {
+                "Update": function (data, obj, e) {
+                    rootApp.UpdateSet(data);
+                },
+                "Delete": function (data, obj, e) {
+                    rootApp.Delete(data);
+                },
+            })
+        })
+</script>

@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>我的申请</title>
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/font/iconfont.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css">
+    <link rel="stylesheet" href="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/css/index.css">
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/index.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/js/vue.min.js"></script>
+    <script src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script>
+        (function () {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            window.onresize = function () {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+            };
+        })()
+    </script>
+</head>
+<body>
+    <div class="appContainer">
+        <div class="handleHead">
+            <input class="handleSearch" type="text" placeholder="搜索人名、标题、内容、状态">
+            <i class="iconfont icon-sousuo searchIcon"></i>
+        </div>
+
+        <div class="handleMain">
+            <!--tab选项卡-->
+            <ul class="tabsBox">
+                <li>待处理-5</li>
+                <li>已处理</li>
+                <li class="active">抄送我</li>
+            </ul>
+
+            <ul class="handleItems">
+                <!--已驳回-->
+                <li class="item">
+                    <div class="itemLeft">
+                        <p class="itemInfo">某某某员工转正申请表</p>
+                        <p class="itemTime">2017-8-10-13:30</p>
+                    </div>
+                    <div class="itemRight">
+                        <p class="rejectIcon">已驳回</p>
+                    </div>
+                </li>
+
+                <!--审批中-->
+                <li class="item">
+                    <div class="itemLeft">
+                        <p class="itemInfo">某某某员工转正申请表</p>
+                        <p class="itemTime">2017-8-10-13:30</p>
+                    </div>
+                    <div class="itemRight">
+                        <p class="approvalIcon">审批中</p>
+                    </div>
+                </li>
+
+                <!--已通过-->
+                <li class="item">
+                    <div class="itemLeft">
+                        <p class="itemInfo">某某某员工转正申请表</p>
+                        <p class="itemTime">2017-8-10-13:30</p>
+                    </div>
+                    <div class="itemRight">
+                        <p class="passIcon">已通过</p>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+
+        <div class="approvalFooter">
+            <div class="layui-row">
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot ">
+                        <a href="/Html/Auditing/index.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/xinzengshenqing.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>新增申请</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot">
+                        <a href="/Html/Auditing/myprocessed.html">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenpi.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的审批</span>
+                            <span class="tipNum">5</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="layui-col-xs4 item">
+                    <div class="itemFoot hover">
+                        <a href="javascript:;">
+                            <img src="http://bbsresources.oss-cn-hangzhou.aliyuncs.com/auditingm/img/wodeshenqinghover.png" style="width: 0.44rem; height: 0.44rem;" />
+                            <span>我的申请</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

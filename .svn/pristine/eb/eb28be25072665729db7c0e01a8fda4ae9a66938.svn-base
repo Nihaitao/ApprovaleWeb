@@ -1,0 +1,349 @@
+﻿<div class="mainContainer" id="root">
+    <blockquote class="layui-elem-quote">
+        <div class="layui-form">
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="submitForm.BeginTime" type="month" placeholder="开始时间" initial="off"></lay-date>
+            </div>
+            <div class="layui-input-inline">
+                <remote-sel v-bind:setting="BookKeepingSetting" laytips="记账状态" v-bind:value.sync="submitForm.BookKeepingStatus"
+                            initial="off"></remote-sel>
+            </div>
+            <div class="layui-input-inline">
+                <remote-sel v-bind:setting="TypeSetting" laytips="凭证类型" v-bind:value.sync="submitForm.VoucherType"
+                            initial="off"></remote-sel>
+            </div>
+            <button class="layui-btn layui-btn-primary" lay-submit lay-filter="btn" @click="doSearch">查询</button>
+        </div>
+        
+    </blockquote>
+    <blockquote class="layui-elem-quote">
+        <div class="layui-form">
+            <button class="layui-btn layui-btn-small layui-btn-primary" @click="MultipleHandleBookKeeping" v-bind:class="{'layui-btn-disabled':VoucherIDArr.length<=0}" v-bind:disabled="VoucherIDArr.length<=0">一键记账</button>
+        </div>
+    </blockquote>
+    <table id="listTable" lay-filter="listTable"></table>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<style>
+    .layui-table-cell {
+        height: 30px;
+        line-height: 30px;
+    }
+
+        .layui-table-cell .layui-form-checkbox {
+            top: 6px;
+        }
+</style>
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+            var listTable;
+
+            GetParentQueryString = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.parent.location.search.substr(1).match(reg);
+                if (r != null) return decodeURIComponent(r[2]);
+                return undefined;
+            };
+
+            var tableColsConfig = [
+                        { fixed: true, checkbox: true, },
+                        {
+                            field: 'Time', title: '制单日期', width: 180, templet: function () {
+                                return fnr.format(this.Time, "yyyy-MM-dd HH:mm")
+                            }
+                        },
+                        {
+                            field: 'No', title: '凭证编号', width: 120, templet: function () {
+                                var str = '';
+                                if (this.Type == 0) {
+                                    str = '收'
+                                } else if (this.Type == 1) {
+                                    str = '付'
+                                } else if (this.Type == 2) {
+                                    str = '转'
+                                } else if (this.Type == 3) {
+                                    str = '记'
+                                }
+                                return str + '-' + this.No
+                            }
+                        },
+                        { field: 'Title', title: '摘要', width: 120 },
+                        { field: 'LeftMoney', title: '借方金额合计', width: 120 },
+                        { field: 'RightMoney', title: '贷方金额合计', width: 120 },
+                        { field: 'HandlerName', title: '制单人', width: 120 },
+                        { field: 'ValiderName', title: '审核人', width: 120 },                       
+                        {
+                            field: 'Valid', title: '审核状态', width: 120, templet: function () {
+                                if (this.Valid == 0) {
+                                    return '<span>未审核<span>'
+                                } else if (this.Valid == 1) {
+                                    return '<span style="color:#009688">审核通过</span>'
+                                } else if (this.Valid == 2) {
+                                    return '<span style="color:#FFB800">审核拒绝</span>'
+                                } else if (this.Valid == 3) {
+                                    return '<span style="color:#FF5722">作废</span>'
+                                }
+                            }
+                        },
+                        { field: 'BookKeepingPersonName', title: '记账人', width: 120 },
+                        {
+                            field: 'BookKeeping', title: '记账状态', width: 120, templet: function () {
+                                if (this.BookKeeping == 0) {
+                                    return '<span>未记账<span>'
+                                } else if (this.BookKeeping == 1) {
+                                    return '<span style="color:#009688">已记账</span>'
+                                }
+                             }
+                        },
+                        {
+                            fixed: 'right',
+                            field: 'name',
+                            title: '操作',
+                            width: 210,
+                            toolbar: function () {
+                                var btns = new Array();
+                                //btns.push("<button class=\"layui-btn layui-btn-small\" lay-event='HandelPrint'>打印</button>");
+                                if (this.VoucherType == 0 || (this.VoucherType == 2 && this.BookKeeping == 0)) {
+                                    btns.push("<button class=\"layui-btn layui-btn-small\" lay-event='HandelEdit'>编辑</button>");
+                                }
+                                else if (this.VoucherType == 1 || (this.VoucherType == 2 && this.BookKeeping == 1)) {
+                                    btns.push("<button class=\"layui-btn layui-btn-small layui-btn-primary\" lay-event='HandelInfo'>查看</button>");
+                                }
+
+                                if ((this.VoucherType == 0 || this.VoucherType==2) && (this.Valid == 0 || this.Valid == 3)) {
+                                    btns.push("<button class=\" layui-btn layui-btn-small layui-btn-danger \" lay-event='HandelDelete'>删除</button>");
+                                }
+
+                                if (this.Valid == 1 && this.BookKeeping == 0 && this.VoucherType!=1) {
+                                    btns.push("<button class=\"layui-btn layui-btn-small layui-btn-normal\" lay-event='OnlyHandelBookKeeping'>记账</button>");
+                                }
+                                else if (this.Valid == 1 && this.BookKeeping == 1 && this.VoucherType != 1 && this.IsCheckout==0) {
+                                    btns.push("<button class=\"layui-btn layui-btn-small layui-btn-normal\" lay-event='OnlyHandelBookKeeping'>取消记账</button>");
+                                }
+                                return btns.join(" ");
+                            }
+                        }
+            ]
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    BookKeepingSetting: {
+                        options: [
+                            { key: "-1", value: "请选择" },
+                            { key: "0", value: "未记账" },
+                            { key: "1", value: "已记账" },
+                        ],
+                        fields: { key: 'key', value: 'value' }
+                    },
+                    TypeSetting: {
+                        options: [
+                            { key: "-1", value: "请选择" },
+                            { key: "0", value: "收款凭证" },
+                            { key: "1", value: "付款凭证" },
+                            { key: "2", value: "转账凭证" },
+                            { key: "3", value: "记账凭证" },
+                        ],
+                        fields: { key: 'key', value: 'value' }
+                    },
+                    VoucherIDArr: [],
+                    Stationproxy_ID: GetParentQueryString('ID'),
+                    submitForm:{
+                        BeginTime: fnr.format(Date.now(), 'yyyy-MM'),
+                        BookKeepingStatus: -1,
+                        VoucherType: -1,
+                    }
+                },
+                ready: function () {
+                    this.GetFinanceList();
+                },
+                methods: {
+                    doSearch: function () {
+                        var self = this;
+                        self.VoucherIDArr = [];
+                        var strDate = self.submitForm.BeginTime.split('-');
+                        if (strDate.length == 0) {
+                            return;
+                        }
+                        var day = new Date(strDate[0], strDate[1], 0);
+                        BeginTime = self.submitForm.BeginTime + "-1";
+                        EndTime = self.submitForm.BeginTime + "-" + day.getDate();
+
+                        tableIns.reload({
+                            where: {
+                                Stationproxy_ID: GetParentQueryString('ID'),
+                                BookKeepingStatus: self.submitForm.BookKeepingStatus,
+                                BeginTime: BeginTime,
+                                EndTime: EndTime,
+                                VoucherType: self.submitForm.VoucherType,
+                                Valid: -1,
+                                ReviewStatus: -1,
+                            }
+                        });
+
+                    },
+                    GetFinanceList: function () {
+                        var self = this;
+                        self.VoucherIDArr = [];
+                        var strDate = self.submitForm.BeginTime.split('-');
+                        if (strDate.length == 0) {
+                            return;
+                        }
+                        var day = new Date(strDate[0], strDate[1], 0);
+                        BeginTime = self.submitForm.BeginTime + "-1";
+                        EndTime = self.submitForm.BeginTime + "-" + day.getDate();
+
+                        tableIns = table.render({
+                            elem: '#listTable',
+                            id: 'listTable',
+                            even: true, //开启隔行背景
+                            page: true,
+                            height: 'full-180',
+                            method: 'post',
+                            cols: [tableColsConfig],
+                            url: '/service/finance/Finance/GetFinanceList',
+                            where: {
+                                Stationproxy_ID: GetParentQueryString('ID'),
+                                BookKeepingStatus: self.submitForm.BookKeepingStatus,
+                                BeginTime: BeginTime,
+                                EndTime: EndTime,
+                                VoucherType: self.submitForm.VoucherType,
+                                Valid:-1,
+                                ReviewStatus:-1,
+                            },
+                            response: {
+                                dataName: 'Data'
+                            }
+                        });
+
+                    },
+                    //批量记账
+                    MultipleHandleBookKeeping: function () {
+                        var that = this;
+                        $.post('/service/finance/Finance/UpdateVoucherBookKeeping', { strList: this.VoucherIDArr, Valid: 1, Stationproxy_ID: that.Stationproxy_ID }, function (res) {
+                            layer.msg(res.Message)
+                            if (res.SuccessResponse) {
+                                tableIns.refresh();
+                            }
+                        })
+                    },
+                    HandleVoucherPrint: function () {
+                        var self = this;
+                        if (where != {}) {
+                            var Stationproxy_ID = where.Stationproxy_ID;
+                            console.log()
+                            if (self.VoucherIDArr.length > 0) {
+                                fnr.openDialog({
+                                    offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                                    content: ["ChoicePrintTemplate.html", "yes"],
+                                    area: ["460px", "350px"],
+                                    btn: ["保存"],
+                                    events: {
+                                        refresh: function (data) {
+                                            if (data.TemplateType) {
+                                                $.post("/service/finance/Finance/DownVoucherPDF", { strList: self.VoucherIDArr, Stationproxy_ID: Stationproxy_ID, Status: data.TemplateType }, function (res) {
+                                                    window.open(res.Message);
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            else {
+                                layer.msg("请选择凭证！")
+                            }
+                        }
+                        else {
+                            layer.msg("渠道不能为空！")
+                        }
+                    }
+                }
+            });
+
+            tableExt.addEvent("tool(listTable)",
+                {
+                    "HandelEdit": function (data) {
+                        fnr.openDialog({
+                            offset: [(document.body.clientHeight - 750) / 2, (document.body.clientWidth - 1000) / 2],
+                            title: '凭证详情',
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Finance/Voucher/create.html?VoucherID=' + data.VoucherID],
+                            events: {
+                                refresh: function (data) {
+                                    tableIns.refresh();
+                                }
+                            },
+                        });
+                    },
+                    //单个处理记账
+                    "OnlyHandelBookKeeping": function (data) {
+                        var list = [];
+                        list.push(data.VoucherID);
+                        $.post('/service/finance/Finance/UpdateVoucherBookKeeping', { strList: list, Valid: data.BookKeeping == 0?1:0, Stationproxy_ID: data.Stationproxy_ID }, function (res) {
+                            if (res.SuccessResponse) {
+                                tableIns.refresh();
+                            }
+                        })
+                    },
+                    "HandelInfo": function (data) {
+                        fnr.openDialog({
+                            title: '凭证详情',
+                            area: ['1057px', '750px'],
+                            content: ['/Html/Finance/Voucher/VoucherInfo.html?VoucherID=' + data.VoucherID],
+                            events: {
+                                refresh: function (data) {
+                                    if (data.SuccessResponse) {
+                                        tableIns.refresh();
+                                    }                                        
+                                }
+                            },
+                        });
+                    },
+                    "HandelPrint": function (data) {
+                        fnr.openDialog({
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                            content: ["ChoicePrintTemplate.html", "yes"],
+                            area: ["460px", "350px"],
+                            btn: ["保存"],
+                            events: {
+                                refresh: function (rep) {
+                                    if (rep.TemplateType) {
+                                        var list = [];
+                                        list.push(data.VoucherID);
+                                        $.post("/service/finance/Finance/DownVoucherPDF", { strList: list, Stationproxy_ID: data.Stationproxy_ID, Status: rep.TemplateType }, function (res) {
+                                            window.open(res.Message);
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    },
+                    "HandelDelete": function (data) {
+                        layer.confirm('确定删除吗？删除后不可恢复！', function () {
+                            $.post("/service/finance/Finance/DeleteFinanceVoucher", { VoucherID: data.VoucherID }, function (res) {
+                                layer.msg(res.Message)
+                                if (res.SuccessResponse) {
+                                    tableIns.reload();
+                                }
+                            });
+                        });
+                    }
+                });
+            table.on('checkbox(listTable)', function (obj) { //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+                var checkStatus = table.checkStatus('listTable'),
+                data = checkStatus.data;
+                vm.VoucherIDArr = [];
+                data.forEach(function (value, item, arr) {
+                    vm.VoucherIDArr.push(value.VoucherID)
+                });
+            });
+        });
+</script>

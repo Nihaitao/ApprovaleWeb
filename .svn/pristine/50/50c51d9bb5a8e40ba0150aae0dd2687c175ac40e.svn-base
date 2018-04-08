@@ -1,0 +1,364 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title" v-cloak>
+            <li class="m-l-lg "
+                v-for="(index,item) in query"
+                v-bind:class="{ 'layui-this': index === selected }"
+                @click="choose(index,item)">
+                <a href="javascript:;" v-bind:data-bustype="item.ID">{{item.Description}}</a>
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-form">
+                <div class="layui-row custom-title">
+                    <div class="layui-col-md1">ID</div>
+                    <div class="layui-col-md2">客户名称</div>
+                    <div class="layui-col-md2">所属分类</div>
+                    <div class="layui-col-md2">备注</div>
+                    <div class="layui-col-md1">状态</div>
+                    <div class="layui-col-md3">操作</div>
+                </div>
+                <div class="custom-field">
+                    <div class="tree" v-for="(rootIndex,rootItem) in formList">
+                        <div class="tree-content" v-cloak>
+                            <div class="layui-row custom-ele">
+                                <div class="layui-col-md1">{{rootItem.ID}}</div>
+                                <div class="layui-col-md2">{{rootItem.Name?rootItem.Name:'&nbsp;'}}</div>
+                                <div class="layui-col-md2" v-bind:style="{textIndent: (rootItem.Code.length-4) + 'em' }">{{rootItem.Description?rootItem.Description:'&nbsp;'}}</div>
+                                <div class="layui-col-md2">{{rootItem.Info?rootItem.Info:'&nbsp;'}}</div>                               
+                                <div class="layui-col-md1" v-if="rootItem.Valid"><span style="color:#009688;">启用</span></div>
+                                <div class="layui-col-md1" v-else><span style="color:#FF5722;">禁用</span></div>
+                                <div class="layui-col-md3">
+                                    <button type='button' class='layui-btn layui-btn-info layui-btn-small' @click='modifyCustomer(rootItem)'>修改</button>
+                                    <button v-if="rootItem.Valid==0" type='button' class='layui-btn layui-btn-info layui-btn-small' @click='UpdateFinanceClientValid(rootItem)'>启用</button>
+                                    <button v-if="rootItem.Valid==1" type='button' class='layui-btn layui-btn-info layui-btn-small' @click='UpdateFinanceClientValid(rootItem)'>禁用</button>
+                                    <button type='button' class='layui-btn layui-btn-danger layui-btn-small' @click='DeleteCustomer(rootItem)'>删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 13px;">
+                <button class="layui-btn add" @click="addCustomer()">添加客户</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<!--<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/util.js"></script>-->
+
+<style>
+    .custom-title {
+        line-height: 45px;
+        background: #f5f5f5;
+        padding-left: 10px;
+    }
+
+    .custom-block {
+        line-height: 45px;
+        height: 45px;
+        background: #e0e0e0;
+        padding-left: 10px;
+    }
+
+    .custom-ele, .custom-empty {
+        line-height: 45px;
+        height: 45px;
+        border-bottom: 1px solid #ebebeb;
+        padding-left: 10px;
+    }
+
+        .custom-ele:hover {
+            line-height: 45px;
+            height: 45px;
+            background: #f5f5f5;
+        }
+
+    [v-cloak] {
+        display: none;
+    }
+
+    .spical {
+        font-size: 12px;
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 5px;
+        margin-top: 8px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .open .dropdown-menu {
+        display: block !important;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 160px;
+        padding: 5px 0;
+        margin: 2px 0 0;
+        font-size: 14px;
+        text-align: left;
+        list-style: none;
+        background-color: #fff;
+        -webkit-background-clip: padding-box;
+        background-clip: padding-box;
+        border: 1px solid #ccc;
+        border: 1px solid rgba(0, 0, 0, .15);
+        border-radius: 4px;
+        -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    }
+
+        .dropdown-menu > li:hover {
+            color: #262626;
+            text-decoration: none;
+            background-color: #f5f5f5;
+        }
+
+        .dropdown-menu > li > a {
+            display: block;
+            padding: 0 20px;
+            color: #fff;
+            color: rgba(255,255,255,.7);
+            transition: all .3s;
+            -webkit-transition: all .3s;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .dropdown-menu.left {
+            left: 0;
+        }
+
+        .dropdown-menu.right {
+            right: 0;
+        }
+
+        .dropdown-menu .divider {
+            height: 1px;
+            margin: 9px 0;
+            overflow: hidden;
+            background-color: #e5e5e5;
+        }
+
+    .disabled {
+        color: #999;
+        cursor: no-drop;
+    }
+</style>
+<script>    
+    Vue.filter('togglejici', function (value) {
+        if (value.length == 4) {
+            return 1;
+        } else if (value.length == 6) {
+            return 2;
+        } else if (value.length == 8) {
+            return 3;
+        } else if (value.length == 10) {
+            return 4;
+        } else if (value.length == 12) {
+            return 5;
+        }
+    })
+    Vue.filter('format', function (time, format) {
+        if (time == undefined) {
+            return '';
+        }
+        var finalTime;
+        if (typeof (time) == 'string') {
+            time = time.replace("T", " ");
+            time = time.replace("Z", " ");
+            var timeIOS = time.replace(/\-/g, "/");
+            finalTime = new Date(timeIOS);
+        } else {
+            finalTime = time;
+        }
+
+        var t = new Date(finalTime);
+        var tf = function (i) {
+            return (i < 10 ? '0' : '') + i
+        };
+        return format.replace(/yyyy|MM|dd|HH|mm|ss/g,
+            function (a) {
+                switch (a) {
+                    case 'yyyy':
+                        return tf(t.getFullYear());
+                        break;
+                    case 'MM':
+                        return tf(t.getMonth() + 1);
+                        break;
+                    case 'mm':
+                        return tf(t.getMinutes());
+                        break;
+                    case 'dd':
+                        return tf(t.getDate());
+                        break;
+                    case 'HH':
+                        return tf(t.getHours());
+                        break;
+                    case 'ss':
+                        return tf(t.getSeconds());
+                        break;
+                }
+            });
+    });
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element'],
+        function (fnr) {
+            var $ = layui.$;
+            var jqueryui = layui.jqueryui;
+            var element = layui.element;
+            var table = layui.table;
+
+            var vm = new Vue({
+                el: "#root",
+                directives: {
+                    "data":
+                    {
+                        params: ["self", "parent", "index"],
+                        bind: function () {
+                            $(this.el).data("self", this.params.self);
+                            $(this.el).data("parent", this.params.parent);
+                        }
+                    }
+                },
+                data: {
+                    Company_ID: GetQueryString("ID"),
+                    selected: 0,
+                    isnew: '',
+                    query: [],
+                    formList: [],
+                    content: '',                    
+                },                
+                ready: function () {
+                    var self = this;
+                    this.GetHDictionaryList(function (resp) {
+                        self.GetFinanceClient(resp.ReturnData.Data[0].ID);
+                    });
+                },
+                methods: {
+                    //切换
+                    choose: function (index, item) {
+                        this.selected = item.ID;
+                        this.GetFinanceClient(item.ID);                        
+                    },
+                    //添加客户
+                    addCustomer: function () {
+                        var self = this;
+                        fnr.openDialog({
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                            content: ["AddCustomer.html?ID=0&ClientType_ID=" + this.ClientType_ID + "&Company_ID=" + this.Company_ID, "yes"],
+                            area: ["460px", "350px"],
+                            btn: ["保存"],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+                            },
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg("操作成功！");
+                                        self.GetFinanceClient(self.selected);
+                                    } else {
+                                        layer.msg("操作失败！");                                       
+                                    }
+                                }
+                            }
+                        });
+                    },
+                    //修改客户
+                    modifyCustomer: function (item) {
+                        var self = this;
+                        fnr.openDialog({
+                            offset: [(document.body.clientHeight - 500) / 2, (document.body.clientWidth - 700) / 2],
+                            content: ["AddCustomer.html?ID=" + item.ID + "&Name=" + item.Name + "&Info=" + item.Info + "&ClientType_ID=" + item.ClientType_ID, "yes"],
+                            area: ["460px", "350px"],
+                            btn: ["保存"],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+                            },
+                            events: {
+                                refresh: function (data) {
+                                    if (data.status) {
+                                        layer.msg("操作成功！");
+                                        console.log(self.computed);
+                                        self.GetFinanceClient(self.selected);
+                                    } else {
+                                        layer.msg("操作失败！");
+                                    }
+                                }
+                            }
+                        });
+                    },
+
+                    //逻辑删除客户
+                    DeleteCustomer: function (item) {
+                        var self = this;
+                        layer.confirm('确定删除吗？删除后不可恢复！', function () {
+                            $.post('/service/finance/Finance/DeleteFinanceClient', { ID: item.ID }, function (res) {
+                                if (res) {
+                                    layer.msg("操作成功！");
+                                    self.GetFinanceClient(self.selected);
+                                }
+                            })
+                        })
+                    },
+
+                    GetFinanceClient: function (val) {
+                        var self = this;
+                        $.get("/service/finance/Finance/GetFinanceClient", { Company_ID: self.Company_ID, ClientType_ID: val, Valid: -1 }, function (res) {
+                            self.formList = res.Data;
+                        });
+                    },
+                    //启用禁用
+                    UpdateFinanceClientValid: function (item) {
+                        if (item.Valid == 1) {
+                            item.Valid = 0;
+                        }
+                        else {
+                            item.Valid = 1;
+                        }                        
+                        var self = this;
+                        $.post('/service/finance/Finance/UpdateFinanceClientValid', { ID: item.ID, Valid: item.Valid}, function (res) {
+                            if (res.SuccessResponse) {
+                                layer.msg(res.Message);
+                            }
+                        })
+                    },
+                    GetHDictionaryList: function (cb) {
+                        var self = this;
+                        $.get('/service/HDictionary/GetHDictionaryList', { Valid: 1, ColumnName: 'ClientType_ID' }, function (resp) {
+                            if (resp.SuccessResponse) {
+                                resp.ReturnData.Data.unshift({ ID: -1, Description: '全部' })
+                                self.query = resp.ReturnData.Data;
+                                cb && cb(resp);
+                            }
+                        })
+                    }
+                }
+            });
+        });
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.parent.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+</script>

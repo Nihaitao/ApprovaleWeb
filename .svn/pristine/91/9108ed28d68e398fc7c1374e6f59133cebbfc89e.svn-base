@@ -1,0 +1,188 @@
+﻿<div class="mainContainer" id="root">
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">凭证类型</label>
+            <div class="layui-input-inline">
+                <remote-sel v-bind:setting="VoucherSetting" v-ref:"nimabide" laytips="请选择凭证类型" lay-verify="required" v-bind:value.sync="formList.VoucherType"
+                            initial="off"></remote-sel>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">审核日期</label>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="formList.ValidBeginTime" initial="off"></lay-date>
+            </div>
+            <span style="float: left;width: 40px;margin-right: 10px;text-align:center;height:38px;line-height:38px;">—</span>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="formList.ValidEndTime" initial="off"></lay-date>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">制单人</label>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="SelectSetting1" laytips="请选择制单人" lay-verify="required" v-bind:value.sync="formList.Handler"
+                                initial="off"></remote-sel>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">审核人</label>
+                <div class="layui-input-inline">
+                    <remote-sel v-bind:setting="SelectSetting2" laytips="请选择审核人" lay-verify="required" v-bind:value.sync="formList.Valider"
+                                initial="off"></remote-sel>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">凭证描述</label>
+            <div class="layui-input-inline">
+                <input type="text" name="title" lay-verify="required" autocomplete="off" placeholder="请输入标题" class="layui-input" v-model="formList.Title">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">凭证状态</label>
+            <div class="layui-inline">
+                <remote-rad name="Radio1" v-bind:setting="RadioSetting1" v-bind:value.sync="formList.Valid" initial="off"></remote-rad>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">出纳复核</label>
+            <div class="layui-inline">
+                <remote-rad name="Radio2" v-bind:setting="RadioSetting2" v-bind:value.sync="formList.ReviewStatus" initial="off"></remote-rad>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">制单日期</label>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="formList.BeginTime" initial="off"></lay-date>
+            </div>
+            <span style="float: left;width: 40px;margin-right: 10px;text-align:center;height:38px;line-height:38px;">—</span>
+            <div class="layui-input-inline">
+                <lay-date v-bind:value.sync="formList.EndTime" initial="off"></lay-date>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" @click="Handlesubmit">查询</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<!--<style>
+    .layui-form-checkbox span { height: auto; }
+    .layui-form-label { width: 150px; }
+    .layui-input-block { margin-left: 180px; }
+</style>-->
+<script>
+    require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+        function (fnr) {
+            var $ = layui.$;
+            var table = layui.table;
+            var tableExt = layui.tableExt;
+
+            var vm = new Vue({
+                el: "#root",
+                data: {
+                    VoucherSetting: {
+                        options: [
+                            { key: '0', value: '收款凭证' },
+                            { key: '1', value: '付款凭证' },
+                            { key: '2', value: '转账凭证' },
+                        ],
+                    },
+                    SelectSetting1: {
+                        search: true,
+                        options: [],
+                        fields: { root: "Data", key: 'Account_ID', value: 'Name' },
+                        remote: {
+                            url: '/service/hr/Station/GetListStationAccount'
+                        },
+                    },
+                    SelectSetting2: {
+                        search: true,
+                        options: [],
+                        fields: { root: "Data", key: 'Account_ID', value: 'Name' },
+                        remote: {
+                            url: '/service/hr/Station/GetListStationAccount'
+                        },
+                    },
+                    RadioSetting1: {
+                        tags: { name: 'Radio1' },
+                        options: [
+                            { key: "-1", value: '全部凭证' },
+                            { key: "0", value: '未审凭证' },
+                            { key: "1", value: '审核通过' },
+                            { key: "2", value: '审核未通过' },
+                            { key: "3", value: '作废凭证' },
+                        ],
+                        fields: { key: 'key', value: 'value' }
+                    },
+                    RadioSetting2: {
+                        tags: { name: 'Radio2' },
+                        options: [
+                            { key: "-1", value: '全部凭证' },
+                            { key: "0", value: '未复核' },
+                            { key: "1", value: '已复核' },
+                        ],
+                        fields: { key: 'key', value: 'value' }
+                    },
+                    CheckSetting: { title: '是否包含学生费用' },
+                    visible: false,
+                    formList: {
+                        BeginTime: '',
+                        EndTime: '',
+                        VoucherType: -1,
+                        Title: '',
+                        Valid: '-1',
+                        ReviewStatus: '-1',
+                        CompanyID: '',
+                        ValidBeginTime: '',
+                        ValidEndTime: '',
+                        Valider: 0,
+                        Handler: 0,
+                        TotalCount: 0
+                    },
+                    isnew: '',
+                    tableData: '',
+                    tableIns: '',
+                    VoucherID: fnr.getQueryString('voucherid')
+                },
+                watch: {
+                    'formList': {
+                        handler: function (val) {
+                            this.formList.MoneyRight = Number(!Number(val.MoneyLeft))
+                        },
+                        deep: true
+                    }
+                },
+                ready: function () {
+                    this.formList.CompanyID = this.getParentQueryString('ID');
+                    //this.SelectSetting1.remote.url = "/service/hr/Station/GetListStationAccount",
+                    //this.SelectSetting2.remote.url = "/service/hr/Station/GetListStationAccount",
+                    //this.SelectSetting1.remote.data = { Company_ID: this.formList.CompanyID },
+                    //this.SelectSetting2.remote.data = { Company_ID: this.formList.CompanyID }
+                    //this.$refs.s1.reset();
+                    //this.$refs.s2.reset();
+                },
+                methods: {
+                    getParentQueryString: function (name) {
+                        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                        var r = window.parent.location.search.substr(1).match(reg);
+                        if (r != null) return decodeURIComponent(r[2]);
+                        return undefined;
+                    },
+                    //提交
+                    Handlesubmit: function () {
+                        window.parent["voucherQuery"] = this.formList;
+                        location.href = '/Html/Voucher/QueryResult.html';
+                    },
+                }
+            });
+        });
+</script>

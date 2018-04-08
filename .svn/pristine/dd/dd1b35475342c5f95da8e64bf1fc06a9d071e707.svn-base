@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="layui-form" id="root" style="margin:20px;">
+        <!--客户核算-->
+        <div v-if="ckeckType.ClientCheck">
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户类型</label>
+                <div class="layui-input-block">
+                    <remote-sel v-bind:setting="TypeSetting" laytips="请选择" v-bind:value.sync="formList.Person"
+                                initial="off" v-bind:change="TypeChange"></remote-sel>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择客户</label>
+                <div class="layui-input-block">
+                    <remote-sel v-bind:setting="CustomSetting" laytips="请选择" v-bind:value.sync="formList.ClientID"
+                                initial="off" v-ref:customtype v-bind:change="customChange"></remote-sel>
+                    <input type="hidden" v-model="formList.ClientName" />
+                </div>
+            </div>
+        </div>
+        <!--部门核算-->
+        <div v-if="ckeckType.DepartmentCheck || ckeckType.PersonCheck">
+            <div class="layui-form-item">
+                <label class="layui-form-label">部门</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" @dblclick="ChoiceDepartment" v-model="formList.DepartmentName" readonly>
+                    <input type="hidden" class="layui-input" v-model="formList.DepartmentID">
+                </div>
+            </div>
+        </div>
+        <!--个人核算-->
+        <div v-if="ckeckType.PersonCheck">
+            <div class="layui-form-item">
+                <label class="layui-form-label">个人</label>
+                <div class="layui-input-block">
+                    <remote-sel v-bind:setting="PersonSetting" laytips="请选择" v-bind:value.sync="formList.PersonalID"
+                                initial="off" v-ref:person v-bind:change="personChange"></remote-sel>
+                    <input type="hidden" class="layui-input" v-model="formList.PersonalName">
+                </div>
+            </div>
+        </div>
+        <!--项目核算-->
+        <div v-if="ckeckType.ProjectCheck">
+            <div class="layui-form-item">
+                <label class="layui-form-label">项目</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" @dblclick="ChoiceProject" v-model="formList.ProjectName" readonly>
+                    <input type="hidden" class="layui-input" v-model="formList.ProjectID">
+                </div>
+            </div>
+        </div>
+        <!--通用部门-->
+        <div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">票号</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" v-model="formList.TicketNumber">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">发生日期</label>
+                <div class="layui-input-block">
+                    <lay-date id="date" v-bind:value.sync="formList.Date" type="datetime"></lay-date>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-block">
+                <button class="layui-btn" @click="save">保存</button>
+            </div>
+        </div>
+    </div>
+    <link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet">
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+    <script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+    <style>
+        .result-opts { list-style: none; margin: 0; padding: 0; }
+        .result-opts .result-opt { user-select: none; -webkit-user-select: none; }
+        .result-group { cursor: default; display: block; padding: 6px; }
+    </style>
+    <script>
+        require_js_file(['table', 'form', 'jquery', 'tableExt', 'jqueryui', 'element', 'customUtil'],
+            function (fnr) {
+                var $ = layui.$;
+                var vm = new Vue({
+                    el: "#root",
+                    data: {
+                        Company_ID: fnr.getQueryString('Company_ID'),
+                        ckeckType: {
+                            ClientCheck: '1',
+                            DepartmentCheck: '1',
+                            PersonCheck: '1',
+                            ProjectCheck: '1',
+                        },
+                        formList: {
+                            Person: '',
+                            ProjectID: '',   //项目ID
+                            ProjectName: '',    //项目名称
+                            TicketNumber: '',    //票号
+                            Date: fnr.format(Date.now(), 'yyyy-MM-dd HH:mm:ss'),    //发生日期
+                            ClientID: '',    //客户ID
+                            ClientName: '',    //客户名称
+                            DepartmentID: '',    //部门ID
+                            DepartmentName: '',    //部门名称
+                            PersonalID: '',   //个人ID
+                            PersonalName: ""    //个人名称
+                        },
+                        TypeSetting: {
+                            search: true,
+                            options: [],
+                            fields: { root: 'ReturnData.Data', key: 'ID', value: 'Description' },
+                            remote: { url: '/service/HDictionary/GetHDictionaryList', data: { ColumnName: 'ClientType_ID',Valid:1 } }
+                        },
+                        CustomSetting: {
+                            options: [],
+                            fields: { root: 'Data', key: 'ID', value: 'Name' },
+                            remote: { url: '', data: {} }
+                        },
+                        DepartmentSetting: {
+                            options: [],
+                            fields: { root: 'ReturnData.Data', key: 'ID', value: 'Description' },
+                        },
+                        PersonSetting: {
+                            search: true,
+                            options: [],
+                            fields: { root: 'Data', key: 'Account_ID', value: 'Name' },
+                            remote: { url: '/service/hr/Station/GetListStationAccount', data: {Company_ID: fnr.getQueryString('Company_ID')} }
+                        }
+                    },
+                    watch: {
+                        'formList.DepartmentID': function (val) {
+                            if (val && val != '') {
+                                if (this.ckeckType.PersonCheck) {
+                                    this.PersonSetting.search = true;
+                                    this.PersonSetting.remote.data = {Company_ID: this.Company_ID ,Department_ID: this.formList.DepartmentID};
+                                    this.$refs.person.reset();
+                                } else {
+                                    return
+                                }
+                            }
+                        }
+                    },
+                    ready: function () {
+                        this.ckeckType.ClientCheck = Number(fnr.getQueryString('ClientCheck'));
+                        this.ckeckType.DepartmentCheck = Number(fnr.getQueryString('DepartmentCheck'));
+                        this.ckeckType.PersonCheck = Number(fnr.getQueryString('PersonCheck'));
+                        this.ckeckType.ProjectCheck = Number(fnr.getQueryString('ProjectCheck'));
+                    },
+                    methods: {
+                        personChange: function (obj) {
+                            var selectedIndex = obj.$el.selectedIndex;
+                            this.formList.PersonalName = obj.$el.options[selectedIndex].innerText;
+                        },
+                        customChange: function (obj) {
+                            var selectedIndex = obj.$el.selectedIndex;
+                            this.formList.ClientName = obj.$el.options[selectedIndex].innerText;
+                        },
+                        TypeChange: function () {
+                            if (this.formList.ID != '') {
+                                this.CustomSetting.search = true;
+                                this.CustomSetting.remote.url = '/service/finance/Finance/GetFinanceClient';
+                                this.CustomSetting.remote.data = { ClientType_ID: this.formList.Person, Valid: 1, Company_ID: this.Company_ID }
+                                this.$refs.customtype.reset();
+                            } else {
+
+                            }
+                        },
+                        //选择项目
+                        ChoiceProject: function () {
+                            var that = this;
+                            fnr.openDialog({
+                                title: false,
+                                closeBtn: false,
+                                area: ['500px', '458px'],
+                                content: ['/Html/Voucher/ChoiceProject.html?Company_ID=' + this.Company_ID],
+                                events: {
+                                    refresh: function (data) {
+                                        that.formList.ProjectID = data.ID;
+                                        that.formList.ProjectName = data.Name;
+                                    }
+                                }
+                            });
+                        },
+                        //选择部门
+                        ChoiceDepartment: function () {
+                            var that = this;
+                            fnr.openDialog({
+                                title: false,
+                                closeBtn: false,
+                                area: ['500px', '458px'],
+                                content: ['/Html/Voucher/ChoiceDepartment.html?Company_ID=' + this.Company_ID],
+                                events: {
+                                    refresh: function (data) {
+                                        that.formList.DepartmentID = data.ID;
+                                        that.formList.DepartmentName = data.Name;
+                                    }
+                                }
+                            });
+                        },
+                        //保存
+                        save: function () {
+                            fnr.callDialog('refresh', this.formList)
+                            fnr.closeDialog()
+                        }
+                    },
+                });
+            });
+    </script>
+</body>
+</html>

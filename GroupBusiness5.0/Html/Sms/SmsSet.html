@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>短信设置</title>
+    <style>
+        .input_css {
+            border: solid 1px #D3D3D3;
+            height: 20px;
+            width: 100px;
+            text-align: center;
+        }
+
+        .table_css {
+            border: solid 1px #D3D3D3;
+            width: 100%
+        }
+
+        .table_css2 {
+            border: solid 1px #D3D3D3;
+            border-top: 0px;
+            border-bottom: 0px;
+            width: 100%
+        }
+
+        .td_css1 {
+            width: 25%;
+            padding: 18px
+        }
+
+        .td_css2 {
+            width: 15%;
+            text-align: right;
+            border-right: solid 1px #D3D3D3;
+            padding-right: 20px;
+        }
+
+        .td_css3 {
+            padding: 15px
+        }
+
+        .td_css4 {
+            padding: 10px
+        }
+
+        [v-cloak] {
+            display: none
+        }
+    </style>
+</head>
+<body id="root" v-cloak>
+    <div class="mainContainer">
+        <!--<blockquote class="layui-elem-quote">
+            <div class="layui-row layui-form">
+                短信设置
+            </div>
+        </blockquote>-->
+        <div class="layui-row">
+            <div class="layui-tab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">签名设置</li>
+                    <li>限额配置</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show" style="padding-left:10px">
+                        <p>说明：</p>
+                        <p>1、短信签名是由国家工信部规定，附加在短信内容前的标识，用于标识公司或业务；</p>
+                        <p>2、短信签名内容要求2-10个字（由中英文，数字组成，不能包含其他特殊字符，如"+,@,|"等）,例如：爱客CRM；</p>
+                        <p>3、短信签名修改后会在1个工作日内审核后生效；等待审核期间，发送短信仍然使用原来的短信签名；</p>
+                        <p>4、一个企业用户仅支持一个短信签名。</p>
+                        <br />
+                        <br />
+                        <span style="color:#00BFFF">短信签名：</span>&nbsp;<span>{{signName}}</span><span id="changeSign" style="cursor:pointer" @click="changeSign" @mouseenter="tipSign">&nbsp;&nbsp;<i class="layui-icon" style="color:#00BFFF">&#xe639;</i> </span>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div class="layui-form">
+                            <div class="layui-bg-gray">
+                                <table>
+                                    <tr>
+                                        <td style="padding:0px 15px 8px 15px">
+                                            <input type="checkbox" v-bind:checked="SetOpen" lay-skin="switch" lay-filter="switchTest" lay-text="开启|禁用">
+                                        </td>
+                                        <td style="border-left:solid 1px #D3D3D3;padding-left:20px">
+                                            限制每个员工每月发送短信的额度
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br />
+                            <br />
+                            <table class="table_css">
+                                <tr>
+                                    <td class="td_css1">
+                                        全员每月默认配额：
+                                    </td>
+                                    <td class="td_css2">
+                                        <input type="number" name="title" v-model="queryFormData.Number" placeholder="配额数"
+                                               autofocus="autofocus" autocomplete="off" class="input_css">&nbsp;条
+                                    </td>
+                                    <td class="td_css3">
+                                        此规则针对：所有员工（特殊员工和超级管理员除外）
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="table_css2">
+                                <tr v-for="(index, item) in QuotaDetailData">
+                                    <td class="td_css1" style="border-bottom: solid 1px #D3D3D3;">
+                                        特殊员工限额：
+                                    </td>
+                                    <td class="td_css2" style="border-bottom: solid 1px #D3D3D3;">
+                                        <input type="number" name="title" v-model="item.Number" placeholder="配额数" autofocus="autofocus" autocomplete="off" class="input_css">&nbsp;条
+                                    </td>
+                                    <td class="td_css4" style="border-bottom: solid 1px #D3D3D3;">
+                                        此规则针对：
+                                        <remote-sel2 v-bind:setting="AccountSetting" laytips="" v-bind:value.sync="item.AccountIDs" initial="off"></remote-sel2>
+                                        <span style="float:right">
+                                            <button class="layui-btn layui-btn-danger" lay-submit @click="DeleteQuota(item.Number)" style="height:25px;line-height:10px">删除</button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                            <br />
+                            <div>
+                                <div style="float:left">
+                                    <button class="layui-btn" lay-submit @click="AddQuotaDetail" style="height:25px;line-height:10px">新增特殊员工</button>
+                                </div>
+                                <div style="float:right;padding-right:10px;">
+                                    <button class="layui-btn" lay-submit @click="SaveAll" style="height:25px;line-height:10px">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/vue/vue.min.js"></script>
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/layui.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/layui.css" rel="stylesheet" />
+<script src="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/require_config.js"></script>
+<link href="https://bbsresources.oss-cn-hangzhou.aliyuncs.com/js/modules/layer/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #C9C9C9 !important;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e6e6e6 !important;
+        line-height: 18px;
+    }
+</style>
+<script>
+    require_js_file(["table", "form", "jquery", "tableExt", "element", "linq", "select2"],
+        function (fnr) {
+            var form = layui.form;
+            var $ = layui.$;
+            var element = layui.element;
+            var linq = layui.linq;
+            form.on('switch(switchTest)', function (data) {
+                var valid = Number(this.checked);
+                window.rootApp.SetOpen = valid;
+                $.post("/service/hr/Sms/SetQuotaValid", { Valid: valid }, function (rsp) {
+                    if (rsp.SuccessResponse) {
+                        if (valid == 1) {
+                            layer.msg("已开启");
+                        } else {
+                            layer.msg("已禁用");
+                        }
+                    } else {
+                        layer.msg(rsp.Message);
+                    }
+                });
+            });
+            window.rootApp = new Vue({
+                el: "#root",
+                data: {
+                    tipMsg: '申请短信签名',
+                    signName: '',
+                    SetOpen: 0,
+                    queryFormData: {
+                        AccountIDs: [],
+                        Number: 500,
+                    },
+                    AccountSetting: {
+                        search: true,
+                        options: [],
+                        fields: { root: 'Data', key: 'Account_ID', value: 'Name' },
+                        remote: { url: "/service/hr/Station/GetListStationAccount?PageStatus=0", options: { method: 'get' } },
+                        sel2Opts: {
+                            width: "70%",
+                            multiple: true
+                        }
+                    },
+                    QuotaDetailData: [],//特殊员工配额
+                },
+                ready: function () {
+                    //加载签名设置
+                    this.LoadSignature();
+
+                    //加载默认限额配置
+                    this.LoadQuota();
+
+                    //特殊员工配额
+                    this.LoadQuotaDetail();
+                },
+                methods: {
+                    //加载签名设置
+                    LoadSignature: function () {
+                        var self = this;
+                        //加载签名设置
+                        $.get("/service/hr/Sms/GetSignature", function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                if (rsp.Data) {
+                                    self.signName = rsp.Data.Name;
+                                    self.tipMsg = "签名变更申请";
+                                }
+                            }
+                            else {
+                                layer.msg(rsp.Message);
+                            }
+                        });
+
+                    },
+                    //加载默认限额配置
+                    LoadQuota: function () {
+                        var self = this;
+                        $.get("/service/hr/Sms/GetQuota", function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                if (rsp.Data) {
+                                    self.queryFormData.Number = rsp.Data.Number;
+                                    self.SetOpen = rsp.Data.Valid;
+                                    self.$nextTick(function () {
+                                        form.render('checkbox');
+                                    })
+                                }
+                            }
+                            else {
+                                layer.msg(rsp.Message);
+                            }
+                        });
+                    },
+                    //加载特殊员工配额
+                    LoadQuotaDetail: function () {
+                        var self = this;
+                        $.get("/service/hr/Sms/GetQuotaDetail", function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                if (rsp.Data) {
+                                    self.QuotaDetailData = rsp.Data;
+                                }
+                            }
+                            else {
+                                layer.msg(rsp.Message);
+                            }
+                        });
+                    },
+                    //变更签名
+                    changeSign: function () {
+                        var self = this;
+                        fnr.openDialog({
+                            title: self.tipMsg,
+                            area: ['550px', '300px'],
+                            content: ['./UpdateSign.html?refName=' + self.signName],
+                            btn: ['确定'],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+                            },
+                            events: {
+                                refresh: function (data) {
+                                    if (data) {
+                                        layer.msg("申请成功，请等待审核!");
+                                    }
+                                }
+                            },
+                        });
+                    },
+                    //悬停提醒
+                    tipSign: function () {
+                        var self = this;
+                        layer.tips(self.tipMsg, '#changeSign', {
+                            tips: [3, '#00BFFF'],
+                            tipsMore: false,
+                            time: 1500
+                        });
+                    },
+                    SaveAll: function () {
+                        var self = this;
+                        var valid = self.SetOpen;
+                        $.post("/service/hr/Sms/SetQuota", { Valid: valid, Number: self.queryFormData.Number }, function (rsp) {
+                            if (rsp.SuccessResponse) {
+                                if (self.QuotaDetailData != null) {
+                                    //保存默认配额
+                                    $.ajax({
+                                        url: "/service/hr/Sms/SaveQuotaDetail",
+                                        data: JSON.stringify(self.QuotaDetailData),
+                                        contentType: "application/json",
+                                        dataType: 'json',
+                                        type: "post",
+                                        success: function (res) {
+                                            if (res.SuccessResponse) {
+                                                layer.msg("保存成功！");
+                                            } else {
+                                                layer.msg(res.Message);
+                                            }
+                                        }
+                                    });
+                                }
+                                else {
+                                    layer.msg("保存成功！");
+                                }
+                            } else {
+                                layer.msg(rsp.Message);
+                            }
+                        });
+                    },
+                    //添加特殊员工
+                    AddQuotaDetail: function () {
+                        var self = this;
+                        fnr.openDialog({
+                            title: "新增特殊员工",
+                            area: ['650px', '420px'],
+                            content: ['./AddQuotaDetail.html'],
+                            btn: ['确定'],
+                            yes: function (index, layero) {
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                $(iframeWin.document).find(".layui-btn").click();
+                            },
+                            events: {
+                                refresh: function () {
+                                    self.LoadQuotaDetail();
+                                    layer.msg("新增成功");
+                                }
+                            },
+                        });
+                    },
+                    //删除特殊员工
+                    DeleteQuota: function (number) {
+                        var self = this;
+                        layer.confirm('确认要删除么?', { icon: 3, title: '提示' }, function (index) {
+                            $.post("/service/hr/Sms/DeleteQuotaDetail", { Number: number }, function (res) {
+                                if (res.SuccessResponse) {
+                                    self.LoadQuotaDetail();
+                                    layer.msg("删除成功！");
+                                }
+                                else {
+                                    layer.msg(res.Message)
+                                }
+                            });
+                            layer.close(index);
+                        });
+                    },
+                }
+            });
+        });
+</script>
